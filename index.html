@@ -598,7 +598,7 @@
   </div>
   <div class="result-actions">
     <button class="btn-primary" onclick="goTo('landing')">重新测试</button>
-    <button class="btn-secondary" onclick="openAdminModal()">会员激活码入口</button>
+    <button class="btn-secondary" onclick="openAdminModal()">查看后台数据</button>
   </div>
 </div>
 
@@ -607,7 +607,7 @@
   <div class="admin-header">
     <div>
       <h2>会员通道</h2>
-      <p>查看自己的答题记录与得分分析</p>
+      <p>查看大家的答题记录与得分分析</p>
     </div>
     <div style="display:flex;gap:10px;align-items:center">
       <button class="export-btn" onclick="exportCSV()">导出 CSV</button>
@@ -638,6 +638,10 @@
 </div>
 
 </div><!-- /container -->
+
+<!-- 🔥 必须先引入Firebase库 🔥 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
 // ─── QUESTIONS DATA (145 questions across 7 sections) ───
@@ -828,14 +832,41 @@ let answers = new Array(TOTAL_Q).fill(null);
 let userInfo = {};
 let adminUnlocked = false;
 
+// ─── FIREBASE 初始化 ───
+const firebaseConfig = {
+  apiKey: "AIzaSyA1JSzvXczTy6NTvFLm-nuYCFLwevfouso",
+  authDomain: "mbtidog.firebaseapp.com",
+  databaseURL: "https://mbtidog-default-rtdb.firebaseio.com",
+  projectId: "mbtidog",
+  storageBucket: "mbtidog.firebasestorage.app",
+  messagingSenderId: "324930055379",
+  appId: "1:324930055379:web:73c4446ac3ef1d17e6b826"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 // ─── STORAGE ───
-function getRecords() {
+let cloudRecords = []; // 用于在后台存放从云端拉取的数据
+
+// 保存数据到云端 (同时保留本地备份防止断网)
+function saveRecord(rec) {
+  // 1. 存入 Firebase 实时数据库
+  db.ref('quiz_records/' + rec.id).set(rec).catch(err => {
+    console.error("云端保存失败:", err);
+  });
+  
+  // 2. 依然保留一份在本地
+  const localRecords = getRecordsLocal();
+  localRecords.push(rec);
+  localStorage.setItem('quiz_records', JSON.stringify(localRecords));
+}
+
+function getRecordsLocal() {
   try { return JSON.parse(localStorage.getItem('quiz_records') || '[]'); } catch(e) { return []; }
 }
-function saveRecord(rec) {
-  const records = getRecords();
-  records.push(rec);
-  localStorage.setItem('quiz_records', JSON.stringify(records));
+
+function getRecords() {
+  return cloudRecords.length > 0 ? cloudRecords : getRecordsLocal();
 }
 
 // ─── NAVIGATION ───
@@ -854,13 +885,26 @@ function openAdminModal() {
 function closeAdminModal() {
   document.getElementById('modal-admin').classList.remove('show');
 }
+
 function verifyAdmin() {
   const pass = document.getElementById('admin-pass-input').value;
   if (pass === '2681825504') {
     adminUnlocked = true;
     closeAdminModal();
     goTo('admin');
-    renderAdmin();
+    
+    // 显示加载提示
+    document.getElementById('respondent-list').innerHTML = '<div class="no-data" style="color:var(--accent);">正在从云端拉取朋友们的测试数据，请稍候...</div>';
+    
+    // 从 Firebase 拉取数据
+    db.ref('quiz_records').once('value').then((snapshot) => {
+      const data = snapshot.val();
+      cloudRecords = data ? Object.values(data) : [];
+      renderAdmin(); 
+    }).catch((error) => {
+      console.error("拉取失败:", error);
+      document.getElementById('respondent-list').innerHTML = '<div class="no-data" style="color:var(--danger)">云端数据拉取失败，请检查网络或 Firebase 是否已设为测试模式。</div>';
+    });
   } else {
     document.getElementById('admin-pass-input').style.borderColor = 'var(--danger)';
     setTimeout(() => document.getElementById('admin-pass-input').style.borderColor = '', 1000);
@@ -1569,7 +1613,7 @@ function showResult(rec) {
 
 // ─── ADMIN ───
 function renderAdmin() {
-  const records = getRecords();
+  const records = cloudRecords; // 从云端拿到的数据
   const filterName = document.getElementById('filter-name').value.toLowerCase();
   const filterType = document.getElementById('filter-type').value;
   const filterDark = document.getElementById('filter-dark').value;
@@ -1759,9 +1803,6 @@ function exportCSV() {
   a.download = 'mbti_dark_quiz_' + Date.now() + '.csv';
   a.click();
 }
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
 </script>
 </body>
 </html>
