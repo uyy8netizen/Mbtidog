@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBTI 阴暗面 · 忠诚度深度测试</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: rgba(180,140,255,0.15);
+    --accent: #b48cff;
+    --accent2: #ff6b9d;
+    --accent3: #ffd166;
+    --text: #e8e0f0;
+    --text-muted: #9090b0;
+    --danger: #ff4757;
+    --success: #2ed573;
+  }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .noise {
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.4;
+  }
+
+  .container { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── LANDING ── */
+  #screen-landing { text-align: center; padding-top: 80px; }
+
+  .eyebrow {
+    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 24px; font-weight: 500;
+  }
+
+  h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 700; line-height: 1.2;
+    background: linear-gradient(135deg, #b48cff, #ff6b9d, #ffd166);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+  }
+
+  .subtitle {
+    font-size: 15px; color: var(--text-muted); line-height: 1.8;
+    max-width: 480px; margin: 0 auto 40px;
+  }
+
+  .meta-tags { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+  .tag {
+    font-size: 12px; padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px; color: var(--text-muted);
+    background: var(--surface);
+  }
+
+  .btn-primary {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 16px; font-weight: 600;
+    padding: 16px 48px;
+    background: linear-gradient(135deg, #7c4dff, #b048d6);
+    border: none; border-radius: 8px;
+    color: white; cursor: pointer;
+    transition: all 0.2s; display: inline-block;
+    box-shadow: 0 0 40px rgba(180,140,255,0.2);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(180,140,255,0.35); }
+
+  .btn-secondary {
+    font-size: 14px; padding: 10px 24px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text-muted); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .landing-footer { margin-top: 24px; display: flex; gap: 16px; justify-content: center; align-items: center; flex-wrap: wrap; }
+
+  /* ── USER INFO ── */
+  #screen-userinfo { padding-top: 60px; max-width: 480px; margin: 0 auto; }
+  #screen-userinfo h2 { font-family: 'Noto Serif SC', serif; font-size: 24px; margin-bottom: 8px; }
+  #screen-userinfo p { color: var(--text-muted); font-size: 14px; margin-bottom: 32px; line-height: 1.7; }
+
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 12px 16px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 14px;
+    outline: none; transition: border-color 0.2s;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+  .form-group select option { background: #1a1a26; }
+
+  /* ── QUIZ ── */
+  #screen-quiz { padding-top: 40px; }
+
+  .progress-bar-wrap {
+    background: var(--surface2); height: 3px; border-radius: 3px;
+    margin-bottom: 8px; overflow: hidden;
+  }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, #7c4dff, #ff6b9d); transition: width 0.4s; }
+
+  .progress-text {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--text-muted); margin-bottom: 36px;
+  }
+
+  .section-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 20px;
+    margin-bottom: 20px; font-weight: 500;
+  }
+  .section-badge.mbti { background: rgba(124,77,255,0.15); color: #b48cff; border: 1px solid rgba(124,77,255,0.3); }
+  .section-badge.ambition { background: rgba(255,107,157,0.12); color: #ff6b9d; border: 1px solid rgba(255,107,157,0.3); }
+  .section-badge.dark { background: rgba(255,71,87,0.12); color: #ff4757; border: 1px solid rgba(255,71,87,0.3); }
+  .section-badge.desire { background: rgba(255,209,102,0.12); color: #ffd166; border: 1px solid rgba(255,209,102,0.3); }
+  .section-badge.loyalty  { background: rgba(255,133,161,0.12); color: #ff85a1; border: 1px solid rgba(255,133,161,0.4); }
+  .section-badge.loyalty2 { background: rgba(192,132,252,0.12); color: #c084fc; border: 1px solid rgba(192,132,252,0.4); }
+  .section-badge.loyalty3 { background: rgba(103,232,249,0.12); color: #67e8f9; border: 1px solid rgba(103,232,249,0.4); }
+
+  .question-num { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+
+  .question-text {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 19px; line-height: 1.7; font-weight: 400;
+    margin-bottom: 32px; color: var(--text);
+  }
+
+  .options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
+
+  .option {
+    padding: 16px 20px; border: 1px solid var(--border);
+    border-radius: 10px; cursor: pointer; background: var(--surface);
+    font-size: 14px; line-height: 1.6; color: var(--text-muted);
+    transition: all 0.15s; position: relative; overflow: hidden;
+  }
+  .option:hover { border-color: var(--accent); color: var(--text); background: var(--surface2); }
+  .option.selected { border-color: var(--accent); background: rgba(124,77,255,0.1); color: var(--text); }
+  .option.selected::before {
+    content: '✓'; position: absolute; right: 16px; top: 50%;
+    transform: translateY(-50%); color: var(--accent); font-size: 14px;
+  }
+
+  .quiz-nav { display: flex; gap: 12px; align-items: center; }
+  .btn-nav {
+    padding: 12px 28px; border-radius: 8px; cursor: pointer;
+    font-size: 14px; transition: all 0.2s;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+  .btn-next {
+    background: linear-gradient(135deg, #7c4dff, #b048d6);
+    border: none; color: white; flex: 1;
+  }
+  .btn-next:hover { opacity: 0.9; }
+  .btn-next:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn-prev {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn-prev:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── RESULT ── */
+  #screen-result { padding-top: 60px; }
+
+  .result-header { text-align: center; margin-bottom: 48px; }
+  .mbti-type {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 64px; font-weight: 700;
+    background: linear-gradient(135deg, #b48cff, #ff6b9d);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 8px; letter-spacing: 4px;
+  }
+  .mbti-desc { font-size: 18px; color: var(--text-muted); margin-bottom: 24px; }
+
+  .score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px; }
+  @media (max-width: 480px) { .score-grid { grid-template-columns: 1fr; } }
+
+  .score-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+  }
+  .score-card-label { font-size: 12px; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; }
+  .score-card-value { font-family: 'Noto Serif SC', serif; font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+  .score-bar-wrap { background: var(--surface2); height: 4px; border-radius: 4px; }
+  .score-bar { height: 100%; border-radius: 4px; transition: width 1s; }
+
+  .traits-section { margin-bottom: 32px; }
+  .traits-section h3 { font-family: 'Noto Serif SC', serif; font-size: 16px; margin-bottom: 16px; color: var(--text-muted); }
+  .traits { display: flex; flex-wrap: wrap; gap: 8px; }
+  .trait-tag {
+    padding: 6px 14px; border-radius: 20px; font-size: 13px;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted);
+  }
+
+  .result-desc {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; margin-bottom: 32px;
+    font-size: 14px; line-height: 1.9; color: var(--text-muted);
+  }
+
+  .result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  /* ── ADMIN ── */
+  #screen-admin { padding-top: 40px; }
+
+  .admin-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+  .admin-header h2 { font-family: 'Noto Serif SC', serif; font-size: 24px; }
+  .admin-header p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
+  @media (max-width: 480px) { .stats-row { grid-template-columns: 1fr 1fr; } }
+
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px;
+  }
+  .stat-card .num { font-size: 28px; font-weight: 600; font-family: 'Noto Serif SC', serif; margin-bottom: 4px; }
+  .stat-card .lbl { font-size: 12px; color: var(--text-muted); }
+
+  .filter-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-row input, .filter-row select {
+    padding: 8px 14px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-size: 13px; outline: none;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+
+  .respondent-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .respondent-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .respondent-header {
+    padding: 14px 18px; display: flex; align-items: center;
+    gap: 12px; cursor: pointer; transition: background 0.15s;
+  }
+  .respondent-header:hover { background: var(--surface2); }
+
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(124,77,255,0.3), rgba(176,72,214,0.3));
+    color: var(--accent);
+  }
+
+  .respondent-info { flex: 1; }
+  .respondent-name { font-size: 14px; font-weight: 500; }
+  .respondent-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .respondent-scores { display: flex; gap: 12px; align-items: center; }
+  .score-pill {
+    font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 500;
+  }
+  .score-pill.type { background: rgba(124,77,255,0.15); color: var(--accent); }
+  .score-pill.high { background: rgba(255,71,87,0.15); color: var(--danger); }
+  .score-pill.mid { background: rgba(255,209,102,0.15); color: var(--accent3); }
+  .score-pill.low { background: rgba(46,213,115,0.15); color: var(--success); }
+
+  .expand-arrow { font-size: 12px; color: var(--text-muted); transition: transform 0.2s; }
+  .respondent-card.open .expand-arrow { transform: rotate(180deg); }
+
+  .respondent-detail { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
+  .respondent-card.open .respondent-detail { display: block; }
+
+  .detail-tabs { display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
+  .detail-tab {
+    font-size: 12px; padding: 5px 14px; border-radius: 20px; cursor: pointer;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .detail-tab.active { background: rgba(124,77,255,0.2); border-color: var(--accent); color: var(--accent); }
+
+  .answers-grid { display: flex; flex-direction: column; gap: 8px; }
+  .answer-row {
+    background: var(--surface2); border-radius: 6px;
+    padding: 10px 14px; font-size: 13px; line-height: 1.6;
+  }
+  .answer-q { color: var(--text-muted); margin-bottom: 4px; font-size: 12px; }
+  .answer-a { color: var(--text); }
+  .answer-score { font-size: 11px; color: var(--accent); margin-top: 2px; }
+
+  .no-data { text-align: center; padding: 60px; color: var(--text-muted); font-size: 14px; }
+
+  .export-btn {
+    font-size: 13px; padding: 8px 18px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+  }
+  .export-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .admin-pass-form {
+    max-width: 360px; margin: 80px auto; text-align: center;
+  }
+  .admin-pass-form h2 { font-family: 'Noto Serif SC', serif; font-size: 22px; margin-bottom: 8px; }
+  .admin-pass-form p { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+
+  /* ── PASSWORD MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 32px; max-width: 360px; width: 90%;
+  }
+  .modal h3 { font-family: 'Noto Serif SC', serif; font-size: 20px; margin-bottom: 8px; }
+  .modal p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+  .modal input {
+    width: 100%; padding: 12px 16px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+    font-size: 14px; outline: none; margin-bottom: 16px;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+  .modal-actions { display: flex; gap: 10px; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .chart-bar-row { margin-bottom: 12px; }
+  .chart-bar-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .chart-bar-bg { background: var(--surface2); height: 8px; border-radius: 4px; overflow: hidden; }
+  .chart-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #7c4dff, #ff6b9d); }
+
+  .dim-chart { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .dim-item { background: var(--surface2); border-radius: 8px; padding: 14px; }
+  .dim-label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+  .dim-value { font-size: 20px; font-weight: 600; color: var(--accent); }
+  .dim-desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* ── PERSONALITY RESULT CARD ── */
+  .result-hero { display:flex; flex-direction:column; align-items:center; margin-bottom:40px; }
+
+  .personality-card {
+    width:100%; max-width:420px;
+    border-radius:24px; overflow:hidden;
+    position:relative; margin-bottom:28px;
+    box-shadow: 0 0 80px rgba(180,140,255,0.25), 0 30px 60px rgba(0,0,0,0.6);
+    animation: cardReveal 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards, glowPulse 3s ease-in-out infinite;
+  }
+  .personality-card-bg { position:absolute; inset:0; z-index:0; }
+  .personality-card-content {
+    position:relative; z-index:1;
+    padding:36px 32px 32px;
+    display:flex; flex-direction:column; align-items:center;
+    min-height:400px;
+  }
+  .card-eyebrow { font-size:10px; letter-spacing:4px; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:20px; }
+  .personality-avatar { width:160px; height:160px; margin-bottom:20px; }
+  .card-type-label {
+    font-family:'Noto Serif SC',serif;
+    font-size:52px; font-weight:700; color:white;
+    letter-spacing:6px; text-shadow:0 0 40px rgba(255,255,255,0.3);
+    margin-bottom:4px; line-height:1;
+  }
+  .card-archetype { font-family:'Noto Serif SC',serif; font-size:20px; color:rgba(255,255,255,0.85); margin-bottom:6px; letter-spacing:2px; }
+  .card-tagline { font-size:12px; color:rgba(255,255,255,0.5); text-align:center; line-height:1.7; max-width:280px; }
+  .card-bottom-badges { display:flex; gap:8px; margin-top:20px; flex-wrap:wrap; justify-content:center; }
+  .card-badge { font-size:11px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.08); }
+
+  /* Loyalty card */
+  .loyalty-result-card {
+    background:var(--surface); border:1px solid rgba(255,133,161,0.3);
+    border-radius:16px; padding:24px; margin-bottom:32px;
+    position:relative; overflow:hidden;
+  }
+  .loyalty-result-card::before { content:'💕'; position:absolute; right:20px; top:16px; font-size:32px; opacity:0.2; }
+  .loyalty-result-title { font-family:'Noto Serif SC',serif; font-size:16px; color:#ff85a1; margin-bottom:6px; }
+  .loyalty-level {
+    font-family:'Noto Serif SC',serif; font-size:26px; font-weight:700;
+    background:linear-gradient(135deg,#ff85a1,#ffd166);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    margin-bottom:10px;
+  }
+  .loyalty-desc { font-size:13px; color:var(--text-muted); line-height:1.8; }
+
+  /* Score pill for loyalty */
+  .score-pill.loyalty-pill { background:rgba(255,133,161,0.15); color:#ff85a1; }
+
+  
+  /* ── DOG BREED CARD ── */
+  .dog-card {
+    width: 100%; max-width: 420px; border-radius: 24px; overflow: hidden;
+    position: relative; margin: 0 auto 28px; cursor: default;
+    box-shadow: 0 0 60px rgba(255,180,100,0.2), 0 20px 50px rgba(0,0,0,0.5);
+    animation: cardReveal 0.7s 0.15s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  .dog-card-inner {
+    position: relative; z-index: 1; padding: 32px 28px 28px;
+    display: flex; flex-direction: column; align-items: center; min-height: 380px;
+    background: linear-gradient(160deg, #1a1006 0%, #2d1e08 40%, #1a0f0a 100%);
+  }
+  .dog-card-eyebrow {
+    font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+    color: rgba(255,200,120,0.5); margin-bottom: 16px;
+  }
+  .dog-svg-wrap { width: 160px; height: 160px; margin-bottom: 18px; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.5)); }
+  .dog-breed-name {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 30px; font-weight: 700; color: #ffd580;
+    letter-spacing: 2px; margin-bottom: 4px; text-shadow: 0 0 30px rgba(255,213,128,0.4);
+  }
+  .dog-breed-sub { font-size: 13px; color: rgba(255,200,120,0.6); margin-bottom: 14px; }
+  .dog-traits-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .dog-trait-pill {
+    font-size: 11px; padding: 4px 12px; border-radius: 20px;
+    background: rgba(255,213,128,0.1); border: 1px solid rgba(255,213,128,0.25);
+    color: rgba(255,213,128,0.8);
+  }
+  .dog-desc-card {
+    background: var(--surface); border: 1px solid rgba(255,180,80,0.2);
+    border-radius: 16px; padding: 22px; margin-bottom: 32px;
+    position: relative; overflow: hidden;
+  }
+  .dog-desc-card::before { content:'🐾'; position:absolute; right:18px; top:14px; font-size:28px; opacity:0.15; }
+  .dog-desc-title { font-family:'Noto Serif SC',serif; font-size:15px; color:#ffd580; margin-bottom:8px; }
+  .dog-desc-text { font-size:13px; color:var(--text-muted); line-height:1.85; }
+
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes cardReveal { from{opacity:0;transform:scale(0.92) translateY(30px)} to{opacity:1;transform:scale(1) translateY(0)} }
+  @keyframes glowPulse { 0%,100%{box-shadow:0 0 60px rgba(180,140,255,0.2),0 30px 60px rgba(0,0,0,0.6)} 50%{box-shadow:0 0 100px rgba(180,140,255,0.4),0 30px 60px rgba(0,0,0,0.6)} }
+
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<!-- MODAL: Admin Password -->
+<div class="modal-overlay" id="modal-admin">
+  <div class="modal">
+    <h3>会员入口</h3>
+    <p>输入会员激活码。</p>
+    <input type="password" id="admin-pass-input" placeholder="请输入激活码" />
+    <div class="modal-actions">
+      <button class="btn-secondary" style="flex:1" onclick="closeAdminModal()">取消</button>
+      <button class="btn-primary" style="flex:2;padding:10px 0" onclick="verifyAdmin()">进入通道</button>
+    </div>
+    <p style="font-size:11px;color:var(--text-muted);margin-top:12px;text-align:center">示例码：admin2024</p>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ══ SCREEN: LANDING ══ -->
+<div class="screen active" id="screen-landing">
+  <div class="eyebrow">心理测评 · 阴暗面 · 忠诚度探索</div>
+  <h1>MBTI <br>灵魂犬种深度测试</h1>
+  <p class="subtitle">145道精心设计的问题，探索你的人格类型、野心边界、内心欲望与爱情中真实的忠诚指数。</p>
+  <div class="meta-tags">
+    <span class="tag">145 道题目</span>
+    <span class="tag">5 个维度</span>
+    <span class="tag">约 25-30 分钟</span>
+    <span class="tag">含忠诚度匹配灵魂犬种测试</span>
+    <span class="tag">免费参与</span>
+  </div>
+  <button class="btn-primary" onclick="goTo('userinfo')">开始测试</button>
+  <div class="landing-footer">
+    <button class="btn-secondary" onclick="openAdminModal()">会员测试入口 →</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN: USER INFO ══ -->
+<div class="screen" id="screen-userinfo">
+  <h2>基本信息</h2>
+  <p>这些信息用于深度测试，不会关联到你的个人身份。请如实填写。</p>
+  <div class="form-group">
+    <label>昵称 / 网名（如XXX）</label>
+    <input type="text" id="user-name" placeholder="例如：小明 XM..." />
+  </div>
+  <div class="form-group">
+    <label>年龄段（无未成年防护，可如实填写）</label>
+    <select id="user-age">
+      <option value="">请选择</option>
+      <option>12岁以下</option>
+      <option>12-16岁</option>
+      <option>16-18岁</option>
+      <option>18-25岁</option>
+      <option>25-35岁</option>
+      <option>35岁以上</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>性别认同</label>
+    <select id="user-gender">
+      <option value="">请选择</option>
+      <option>男性</option>
+      <option>女性</option>
+      <option>非二元</option>
+      <option>不想透露</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>你已知的 MBTI 类型（若有）</label>
+    <select id="user-known-mbti">
+      <option value="">不确定 / 未测过</option>
+      <option>INTJ</option><option>INTP</option><option>ENTJ</option><option>ENTP</option>
+      <option>INFJ</option><option>INFP</option><option>ENFJ</option><option>ENFP</option>
+      <option>ISTJ</option><option>ISFJ</option><option>ESTJ</option><option>ESFJ</option>
+      <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
+    </select>
+  </div>
+  <div style="display:flex;gap:12px;margin-top:8px">
+    <button class="btn-secondary" onclick="goTo('landing')">← 返回</button>
+    <button class="btn-primary" style="padding:14px 36px" onclick="startQuiz()">继续 →</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN: QUIZ ══ -->
+<div class="screen" id="screen-quiz">
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  <div class="progress-text">
+    <span id="progress-label">题目 1 / 145</span>
+    <span id="section-label">第一部分</span>
+  </div>
+  <div class="section-badge" id="section-badge">MBTI 基础维度</div>
+  <div class="question-num" id="q-num">Q1</div>
+  <div class="question-text" id="q-text"></div>
+  <div class="options" id="q-options"></div>
+  <div class="quiz-nav">
+    <button class="btn-nav btn-prev" onclick="prevQ()">← 上一题</button>
+    <button class="btn-nav btn-next" id="btn-next" onclick="nextQ()" disabled>下一题 →</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN: RESULT ══ -->
+<div class="screen" id="screen-result">
+  <!-- HERO PERSONALITY CARD -->
+  <div class="result-hero">
+    <div class="personality-card" id="personality-card">
+      <div class="personality-card-bg" id="card-bg"></div>
+      <div class="personality-card-content">
+        <div class="card-eyebrow">PERSONALITY ARCHETYPE</div>
+        <div class="personality-avatar" id="personality-avatar"></div>
+        <div class="card-type-label" id="card-type-label">ENFP</div>
+        <div class="card-archetype" id="card-archetype">活动家</div>
+        <div class="card-tagline" id="card-tagline">热情的梦想家</div>
+        <div class="card-bottom-badges" id="card-bottom-badges"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOG BREED CARD -->
+  <div class="dog-card" id="dog-card">
+    <div class="dog-card-inner">
+      <div class="dog-card-eyebrow">YOUR INNER DOG · 灵魂犬系</div>
+      <div class="dog-svg-wrap" id="dog-svg"></div>
+      <div class="dog-breed-name" id="dog-breed-name">柴犬</div>
+      <div class="dog-breed-sub" id="dog-breed-sub">独立而深情的灵魂</div>
+      <div class="dog-traits-row" id="dog-traits-row"></div>
+    </div>
+  </div>
+  <div class="dog-desc-card">
+    <div class="dog-desc-title" id="dog-desc-title">🐶 你的灵魂犬系</div>
+    <div class="dog-desc-text" id="dog-desc-text"></div>
+  </div>
+
+  <!-- LOYALTY RESULT -->
+  <div class="loyalty-result-card">
+    <div class="loyalty-result-title">💕 忠诚度 &amp; 多情指数</div>
+    <div class="loyalty-level" id="loyalty-level-text">—</div>
+    <div class="loyalty-desc" id="loyalty-desc-text">—</div>
+  </div>
+
+  <div class="score-grid" id="score-grid"></div>
+  <div class="result-desc" id="result-full-desc"></div>
+  <div class="traits-section">
+    <h3>你的核心特质</h3>
+    <div class="traits" id="result-traits"></div>
+  </div>
+  <div class="traits-section">
+    <h3>阴暗面警示</h3>
+    <div class="traits" id="result-shadows"></div>
+  </div>
+  <div class="result-actions">
+    <button class="btn-primary" onclick="goTo('landing')">重新测试</button>
+    <button class="btn-secondary" onclick="openAdminModal()">会员激活码入口</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN: ADMIN ══ -->
+<div class="screen" id="screen-admin">
+  <div class="admin-header">
+    <div>
+      <h2>会员通道</h2>
+      <p>查看自己的答题记录与得分分析</p>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="export-btn" onclick="exportCSV()">导出 CSV</button>
+      <button class="btn-secondary" onclick="goTo('landing')">退出</button>
+    </div>
+  </div>
+
+  <div class="stats-row" id="admin-stats"></div>
+
+  <div style="margin-bottom:16px">
+    <div class="filter-row">
+      <input type="text" id="filter-name" placeholder="搜索昵称..." oninput="renderAdmin()" style="flex:1;min-width:120px">
+      <select id="filter-type" onchange="renderAdmin()">
+        <option value="">所有 MBTI</option>
+        <option>INTJ</option><option>INTP</option><option>ENTJ</option><option>ENTP</option>
+        <option>INFJ</option><option>INFP</option><option>ENFJ</option><option>ENFP</option>
+        <option>ISTJ</option><option>ISFJ</option><option>ESTJ</option><option>ESFJ</option>
+        <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
+      </select>
+      <select id="filter-dark" onchange="renderAdmin()">
+        <option value="">所有阴暗面等级</option>
+        <option>高</option><option>中</option><option>低</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="respondent-list" id="respondent-list"></div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ─── QUESTIONS DATA (145 questions across 7 sections) ───
+const SECTIONS = [
+  { id: 'mbti',     label: 'MBTI 基础维度',      badge: 'mbti',     range: [0,   39],  color: '#b48cff' },
+  { id: 'ambition', label: '野心与成就欲',        badge: 'ambition', range: [40,  59],  color: '#ff6b9d' },
+  { id: 'dark',     label: '阴暗面探索',          badge: 'dark',     range: [60,  79],  color: '#ff4757' },
+  { id: 'desire',   label: '欲望与本我',          badge: 'desire',   range: [80,  99],  color: '#ffd166' },
+  // ── The next 3 sections are ALL loyalty, disguised under different labels ──
+  { id: 'loyalty',  label: '灵魂犬系契合度校准',  badge: 'loyalty',  range: [100, 119], color: '#ff85a1' },
+  { id: 'loyalty2', label: '情感能量场深度分析',  badge: 'loyalty2', range: [120, 134], color: '#c084fc' },
+  { id: 'loyalty3', label: '直觉行为解码',        badge: 'loyalty3', range: [135, 144], color: '#67e8f9' },
+];
+
+const QUESTIONS = [
+// ─── SECTION 1: MBTI (Q1-40) ───
+// E/I dimension (Q1-10)
+{s:'mbti',dim:'E',text:'在派对上，你通常是那个主动介绍自己、认识新朋友的人。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'I',text:'一天高强度的社交活动后，你需要独处时间才能恢复精力。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'E',text:'你更喜欢通过与他人交流来整理自己的思路，而非独自思考。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'I',text:'你享受长时间一个人投入某件事，不需要他人陪伴也不感到无聊。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'E',text:'你倾向于先开口说话，再思考最优表达方式。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'I',text:'在重要决定前，你需要充分的独处时间来思考，而不是和别人讨论。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'E',text:'当你处于一大群人中时，你感到充满活力和激情。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'I',text:'你有少数几个非常亲密的朋友，而非一大群泛泛之交。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'E',text:'在不熟悉的环境中，你也能很快打开话匣子。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'I',text:'你常常觉得自己被误解，因为你的内心世界远比外表展示的丰富。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+// N/S dimension (Q11-20)
+{s:'mbti',dim:'N',text:'你更关注事物的可能性和未来发展，而非当下的具体细节。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'S',text:'你更信任自己的五感和直接经验，而非抽象的理论推断。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'N',text:'你常常脑子里有很多想法同时运转，思绪容易跳跃。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'S',text:'你觉得有实际操作经验比纸上谈兵重要得多。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'N',text:'你对"万一……会怎样"这类假设性问题感到着迷。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'S',text:'你喜欢有规律、可预测的日常，而不是每天的新鲜刺激。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'N',text:'你阅读时常常在字里行间寻找更深的隐喻或象征。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'S',text:'你更喜欢有清晰步骤的指南，而不是只有宏观方向的概念。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'N',text:'你经常对语言、符号和隐喻的深层含义感到好奇。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'S',text:'你认为脚踏实地、一步一步来比跳跃式思考更可靠。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+// T/F dimension (Q21-30)
+{s:'mbti',dim:'T',text:'做决定时，你优先考虑逻辑与效率，而非对方的感受。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'F',text:'朋友找你倾诉时，你本能的反应是先共情，而非提供解决方案。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'T',text:'你认为批评如果是事实，即使让人不舒服也应该直接说出来。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'F',text:'你很难在明知道会伤害别人的情况下做出对自己有利的决策。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'T',text:'你评判一个决定好坏，主要看它是否符合客观标准，而非众人反应。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'F',text:'别人的情绪状态会直接影响你当天的心情，哪怕事情与你无关。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'T',text:'你觉得过于在意别人感受会妨碍做出正确的决定。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'F',text:'和谐的人际关系对你来说，比赢得一场争论更重要。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'T',text:'你在辩论中发现对方逻辑有漏洞，会直接指出，不管气氛如何。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'F',text:'你做重要决定时，常常问自己"这样做对大家公平吗"。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+// J/P dimension (Q31-40)
+{s:'mbti',dim:'J',text:'你的房间、桌面和日程通常都保持整洁有序。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'P',text:'你更喜欢保持选择的灵活性，讨厌被计划束缚。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'J',text:'截止日期对你来说是必须遵守的，提前完成任务让你感到踏实。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'P',text:'你常常在最后一刻才做决定，因为新信息可能改变局面。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'J',text:'当计划被临时更改时，你会感到明显的不适或烦躁。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'P',text:'你在工作或学习时，经常同时进行多个项目，而不是一次只做一件事。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'J',text:'你倾向于提前做好详细计划，而非走一步看一步。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'P',text:'你觉得规则和程序有时候是创造力和效率的障碍。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'J',text:'你希望事情早点确定下来，而不是一直处于"待定"状态。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'P',text:'你享受即兴发挥的感觉，有时候最好的计划就是没有计划。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+
+// ─── SECTION 2: AMBITION (Q41-60) ───
+{s:'ambition',dim:'A',text:'你脑子里有一张清晰的"五年后我在哪里"的蓝图。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'普通人满意的生活，对你来说是一种失败。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你愿意为了达到目标，牺牲大量的娱乐时间和社交活动。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你会把自己的成就和比你优秀的人比较，而不是和普通人比。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'失败对你来说是暂时的挫折，而非终点。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你渴望被历史记住，或者至少在自己的领域留下痕迹。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'当你取得成就时，你心里想的不是"终于完成了"，而是"下一个目标是什么"。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你会主动寻找能接触到更有权力或资源的人际关系。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'当你看到别人在某个领域超越你时，你会感到强烈的动力而非嫉妒。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,-1,-2]},
+{s:'ambition',dim:'A',text:'你认为"我就是要比别人强"是推动你前进的核心动力之一。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你愿意接受不喜欢但高薪或高权的工作，而非热爱但平凡的工作。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'被人仰视的感觉，对你有特殊的吸引力。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你曾经因为太专注于目标而忽视了身边重要的人。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'ambition',dim:'A',text:'你经常感觉自己的潜力还没被充分发掘。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你会把竞争对手研究得非常透彻。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'金钱对你的意义更多是"能力和地位的证明"，而非"安全感"。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你觉得大多数人只是缺乏足够的野心，而不是缺乏能力。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'ambition',dim:'A',text:'你有时会把"为了更大的目标牺牲道德灰色地带"合理化。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'如果你有一项天赋，你会想把它商业化或变现，而非纯粹享受它。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'ambition',dim:'A',text:'你曾经详细幻想过自己在某场合的成功演讲或致辞。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+
+// ─── SECTION 3: DARK SIDE (Q61-80) ───
+{s:'dark',dim:'D',text:'你曾经在心里希望某个阻碍你的人遭遇失败或麻烦。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你会对曾经伤害过你的人保持长期的记恨，等待时机。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你有时会感觉自己对他人有一种难以名状的操控欲望。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你曾经故意用语言伤害某人，然后假装是"开玩笑"。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你在某些情况下会假装同意别人，但内心完全不认同，只是为了达到目的。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'dark',dim:'D',text:'你有时候享受掌控局面的感觉，即使这意味着让别人处于不利位置。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你曾经刻意夸大自己的痛苦来获取他人的同情或关注。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'当别人比你先取得成功时，你的第一反应更多是嫉妒而非祝贺。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你有时候会在信息不对称中占优势，且刻意不去纠正。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'dark',dim:'D',text:'你有过觉得自己比大多数人更优越的强烈感受。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你曾经为了维持自己的形象，让别人背了本该属于你的锅。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你会对某些人刻意示弱，来让他们放松警惕。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你有时候享受看到他人困窘或出丑的场面。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'dark',dim:'D',text:'你可以在脸上堆满笑容的同时内心充满敌意。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你曾经利用他人对你的信任来推进自己的利益。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你会把别人的弱点悄悄记在心里，以备不时之需。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你觉得大多数人际关系都有某种程度的"利用"，这很正常。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'dark',dim:'D',text:'当你对某人感到愤怒时，你更可能冷战或消失，而非直接表达。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'dark',dim:'D',text:'你曾经有过极端的复仇幻想，即使从未付诸行动。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你有时候会质疑自己：我是否真的在乎别人，还是只在乎结果？',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+
+// ─── SECTION 4: DESIRE (Q81-100) ───
+{s:'desire',dim:'V',text:'你脑海中有些欲望是你永远不会对任何人说出口的。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你有时候希望自己可以完全不顾道德地活一次，看看会发生什么。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你对禁忌的事物有一种特殊的好奇心，即使你不会真的去做。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'有时候你觉得社会规范是为了压制人的本性而存在的。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'你渴望拥有一种无人能质疑你的绝对权力或自由。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你有过想彻底逃离现有生活、重新开始的强烈冲动。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'你有时候会想，如果没人知道，你会做出截然不同的选择。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你的欲望清单里，有些东西是你不愿意承认自己想要的。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你有时候觉得自己内心住着一个和表面上完全不同的人。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你曾经因为某种欲望太强烈而感到害怕或羞耻。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你觉得大多数人对快乐的追求都过于保守和克制。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'你有过想要无条件被爱，同时又不想付出同等情感的矛盾。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你对"独占"某人或某物有一种超出正常的执念。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你有时候沉浸在某种幻想中，长达几分钟甚至更长时间。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'你内心深处有一种"我值得拥有一切"的感受，即使外表谦虚。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'某些情绪或冲动，你选择用理性压制而非表达出来。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'你曾经被一种你无法完全解释的欲望所困扰。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你对"刺激"和"危险"有一种隐秘的向往，即使你是理性的人。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'你有时候会想：如果我敢做我真正想做的事，世界会怎么看我？',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'在最诚实的时刻，你承认自己的某些欲望是自私的——但你接受这一点。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+
+
+// ─── SECTION 5: LOYALTY & ROMANCE (Q101-120) ─── 20 NEW QUESTIONS
+{s:'loyalty',dim:'L',text:'你在恋爱中会同时保持对多个人的暧昧关系，即使已有伴侣。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你认为"精神出轨"与真正的出轨在本质上没有太大区别。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[0,0,1,3,4]},
+{s:'loyalty',dim:'L',text:'你曾经在有伴侣的情况下，对他人产生强烈的情感依恋。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你觉得只喜欢一个人太无聊，多个人同时喜欢你让你感到满足。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你会在感情中"留后路"，在结束一段关系前就开始布局下一段。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'当你对伴侣的热情减退时，你会主动修复关系而非去寻找新鲜感。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[0,0,1,3,4]},
+{s:'loyalty',dim:'L',text:'你曾经因为"喜欢被喜欢的感觉"而和不爱的人暧昧。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你认为自己是那种"一旦遇到更好的就会离开"的人。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你在感情中很难完全放弃前任，即使开始了新的关系。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你曾经对伴侣撒谎，来掩盖你与他人的联系或互动。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你相信一辈子只爱一个人是可能的，而且你希望自己做到。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[0,0,1,3,4]},
+{s:'loyalty',dim:'L',text:'你会因为对方的某个特质感到无聊，就开始对其他人产生幻想。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你认为自己在感情中的忠诚度取决于对方给了你多少安全感。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你享受被多个人追求的感觉，并刻意维持这种局面。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你曾经在感情空窗期迅速转移目标，很少有真正"缓冲"的时间。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你认为忠诚不仅是行为上的，更是心理上的——你对此严格要求自己。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[0,0,1,3,4]},
+{s:'loyalty',dim:'L',text:'你有过在感情稳定期故意制造一些"刺激"或波澜，比如引起伴侣的嫉妒。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你觉得"我们只是朋友"是一个你有时会故意模糊的边界。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你在内心深处知道自己并不是一个"从一而终"的人。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'在感情中，你更容易爱上对方的"潜力"，而非真实现状，因此容易转移。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+
+// ─── SECTION 5b: LOYALTY DISGUISED AS "情感能量场深度分析" (Q121-135) ───
+// These are actually loyalty/fidelity questions, disguised as "compatibility calibration"
+// Uses 3rd-person framing, scenario questions, and indirect phrasing to bypass social desirability bias
+{s:'loyalty2',dim:'L',text:'你最好的朋友告诉你，他/她在有伴侣的情况下喜欢上了别人。你内心的第一反应是：',opts:['理解，这很正常，感情的事说不清','有点羡慕那种感觉','觉得他们应该认真考虑下一步','觉得不对，应该先处理好现任关系','觉得这是出轨，不太认同'],scores:[4,4,2,0,-1]},
+{s:'loyalty2',dim:'L',text:'电影或小说里，你最容易被哪种恋爱情节吸引？',opts:['一见钟情，激情四射，不管结果','禁忌之恋，明知不该却无法自拔','异地或困难重重，但始终忠诚','两人相伴多年，平淡却深厚','我不太追恋爱类故事'],scores:[3,4,1,0,-1]},
+{s:'loyalty2',dim:'L',text:'如果你知道绝对不会被发现，在有伴侣的情况下你会：',opts:['和暗恋的人发展关系','允许自己偶尔"暧昧"但不越界','可能会和某人保持暧昧但不进一步','什么都不会做，因为我自己清楚','完全不会有这个念头'],scores:[4,3,3,1,-1]},
+{s:'loyalty2',dim:'L',text:'你觉得"感情里的忠诚"主要取决于什么？',opts:['对方有没有让你保持激情','双方是否还有足够的吸引力','两个人的承诺和自律','道德底线和责任感','我认为忠诚是无条件的'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'你手机里的聊天记录，你有没有那种"不方便让伴侣看到"的对话？',opts:['有，而且不止一个对象','有过，但删掉了','有，但内容比较无聊没什么大不了','偶尔有但只是玩笑','从来没有，我的手机任何时候都可以给伴侣看'],scores:[4,4,3,2,-1]},
+{s:'loyalty2',dim:'L',text:'关于"心动"，你的真实想法是：',opts:['在有伴侣时对别人心动很正常，我经常有','有时会对某人有感觉，但只是欣赏','偶尔会，但我会主动断掉联系','几乎不会，我专注于眼前的人','完全不会，我认为这是感情破裂的信号'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'下面哪句话最接近你对"出轨"的定义？',opts:['只有发生身体关系才算出轨','情感上的深度依恋也算','有暧昧意图的行为都算','包括频繁联系让自己感到心跳加速的人','任何不能坦白告诉伴侣的互动都算'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'你曾经有多少次"差点"做了什么，但最终忍住了？',opts:['很多次，我经常在边缘','有几次，某些情况下很难控制','有一两次，但都及时收手','几乎没有，我不会走到那个临界点','从来没有这种情形'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'如果你非常喜欢某人，但对方已经有伴侣，你会：',opts:['推进关系，感情的事谁说得准','暗中维持联系，看情况发展','告白然后看他/她怎么选','克制自己，不主动越界','完全断联，避免成为破坏别人关系的人'],scores:[4,4,3,2,-1]},
+{s:'loyalty2',dim:'L',text:'你理想中的爱情关系形式更接近：',opts:['开放式关系，允许双方有其他感情','主关系+允许少量感情交流','相对自由，但有默契的底线','传统一对一，绝对排他','一对一，且对心理上的忠诚要求也很高'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'感情里你比较容易因为什么陷入危机？',opts:['遇到更有吸引力的人','长期的平淡和无聊感','对方做了让我很失望的事','沟通和理解出了问题','我在感情里相对稳定，不太容易陷入危机'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'你在感情中的"出口模式"更像哪种？',opts:['在结束前就已经开始找退路','新欢出现了才会考虑结束','感情破裂才会提出分手','会努力修复，实在不行才离开','不到最后一刻不会放弃这段关系'],scores:[4,4,3,2,-1]},
+{s:'loyalty2',dim:'L',text:'你觉得自己最诚实的状态是在？',opts:['没人认识你的陌生城市','在网上匿名的状态','和自己最信任的朋友独处时','和伴侣在一起时','我在任何状态下都会是同一个自己'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'你曾经有过"如果当初选了另一个人会怎样"的念头吗？',opts:['经常有，而且很强烈','偶尔有，会想一下','只在特别不顺的时候想过','很少，偶尔闪过','几乎没有'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'对你来说，"忠诚"在实际感情中最难的部分是？',opts:['抵制身体上的吸引','压制对别人的情感依恋','面对无聊期时保持专注','在感情变淡后还维持承诺','其实没什么难的，我觉得忠诚不需要努力'],scores:[4,4,3,2,-1]},
+
+// ─── SECTION 5c: LOYALTY DISGUISED AS "直觉行为解码" (Q136-145) ───
+// Framed as personality/behavior style questions, actually measure loyalty impulses
+{s:'loyalty3',dim:'L',text:'关于你的手机，哪句话最符合你的状态？',opts:['我会主动隐藏某些联系人的消息通知','我会注意不让伴侣看到某些对话窗口','伴侣偶尔看看我手机没关系','我的手机随时可以给伴侣检查','我们从来不看对方手机，这是默契'],scores:[4,3,2,-1,1]},
+{s:'loyalty3',dim:'L',text:'你在感情中最害怕的事是什么？',opts:['被伴侣发现我的秘密','失去自由和私人空间','感情变淡、失去激情','伴侣不再信任我','孤独、找不到真正懂我的人'],scores:[4,3,2,1,1]},
+{s:'loyalty3',dim:'L',text:'当你和某个吸引你的人独处时，你会：',opts:['主动创造机会，看看能发展到哪里','享受这种感觉，但不会主动出击','正常相处，但会注意保持边界','行为上和平时没什么区别','会刻意保持距离，避免任何误会'],scores:[4,3,2,1,-1]},
+{s:'loyalty3',dim:'L',text:'你身边发生过"出轨"相关的真实故事吗？你当时的感受是？',opts:['有，我某种程度上理解当事人','有，我对出轨方甚至有点佩服他们的大胆','有，我觉得复杂，不完全是谴责','有，我觉得出轨方做错了','有/没有，但我对出轨零容忍，无论什么理由'],scores:[4,3,2,1,-1]},
+{s:'loyalty3',dim:'L',text:'你认为长期的一对一关系对人类来说是：',opts:['反自然的，人天生不是适合单配制的物种','有挑战性的，但并非人人能做到','理想状态，但需要两人共同努力','对大多数人来说完全可实现','最符合人类情感需求的关系形式'],scores:[4,3,2,1,-1]},
+{s:'loyalty3',dim:'L',text:'你认为自己在感情中的忠诚度是？',opts:['我会向伴侣表现的忠诚，但实际并不在乎','我会尽量保持，除非生活中有其他吸引者出现','偶尔会觉得某人很有吸引力，但不会放心上','几乎没有其他念头','完全没有，在感情里绝对忠诚于一人！'],scores:[4,3,2,1,-1]},
+{s:'loyalty3',dim:'L',text:'你认为伴侣应该知道你所有的异性/同性友人互动吗？',opts:['不，有些事不必要让他们知道','大部分知道就够了，细节没必要','重要的互动应该知道，小事不必','基本上都会主动告知','是的，我倾向于完全透明'],scores:[4,3,2,1,-1]},
+{s:'loyalty3',dim:'L',text:'你有没有过"和某人保持联系只是为了保留一种可能性"的情况？',opts:['有，而且当时心里很清楚是什么意思','有过，但后来意识到不对','可能有，但当时没有那么清醒','几乎没有','从来没有'],scores:[4,3,2,1,-1]},
+{s:'loyalty3',dim:'L',text:'如果用一个词描述你在感情里最真实的样子，你会选哪个？',opts:['自由','热烈','矛盾','忠诚','专一'],scores:[4,3,3,0,-1]},
+{s:'loyalty3',dim:'L',text:'最后一题：对于这套测试，你整体的作答态度是？',opts:['我选了最符合自己真实想法的答案','大多数题目我如实回答了','部分题目我有所保留','有些题我给了"正确答案"而非真实心中答案','我全程都很认真，没有任何保留'],scores:[0,1,2,3,-1]}
+];
+
+// ─── STATE ───
+let currentQ = 0;
+const TOTAL_Q = 145;
+let answers = new Array(TOTAL_Q).fill(null);
+let userInfo = {};
+let adminUnlocked = false;
+
+// ─── STORAGE ───
+function getRecords() {
+  try { return JSON.parse(localStorage.getItem('quiz_records') || '[]'); } catch(e) { return []; }
+}
+function saveRecord(rec) {
+  const records = getRecords();
+  records.push(rec);
+  localStorage.setItem('quiz_records', JSON.stringify(records));
+}
+
+// ─── NAVIGATION ───
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screenId).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function openAdminModal() {
+  if (adminUnlocked) { goTo('admin'); renderAdmin(); return; }
+  document.getElementById('modal-admin').classList.add('show');
+  document.getElementById('admin-pass-input').value = '';
+  setTimeout(() => document.getElementById('admin-pass-input').focus(), 100);
+}
+function closeAdminModal() {
+  document.getElementById('modal-admin').classList.remove('show');
+}
+function verifyAdmin() {
+  const pass = document.getElementById('admin-pass-input').value;
+  if (pass === '2681825504') {
+    adminUnlocked = true;
+    closeAdminModal();
+    goTo('admin');
+    renderAdmin();
+  } else {
+    document.getElementById('admin-pass-input').style.borderColor = 'var(--danger)';
+    setTimeout(() => document.getElementById('admin-pass-input').style.borderColor = '', 1000);
+  }
+}
+
+document.getElementById('admin-pass-input').addEventListener('keydown', e => { if(e.key==='Enter') verifyAdmin(); });
+
+// ─── QUIZ ───
+function startQuiz() {
+  const name = document.getElementById('user-name').value.trim() || '匿名用户';
+  userInfo = {
+    name, age: document.getElementById('user-age').value,
+    gender: document.getElementById('user-gender').value,
+    knownMbti: document.getElementById('user-known-mbti').value,
+    startTime: new Date().toISOString()
+  };
+  currentQ = 0;
+  answers = new Array(TOTAL_Q).fill(null);
+  goTo('quiz');
+  renderQ();
+}
+
+// Section transition messages — reframe "hot" sections as dog/personality calibration
+const SECTION_INTROS = {
+  80:  { title:'🐾 灵魂犬系精准校准开始', msg:'接下来的题目将深度影响你的灵魂犬系结果精准度。我们需要读取你最真实的内在反应——请凭第一直觉作答，过度思考会降低匹配精度。', color:'#ffd580' },
+  100: { title:'🔬 灵魂契合度数据采集中', msg:'这一阶段通过测量你的"感情能量频率"来精准锁定你的灵魂犬系。每一道题都是一个微型行为探针——越真实的回答，你的灵魂犬系越准确。', color:'#ff85a1' },
+  120: { title:'⚡ 情感能量场深度扫描', msg:'系统正在采集你的情感行为模式数据。这是区分相似犬系（例如柴犬 vs 哈士奇 vs 边牧）的关键阶段，请放下防备，直接选择你内心最先浮现的答案。', color:'#c084fc' },
+  135: { title:'🌊 直觉行为最终解码', msg:'最后阶段。你的直觉回答比理性分析更能反映真实的灵魂犬系类型。放松，选你"感觉对"的那个，而不是"应该选"的那个。', color:'#67e8f9' },
+};
+
+let shownIntros = new Set();
+
+function showSectionIntro(qIdx, callback) {
+  const intro = SECTION_INTROS[qIdx];
+  if (!intro || shownIntros.has(qIdx)) { callback(); return; }
+  shownIntros.add(qIdx);
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.87);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.3s ease';
+  overlay.innerHTML = '<div style="max-width:420px;width:100%;background:#12121a;border:1px solid ' + intro.color + '40;border-radius:20px;padding:32px;text-align:center">' +
+    '<div style="font-size:11px;letter-spacing:3px;color:' + intro.color + '80;text-transform:uppercase;margin-bottom:16px">SYSTEM NOTICE</div>' +
+    '<div style="font-size:22px;font-weight:700;color:' + intro.color + ';font-family:serif;margin-bottom:16px">' + intro.title + '</div>' +
+    '<div style="font-size:14px;color:#9090b0;line-height:1.8;margin-bottom:28px">' + intro.msg + '</div>' +
+    '<button id="intro-continue-btn" style="background:linear-gradient(135deg,' + intro.color + ',' + intro.color + '99);border:none;border-radius:10px;padding:14px 40px;color:#0a0a0f;font-size:15px;font-weight:700;cursor:pointer;font-family:serif;width:100%">我明白了，继续 →</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  document.getElementById('intro-continue-btn').addEventListener('click', function() {
+    overlay.remove();
+    callback();
+  });
+}
+
+function renderQ() {
+  const q = QUESTIONS[currentQ];
+  const pct = (currentQ / TOTAL_Q) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `题目 ${currentQ+1} / ${TOTAL_Q}`;
+
+  const sec = SECTIONS.find(s => currentQ >= s.range[0] && currentQ <= s.range[1]);
+  document.getElementById('section-label').textContent = sec.label;
+
+  const badge = document.getElementById('section-badge');
+  badge.textContent = sec.label;
+  badge.className = 'section-badge ' + sec.badge;
+
+  document.getElementById('q-num').textContent = `Q${currentQ + 1}`;
+  document.getElementById('q-text').textContent = q.text;
+
+  const optDiv = document.getElementById('q-options');
+  optDiv.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option' + (answers[currentQ] === i ? ' selected' : '');
+    div.textContent = opt;
+    div.onclick = () => selectOption(i);
+    optDiv.appendChild(div);
+  });
+
+  document.getElementById('btn-next').disabled = answers[currentQ] === null;
+  document.querySelector('.btn-prev').style.opacity = currentQ === 0 ? '0.3' : '1';
+  document.querySelector('.btn-prev').disabled = currentQ === 0;
+}
+
+function selectOption(i) {
+  answers[currentQ] = i;
+  document.querySelectorAll('.option').forEach((o, idx) => {
+    o.className = 'option' + (idx === i ? ' selected' : '');
+  });
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQ() {
+  if (answers[currentQ] === null) return;
+  if (currentQ >= TOTAL_Q - 1) { finishQuiz(); return; }
+  currentQ++;
+  // Check if we need to show a section intro overlay
+  if (SECTION_INTROS[currentQ] && !shownIntros.has(currentQ)) {
+    showSectionIntro(currentQ, function() { renderQ(); window.scrollTo(0,0); });
+  } else {
+    renderQ();
+    window.scrollTo(0,0);
+  }
+}
+
+function prevQ() {
+  if (currentQ === 0) return;
+  currentQ--;
+  renderQ();
+}
+
+// ─── CALCULATE RESULTS ───
+function finishQuiz() {
+  const mbtiScores = { E:0, I:0, N:0, S:0, T:0, F:0, J:0, P:0 };
+  let ambitionTotal=0, ambitionMax=0;
+  let darkTotal=0, darkMax=0;
+  let desireTotal=0, desireMax=0;
+  let loyaltyTotal=0, loyaltyMax=0;
+
+  QUESTIONS.forEach((q, idx) => {
+    const ansIdx = answers[idx];
+    if (ansIdx === null) return;
+    const score = q.scores[ansIdx];
+    if (q.s === 'mbti') {
+      mbtiScores[q.dim] = (mbtiScores[q.dim] || 0) + score;
+    } else if (q.s === 'ambition') {
+      ambitionTotal += Math.max(0, score); ambitionMax += 4;
+    } else if (q.s === 'dark') {
+      darkTotal += Math.max(0, score); darkMax += 4;
+    } else if (q.s === 'desire') {
+      desireTotal += Math.max(0, score); desireMax += 4;
+    } else if (q.s === 'loyalty' || q.s === 'loyalty2' || q.s === 'loyalty3') {
+      loyaltyTotal += Math.max(0, score); loyaltyMax += 4;
+    }
+  });
+
+  const mbtiType =
+    (mbtiScores.E >= mbtiScores.I ? 'E' : 'I') +
+    (mbtiScores.N >= mbtiScores.S ? 'N' : 'S') +
+    (mbtiScores.T >= mbtiScores.F ? 'T' : 'F') +
+    (mbtiScores.J >= mbtiScores.P ? 'J' : 'P');
+
+  const ambPct     = Math.round((ambitionTotal / ambitionMax) * 100);
+  const darkPct    = Math.round((darkTotal / darkMax) * 100);
+  const desirePct  = Math.round((desireTotal / desireMax) * 100);
+  const loyaltyPct = loyaltyMax > 0 ? Math.round((loyaltyTotal / loyaltyMax) * 100) : 0;
+  const darkLevel  = darkPct >= 60 ? '高' : darkPct >= 35 ? '中' : '低';
+
+  const dogData = DOG_DATA[mbtiType] || DOG_DATA['ENFP'];
+  const record = {
+    id: Date.now(), userInfo,
+    endTime: new Date().toISOString(),
+    mbtiType, mbtiScores, dogBreed: dogData.name, dogEn: dogData.en,
+    ambitionScore: ambPct, darkScore: darkPct,
+    desireScore: desirePct, loyaltyScore: loyaltyPct,
+    darkLevel,
+    answers: answers.map((a, i) => ({
+      q: QUESTIONS[i].text,
+      a: a !== null ? QUESTIONS[i].opts[a] : '未作答',
+      score: a !== null ? QUESTIONS[i].scores[a] : 0,
+      section: QUESTIONS[i].s
+    }))
+  };
+
+  saveRecord(record);
+  showResult(record);
+}
+
+const MBTI_DATA = {
+  INTJ:{name:'策略家',archetype:'孤独的建筑师',desc:'孤独的思想家，用逻辑与远见构建他人看不见的未来。INTJ是最罕见也最自信的人格之一，以精密的内心世界和对未来的长远规划著称。',traits:['战略思维','独立自主','完美主义','高标准'],shadows:['冷漠孤僻','傲慢自大','不近人情','极端完美主义'],gradient:['#0f0c29','#302b63','#24243e'],accent:'#9b59b6'},
+  INTP:{name:'逻辑学家',archetype:'思想的探险者',desc:'沉迷于理论与可能性，用智识构建精密的思想宇宙。INTP是天生的问题求解者，内心宇宙无比丰富，对外界却往往显得淡漠。',traits:['逻辑分析','创新思维','客观冷静','知识渴望'],shadows:['脱离现实','情感冷漠','拖延完美','社交回避'],gradient:['#1a1a2e','#16213e','#0f3460'],accent:'#00b4d8'},
+  ENTJ:{name:'指挥官',archetype:'天生的将领',desc:'天生的领导者，用意志力与远见驱动世界按自己的设想运转。ENTJ在任何环境中都自然而然地走向领导位置。',traits:['决断力强','战略领导','高效执行','目标驱动'],shadows:['强权控制','忽视感受','傲慢专制','情感冷酷'],gradient:['#1a0533','#3d1a78','#6a0572'],accent:'#c77dff'},
+  ENTP:{name:'辩论家',archetype:'思想的颠覆者',desc:'思想的挑战者，用智慧和创意颠覆一切既定的框架。ENTP享受智识上的碰撞与辩论，最擅长找到系统中的漏洞。',traits:['创意无限','辩证思维','快速适应','魅力十足'],shadows:['好辩争强','缺乏执行','轻视规则','情绪化攻击'],gradient:['#001e3c','#0a3d62','#1e6091'],accent:'#48cae4'},
+  INFJ:{name:'提倡者',archetype:'罕见的预言者',desc:'罕见的理想主义者，在混沌中寻找深层的意义与使命。INFJ是所有人格类型中最稀少的，拥有对人心深刻的洞察力。',traits:['深刻洞察','共情能力','理想主义','神秘气质'],shadows:['过度敏感','自我牺牲','门徒效应','偶尔冷漠'],gradient:['#0d1b2a','#1b2838','#2c3e50'],accent:'#1abc9c'},
+  INFP:{name:'调停者',archetype:'内心的诗人',desc:'内心充满诗意，在平凡世界里守护自己独特的价值观。INFP是天生的理想主义者，对真善美有着永不妥协的追求。',traits:['情感丰富','创造力强','价值驱动','忠诚纯粹'],shadows:['过于理想','逃避现实','自我封闭','情绪化'],gradient:['#1a0a2e','#2d1b69','#11998e'],accent:'#38ef7d'},
+  ENFJ:{name:'主人公',archetype:'灵魂的引路人',desc:'天生的鼓舞者，用魅力与同理心引领他人走向更好的自己。ENFJ是人群中的太阳，总能感知他人的需求并给予支持。',traits:['感召力强','善于沟通','关怀他人','组织能力'],shadows:['控制欲强','过度干涉','忽视自我','情感操控'],gradient:['#200122','#6f0000','#cc0000'],accent:'#f7971e'},
+  ENFP:{name:'活动家',archetype:'热情的梦想家',desc:'充满热情的梦想家，在每一个可能性中看到改变世界的火花。ENFP永远充满好奇心，在人与人之间架起桥梁。',traits:['热情感染','创意丰富','人际魅力','适应力强'],shadows:['三分钟热度','情绪化','过度理想','注意力分散'],gradient:['#1f0036','#52006a','#e100ff'],accent:'#ffd700'},
+  ISTJ:{name:'物流师',archetype:'秩序的守护者',desc:'可靠的守护者，用纪律与责任感默默支撑着世界的秩序。ISTJ是最值得信赖的人格之一，说到做到是他们的核心标签。',traits:['责任感强','细心可靠','条理清晰','忠诚坚守'],shadows:['固执保守','过度刻板','情感压抑','抵制变化'],gradient:['#0c0c0c','#1a1a2e','#16213e'],accent:'#778ca3'},
+  ISFJ:{name:'守卫者',archetype:'温柔的守护天使',desc:'温柔的保护者，将他人的需求放在自己之上。ISFJ以细腻的情感和强烈的责任感守护着身边的每一个人。',traits:['关怀体贴','耐心细致','忠诚可靠','实际稳重'],shadows:['压抑自我','难以拒绝','过度焦虑','隐忍爆发'],gradient:['#1a1a2e','#2d4059','#ea5455'],accent:'#f5a623'},
+  ESTJ:{name:'总经理',archetype:'铁腕的执行者',desc:'秩序的捍卫者，用规则和执行力打造高效的社会结构。ESTJ是天生的管理者，对效率和秩序有着近乎偏执的追求。',traits:['组织管理','决策果断','责任担当','目标明确'],shadows:['独断专行','情感迟钝','僵化守旧','权威崇拜'],gradient:['#232526','#414345','#232526'],accent:'#c0392b'},
+  ESFJ:{name:'执政官',archetype:'社群的黏合剂',desc:'社群的黏合剂，用关怀和责任维系人与人之间的温暖纽带。ESFJ总是能让周围的人感到被接纳和重视。',traits:['热情友善','关注他人','组织社群','忠诚可靠'],shadows:['过度在意评价','控制欲','情感操控','顺从权威'],gradient:['#360033','#0b8793','#360033'],accent:'#ff6b6b'},
+  ISTP:{name:'鉴赏家',archetype:'冷静的工匠',desc:'冷静的工匠，用手和眼深入理解世界的运作机制。ISTP对机械和系统有着天然的亲和力，危机时刻格外冷静。',traits:['逻辑冷静','动手能力','危机处理','独立自主'],shadows:['情感冷漠','冒险冲动','缺乏计划','敌意内敛'],gradient:['#1a1a1a','#2c2c2c','#3d3d3d'],accent:'#95a5a6'},
+  ISFP:{name:'探险家',archetype:'活在当下的艺术家',desc:'活在当下的艺术家，用感官捕捉生命中每一个美的瞬间。ISFP是最懂得享受当下之美的人，对审美有着独到的品味。',traits:['审美敏锐','随性自由','忠于自我','共情深刻'],shadows:['回避冲突','过于感性','缺乏规划','自我怀疑'],gradient:['#2d3561','#c05c7e','#f3826f'],accent:'#ff9a9e'},
+  ESTP:{name:'企业家',archetype:'行动力超强的冒险者',desc:'行动力超强的冒险者，在刺激与挑战中找到人生意义。ESTP思维和行动都极为敏捷，是天生的危机化解者。',traits:['行动力强','临场发挥','社交魅力','风险偏好'],shadows:['冲动行事','忽视后果','享乐主义','缺乏耐心'],gradient:['#1f1c2c','#928dab','#1f1c2c'],accent:'#f39c12'},
+  ESFP:{name:'表演者',archetype:'生命的舞台剧演员',desc:'生活的舞台剧演员，用热情和魅力让每个场合都充满生气。ESFP是天生的娱乐者，随时随地都能成为焦点。',traits:['充满活力','社交达人','随机应变','乐观感染'],shadows:['回避深度','过度享乐','情绪化','缺乏计划'],gradient:['#f953c6','#b91d73','#f953c6'],accent:'#ffeaa7'},
+};
+
+const LOYALTY_LEVELS = [
+  { min:0,  max:20, label:'忠贞不渝 💍', desc:'你是极为罕见的高度忠诚型。在感情中，你视承诺如生命，从不轻易动摇。你的伴侣非常幸运，你几乎不会在感情上游离。对你来说，忠诚不是约束，而是自我价值的核心组成。' },
+  { min:21, max:40, label:'专一守护 🌿', desc:'你的忠诚度较高，感情中以稳定为主。偶尔会有欣赏他人的时刻，但你有明确的道德底线不会轻易逾越。你珍视深度关系，不容易被外界诱惑所动摇。' },
+  { min:41, max:55, label:'温柔游走 🌊', desc:'你的忠诚度处于中间地带。你渴望稳定的感情，但也享受被欣赏和新鲜感的刺激。你不是天生的出轨者，但在特定条件下容易动摇——关键在于你如何应对这些时刻。' },
+  { min:56, max:70, label:'情网多线 🌹', desc:'你的多情指数偏高。你在感情中往往难以做到完全专注于一个人，享受多段暧昧关系带来的情感满足。你并非坏人，但你的感情模式可能会给自己和他人带来困扰。' },
+  { min:71, max:100,label:'自由灵魂 🔥', desc:'你具有高度的多情倾向。感情对你来说更像是一种体验而非承诺。你享受爱与被爱的感觉，但很难长期满足于单一的感情关系。了解自己的这一特质，有助于在感情中做出更诚实的选择。' },
+];
+
+// ─── DOG BREED DATA ─── 12 breeds mapped by personality combo
+const DOG_DATA = {
+  // Analyst types → cerebral, independent dogs
+  INTJ: { name:'柴犬', en:'Shiba Inu', sub:'独立思考的孤高灵魂', traits:['独立','聪明','自我','神秘'], desc:'你和柴犬一样——外表高冷，内心世界极其丰富。你不需要别人的认可，也不喜欢被人支配。你的忠诚是稀缺资源，但一旦给出便无比珍贵。别人看不懂你，你也懒得解释。', loyalty:'中等偏低', color:'#c8722a' },
+  INTP: { name:'边境牧羊犬', en:'Border Collie', sub:'永不停转的思维引擎', traits:['超高智商','精力旺盛','完美主义','学习狂'], desc:'你是犬界最聪明的品种。你的大脑永远在全速运转，对知识和问题的痴迷让你无法停下来。你在感情上可能显得心不在焉，但那只是因为你同时在思考三个宇宙级问题。', loyalty:'高', color:'#2a5c8a' },
+  ENTJ: { name:'杜宾犬', en:'Doberman', sub:'天生的领袖与守护者', traits:['威严','果断','忠诚','保护欲强'], desc:'你是犬界的CEO。杜宾犬天生散发领袖气场，进入任何空间都是焦点。你对自己的人极度忠诚，对威胁你们的一切则毫不留情。你的爱像铁拳——用力，精准，毫不含糊。', loyalty:'极高', color:'#1a1a2e' },
+  ENTP: { name:'澳大利亚牧羊犬', en:'Australian Shepherd', sub:'停不下来的创意风暴', traits:['聪明','好奇','精力无限','爱挑战'], desc:'你就像澳牧一样——永远需要新的刺激和挑战。你魅力十足，让人着迷，但也让人抓狂，因为你总在想下一个可能性。感情里你热情如火，但也需要足够的自由空间才能保持忠诚。', loyalty:'中等', color:'#2d6a4f' },
+  // Diplomats → emotionally rich, loyal dogs
+  INFJ: { name:'苏格兰牧羊犬', en:'Rough Collie', sub:'温柔而深刻的守护者', traits:['直觉敏锐','忠诚','共情','深沉'], desc:'你像莱西一样——温柔、深情、有着超乎常人的感知力。你能感知到别人注意不到的情绪细节，你的忠诚是那种穿越一切的深情。你很少轻易开放内心，但一旦爱了，就是全部。', loyalty:'极高', color:'#6b4226' },
+  INFP: { name:'金毛寻回犬', en:'Golden Retriever', sub:'世界上最纯粹的爱', traits:['温暖','共情','理想主义','全力以赴'], desc:'你是金毛——这个世界上爱得最纯粹的犬种。你对感情全身心投入，容易受伤，但永远不会放弃相信美好。你的多情不是花心，而是你对每一段关系都认真对待的本能。', loyalty:'高', color:'#c8943a' },
+  ENFJ: { name:'拉布拉多', en:'Labrador', sub:'所有人的阳光与温暖', traits:['热情','包容','领袖气质','治愈力'], desc:'你是拉布拉多——走到哪里都能让人感到温暖和被接纳。你天生的魅力和感召力让你成为人群中心。你在感情中付出极多，有时甚至忽略自己的需求，记得偶尔也照顾一下自己。', loyalty:'高', color:'#8b6914' },
+  ENFP: { name:'哈士奇', en:'Husky', sub:'自由灵魂的爱情冒险家', traits:['热情','独立','魅力爆棚','无法预测'], desc:'你是哈士奇——美丽、活力四射、永远充满惊喜，但也让人捉摸不透。你对感情充满热情，但你的自由灵魂让你很难被"锁住"。你的多情是因为你真的对很多人和事都抱有真诚的热爱。', loyalty:'中等偏低', color:'#4a6fa5' },
+  // Sentinels → loyal, steady dogs
+  ISTJ: { name:'德国牧羊犬', en:'German Shepherd', sub:'最可靠的守护与承诺', traits:['极度忠诚','责任感','保护欲','执行力'], desc:'你是德牧——犬界最值得信赖的品种。你重承诺、守规矩，一旦选定就全力守护，绝不轻易离开。你的忠诚度可能是所有犬系中最高的，伴侣与你在一起有极强的安全感。', loyalty:'极高', color:'#3d2b1f' },
+  ISFJ: { name:'萨摩耶', en:'Samoyed', sub:'永恒微笑的温柔守护者', traits:['温柔','体贴','耐心','无条件爱'], desc:'你是萨摩耶——永远带着微笑，温柔到让人心疼。你在感情中是那个默默付出、从不计较的人。你的忠诚是无声的，是每天早上的一杯水，是对方难过时的默默陪伴。', loyalty:'极高', color:'#6b8cba' },
+  ESTJ: { name:'罗威纳', en:'Rottweiler', sub:'铁腕外壳下的深度忠诚', traits:['保护欲','自信','果断','深度忠诚'], desc:'你是罗威纳——外表强硬、让人敬畏，但对自己人的爱深沉且坚定。你在感情中是保护者，你的爱不花哨，但无比可靠。你对出轨和不忠有极低容忍度，因为你自己从不这样做。', loyalty:'极高', color:'#1c1c1c' },
+  ESFJ: { name:'比熊犬', en:'Bichon Frisé', sub:'社交能手与情感黏合剂', traits:['热情','爱人','善交际','情感丰富'], desc:'你是比熊——人见人爱，走到哪里都能迅速融入，成为大家的开心果。你在感情上极度热情，非常需要被爱和被认可。你渴望建立稳定的关系，但也容易因为关注太多人而显得"博爱"。', loyalty:'高', color:'#b06ab3' },
+  // Explorers → adventurous dogs
+  ISTP: { name:'阿拉斯加雪橇犬', en:'Alaskan Malamute', sub:'冷峻独行的强者', traits:['独立','冷静','有力量','神秘'], desc:'你是阿拉斯加——强壮、独立、看起来冷漠但内心有自己的一套情感逻辑。你不需要太多陪伴，但一旦建立了深层连接，就是非常可靠的伴侣。感情里你不善言辞，但行动胜于一切。', loyalty:'中等', color:'#5b6b7c' },
+  ISFP: { name:'柯基犬', en:'Corgi', sub:'外表软萌内心火热', traits:['可爱','个性','感性','充满活力'], desc:'你是柯基——外表萌萌哒，但内心有自己鲜明的想法和执念。你对美好事物充满热情，在感情里随性但真诚。你不会故意伤害人，但你对当下感受的重视可能让你在感情稳定性上略显不足。', loyalty:'中等', color:'#d4880a' },
+  ESTP: { name:'杰克罗素梗', en:'Jack Russell Terrier', sub:'永不停歇的冒险精灵', traits:['冲劲十足','刺激感','魅力','不可预测'], desc:'你是杰克罗素梗——小体格，大能量，永远在找下一个冒险。你在感情里充满魅力和激情，但你对"无聊"的极低容忍度让你很难长期安定。你最适合能跟上你节奏的伴侣。', loyalty:'中等偏低', color:'#8b4513' },
+  ESFP: { name:'贵宾犬', en:'Poodle', sub:'聪明迷人的社交之星', traits:['魅力十足','适应力强','情感丰富','爱表现'], desc:'你是贵宾——最被低估的犬种之一，外表时尚，内里聪明过人。你在社交场合如鱼得水，你的魅力让很多人为你着迷。感情里你给的爱很真实，但你也享受被追求的过程，有时界限略显模糊。', loyalty:'中等', color:'#c0609a' },
+};
+
+// Map MBTI to dog breed (16 types → 16 breeds/entries)
+function getDogBreed(mbtiType) {
+  return DOG_DATA[mbtiType] || DOG_DATA['ENFP'];
+}
+
+// SVG dog illustrations
+function getDogSVG(mbtiType) {
+  const dog = DOG_DATA[mbtiType] || DOG_DATA['ENFP'];
+  const c = dog.color;
+  const svgs = {
+    INTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Shiba Inu -->
+      <circle cx="80" cy="85" r="45" fill="${c}" opacity="0.9"/>
+      <ellipse cx="80" cy="85" rx="32" ry="30" fill="#e8a060" opacity="0.6"/>
+      <!-- ears -->
+      <polygon points="52,52 40,22 65,42" fill="${c}"/>
+      <polygon points="108,52 120,22 95,42" fill="${c}"/>
+      <polygon points="55,50 45,28 66,44" fill="#ffb07c" opacity="0.7"/>
+      <polygon points="105,50 115,28 94,44" fill="#ffb07c" opacity="0.7"/>
+      <!-- face -->
+      <ellipse cx="80" cy="90" rx="22" ry="18" fill="#e8a060"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="78" rx="6" ry="6" fill="#1a0a00"/>
+      <ellipse cx="92" cy="78" rx="6" ry="6" fill="#1a0a00"/>
+      <circle cx="70" cy="76" r="2" fill="white"/>
+      <circle cx="94" cy="76" r="2" fill="white"/>
+      <!-- nose -->
+      <ellipse cx="80" cy="90" rx="5" ry="3.5" fill="#1a0a00"/>
+      <!-- mouth -->
+      <path d="M75,94 Q80,98 85,94" stroke="#1a0a00" stroke-width="1.5" fill="none"/>
+      <!-- cheeks -->
+      <circle cx="60" cy="88" r="7" fill="#e07858" opacity="0.35"/>
+      <circle cx="100" cy="88" r="7" fill="#e07858" opacity="0.35"/>
+    </svg>`,
+
+    INTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Border Collie - black and white -->
+      <ellipse cx="80" cy="90" rx="46" ry="40" fill="#222"/>
+      <ellipse cx="80" cy="92" rx="30" ry="26" fill="#e8e8e8"/>
+      <!-- ears long floppy -->
+      <ellipse cx="50" cy="60" rx="14" ry="28" fill="#222" transform="rotate(-15 50 60)"/>
+      <ellipse cx="110" cy="60" rx="14" ry="28" fill="#222" transform="rotate(15 110 60)"/>
+      <ellipse cx="50" cy="62" rx="9" ry="22" fill="#b0b0b0" opacity="0.5" transform="rotate(-15 50 62)"/>
+      <!-- face -->
+      <ellipse cx="80" cy="88" rx="22" ry="20" fill="#f0f0f0"/>
+      <ellipse cx="80" cy="76" rx="12" ry="8" fill="#222"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="80" rx="5.5" ry="5.5" fill="#1a0a00"/>
+      <ellipse cx="92" cy="80" rx="5.5" ry="5.5" fill="#1a0a00"/>
+      <circle cx="69.5" cy="78.5" r="1.5" fill="white"/>
+      <circle cx="93.5" cy="78.5" r="1.5" fill="white"/>
+      <ellipse cx="80" cy="92" rx="5" ry="3.5" fill="#1a0a00"/>
+      <path d="M75,96 Q80,100 85,96" stroke="#1a0a00" stroke-width="1.5" fill="none"/>
+      <circle cx="63" cy="90" r="6" fill="#e07858" opacity="0.25"/>
+      <circle cx="97" cy="90" r="6" fill="#e07858" opacity="0.25"/>
+    </svg>`,
+
+    ENTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Doberman -->
+      <ellipse cx="80" cy="88" rx="44" ry="42" fill="#1a0f0a"/>
+      <ellipse cx="80" cy="82" rx="26" ry="22" fill="#8b4513" opacity="0.7"/>
+      <!-- pointy ears -->
+      <polygon points="52,54 44,20 66,48" fill="#1a0f0a"/>
+      <polygon points="108,54 116,20 94,48" fill="#1a0f0a"/>
+      <polygon points="54,52 48,26 66,48" fill="#3d1a08" opacity="0.5"/>
+      <polygon points="106,52 112,26 94,48" fill="#3d1a08" opacity="0.5"/>
+      <!-- face -->
+      <ellipse cx="80" cy="90" rx="20" ry="20" fill="#2a1206"/>
+      <ellipse cx="80" cy="96" rx="14" ry="12" fill="#8b4513" opacity="0.6"/>
+      <!-- eyes amber -->
+      <ellipse cx="68" cy="82" rx="6" ry="6" fill="#c8841a"/>
+      <ellipse cx="92" cy="82" rx="6" ry="6" fill="#c8841a"/>
+      <ellipse cx="68" cy="82" rx="4" ry="4" fill="#1a0a00"/>
+      <ellipse cx="92" cy="82" rx="4" ry="4" fill="#1a0a00"/>
+      <circle cx="69" cy="81" r="1.5" fill="white"/>
+      <circle cx="93" cy="81" r="1.5" fill="white"/>
+      <ellipse cx="80" cy="96" rx="5" ry="3" fill="#0d0505"/>
+      <path d="M75,100 Q80,104 85,100" stroke="#0d0505" stroke-width="1.5" fill="none"/>
+    </svg>`,
+
+    ENFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Husky - blue grey -->
+      <ellipse cx="80" cy="88" rx="46" ry="42" fill="#4a6fa5"/>
+      <ellipse cx="80" cy="90" rx="30" ry="28" fill="#c8d8ea"/>
+      <!-- mask markings -->
+      <ellipse cx="68" cy="78" rx="14" ry="12" fill="#1a1a3a" opacity="0.6"/>
+      <ellipse cx="92" cy="78" rx="14" ry="12" fill="#1a1a3a" opacity="0.6"/>
+      <!-- ears pointy -->
+      <polygon points="52,55 44,18 68,50" fill="#4a6fa5"/>
+      <polygon points="108,55 116,18 92,50" fill="#4a6fa5"/>
+      <polygon points="54,53 48,24 67,50" fill="#8aaace" opacity="0.5"/>
+      <polygon points="106,53 112,24 93,50" fill="#8aaace" opacity="0.5"/>
+      <!-- eyes ice blue -->
+      <ellipse cx="67" cy="80" rx="6.5" ry="6.5" fill="#a8d8ea"/>
+      <ellipse cx="93" cy="80" rx="6.5" ry="6.5" fill="#a8d8ea"/>
+      <ellipse cx="67" cy="80" rx="4" ry="4" fill="#1a2a3a"/>
+      <ellipse cx="93" cy="80" rx="4" ry="4" fill="#1a2a3a"/>
+      <circle cx="68.5" cy="78.5" r="1.5" fill="white"/>
+      <circle cx="94.5" cy="78.5" r="1.5" fill="white"/>
+      <ellipse cx="80" cy="94" rx="5" ry="3.5" fill="#1a0a0a"/>
+      <path d="M75,98 Q80,103 85,98" stroke="#1a0a0a" stroke-width="1.5" fill="none"/>
+      <circle cx="62" cy="92" r="5" fill="#e07858" opacity="0.25"/>
+      <circle cx="98" cy="92" r="5" fill="#e07858" opacity="0.25"/>
+    </svg>`,
+
+    INFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Rough Collie (Lassie) - sable -->
+      <ellipse cx="80" cy="88" rx="44" ry="40" fill="#8b5e2a"/>
+      <ellipse cx="80" cy="78" rx="18" ry="28" fill="#c8943a" opacity="0.8"/>
+      <!-- long mane -->
+      <ellipse cx="55" cy="85" rx="18" ry="30" fill="#a0722a" opacity="0.7"/>
+      <ellipse cx="105" cy="85" rx="18" ry="30" fill="#a0722a" opacity="0.7"/>
+      <!-- narrow face -->
+      <ellipse cx="80" cy="85" rx="14" ry="22" fill="#d4a04a"/>
+      <ellipse cx="80" cy="95" rx="8" ry="10" fill="#e8c080"/>
+      <!-- ears -->
+      <polygon points="54,52 48,20 67,48" fill="#8b5e2a"/>
+      <polygon points="106,52 112,20 93,48" fill="#8b5e2a"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="78" rx="5" ry="5" fill="#3d1a00"/>
+      <ellipse cx="92" cy="78" rx="5" ry="5" fill="#3d1a00"/>
+      <circle cx="69.5" cy="76.5" r="1.5" fill="white"/>
+      <circle cx="93.5" cy="76.5" r="1.5" fill="white"/>
+      <ellipse cx="80" cy="95" rx="4.5" ry="3" fill="#1a0a00"/>
+      <path d="M75.5,99 Q80,103 84.5,99" stroke="#1a0a00" stroke-width="1.5" fill="none"/>
+    </svg>`,
+
+    INFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Golden Retriever -->
+      <ellipse cx="80" cy="88" rx="46" ry="42" fill="#c8943a"/>
+      <ellipse cx="80" cy="90" rx="32" ry="28" fill="#e8c06a"/>
+      <!-- floppy ears -->
+      <ellipse cx="48" cy="75" rx="16" ry="28" fill="#b07828" transform="rotate(-10 48 75)"/>
+      <ellipse cx="112" cy="75" rx="16" ry="28" fill="#b07828" transform="rotate(10 112 75)"/>
+      <ellipse cx="48" cy="77" rx="10" ry="22" fill="#c8943a" opacity="0.5" transform="rotate(-10 48 77)"/>
+      <!-- face -->
+      <ellipse cx="80" cy="90" rx="22" ry="20" fill="#e8c06a"/>
+      <!-- eyes -->
+      <ellipse cx="67" cy="82" rx="6" ry="6" fill="#3d1a00"/>
+      <ellipse cx="93" cy="82" rx="6" ry="6" fill="#3d1a00"/>
+      <circle cx="68.5" cy="80.5" r="2" fill="white"/>
+      <circle cx="94.5" cy="80.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="94" rx="5" ry="3.5" fill="#1a0800"/>
+      <path d="M75,98 Q80,103 85,98" stroke="#1a0800" stroke-width="1.5" fill="none"/>
+      <!-- happy cheeks -->
+      <circle cx="60" cy="92" r="8" fill="#e07858" opacity="0.3"/>
+      <circle cx="100" cy="92" r="8" fill="#e07858" opacity="0.3"/>
+    </svg>`,
+
+    ENFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Labrador - yellow -->
+      <ellipse cx="80" cy="90" rx="46" ry="42" fill="#c8a84a"/>
+      <ellipse cx="80" cy="92" rx="30" ry="26" fill="#e8d090"/>
+      <!-- floppy ears -->
+      <ellipse cx="47" cy="74" rx="15" ry="26" fill="#b09030" transform="rotate(-8 47 74)"/>
+      <ellipse cx="113" cy="74" rx="15" ry="26" fill="#b09030" transform="rotate(8 113 74)"/>
+      <!-- face -->
+      <ellipse cx="80" cy="90" rx="22" ry="20" fill="#e0c870"/>
+      <ellipse cx="80" cy="97" rx="14" ry="10" fill="#d4b858" opacity="0.6"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="83" rx="6" ry="6" fill="#2d1500"/>
+      <ellipse cx="92" cy="83" rx="6" ry="6" fill="#2d1500"/>
+      <circle cx="69.5" cy="81.5" r="2" fill="white"/>
+      <circle cx="93.5" cy="81.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="95" rx="5" ry="3.5" fill="#1a0800"/>
+      <path d="M74,99 Q80,104 86,99" stroke="#1a0800" stroke-width="1.8" fill="none"/>
+      <circle cx="61" cy="91" r="7" fill="#e07858" opacity="0.28"/>
+      <circle cx="99" cy="91" r="7" fill="#e07858" opacity="0.28"/>
+    </svg>`,
+
+    ISTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- German Shepherd -->
+      <ellipse cx="80" cy="88" rx="46" ry="42" fill="#3d2b1f"/>
+      <ellipse cx="80" cy="84" rx="26" ry="22" fill="#c8943a" opacity="0.8"/>
+      <!-- saddle marking -->
+      <ellipse cx="80" cy="95" rx="38" ry="28" fill="#1a0f08" opacity="0.7"/>
+      <!-- pointy ears -->
+      <polygon points="52,54 44,16 68,50" fill="#2a1a0e"/>
+      <polygon points="108,54 116,16 92,50" fill="#2a1a0e"/>
+      <polygon points="54,52 48,22 67,50" fill="#6b4a2a" opacity="0.5"/>
+      <polygon points="106,52 112,22 93,50" fill="#6b4a2a" opacity="0.5"/>
+      <!-- face -->
+      <ellipse cx="80" cy="86" rx="20" ry="20" fill="#c8943a" opacity="0.8"/>
+      <ellipse cx="80" cy="96" rx="12" ry="10" fill="#e8c06a" opacity="0.6"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="80" rx="6" ry="6" fill="#1a0800"/>
+      <ellipse cx="92" cy="80" rx="6" ry="6" fill="#1a0800"/>
+      <circle cx="69.5" cy="78.5" r="2" fill="white"/>
+      <circle cx="93.5" cy="78.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="96" rx="5" ry="3.5" fill="#0d0500"/>
+      <path d="M75,100 Q80,104 85,100" stroke="#0d0500" stroke-width="1.5" fill="none"/>
+    </svg>`,
+
+    ISFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Samoyed - fluffy white -->
+      <ellipse cx="80" cy="88" rx="50" ry="46" fill="white"/>
+      <ellipse cx="80" cy="88" rx="46" ry="42" fill="#f8f8ff" opacity="0.9"/>
+      <!-- fluffy texture circles -->
+      <circle cx="50" cy="75" r="16" fill="white"/>
+      <circle cx="110" cy="75" r="16" fill="white"/>
+      <circle cx="55" cy="100" r="14" fill="white"/>
+      <circle cx="105" cy="100" r="14" fill="white"/>
+      <!-- ears -->
+      <polygon points="52,54 46,20 68,50" fill="white"/>
+      <polygon points="108,54 114,20 92,50" fill="white"/>
+      <polygon points="54,52 49,26 67,50" fill="#e8e8f0" opacity="0.6"/>
+      <!-- face -->
+      <ellipse cx="80" cy="88" rx="22" ry="20" fill="#f0f0ff"/>
+      <!-- eyes black -->
+      <ellipse cx="68" cy="80" rx="6" ry="6" fill="#0a0a1a"/>
+      <ellipse cx="92" cy="80" rx="6" ry="6" fill="#0a0a1a"/>
+      <circle cx="69.5" cy="78.5" r="2" fill="white"/>
+      <circle cx="93.5" cy="78.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="92" rx="4.5" ry="3" fill="#1a0a1a"/>
+      <!-- Sammy smile -->
+      <path d="M73,96 Q80,102 87,96" stroke="#1a0a1a" stroke-width="2" fill="none"/>
+      <circle cx="62" cy="90" r="6" fill="#ffb0b0" opacity="0.3"/>
+      <circle cx="98" cy="90" r="6" fill="#ffb0b0" opacity="0.3"/>
+    </svg>`,
+
+    ISFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Corgi - orange and white -->
+      <ellipse cx="80" cy="90" rx="46" ry="40" fill="#d4880a"/>
+      <ellipse cx="80" cy="92" rx="30" ry="26" fill="#f0c060"/>
+      <!-- big bat ears -->
+      <polygon points="50,58 32,18 68,52" fill="#d4880a"/>
+      <polygon points="110,58 128,18 92,52" fill="#d4880a"/>
+      <polygon points="52,56 36,24 67,52" fill="#f0a030" opacity="0.5"/>
+      <polygon points="108,56 124,24 93,52" fill="#f0a030" opacity="0.5"/>
+      <!-- white face blaze -->
+      <ellipse cx="80" cy="88" rx="16" ry="20" fill="#fff5e0"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="80" rx="6" ry="6" fill="#2d1500"/>
+      <ellipse cx="92" cy="80" rx="6" ry="6" fill="#2d1500"/>
+      <circle cx="69.5" cy="78.5" r="2" fill="white"/>
+      <circle cx="93.5" cy="78.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="92" rx="5" ry="3.5" fill="#1a0800"/>
+      <path d="M75,96 Q80,101 85,96" stroke="#1a0800" stroke-width="1.5" fill="none"/>
+      <!-- adorable cheeks -->
+      <circle cx="60" cy="88" r="8" fill="#e07840" opacity="0.35"/>
+      <circle cx="100" cy="88" r="8" fill="#e07840" opacity="0.35"/>
+    </svg>`,
+
+    ESTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Jack Russell Terrier -->
+      <ellipse cx="80" cy="90" rx="44" ry="40" fill="white"/>
+      <!-- patches -->
+      <ellipse cx="65" cy="78" rx="18" ry="16" fill="#8b4513" opacity="0.85"/>
+      <ellipse cx="100" cy="95" rx="20" ry="15" fill="#8b4513" opacity="0.5"/>
+      <!-- floppy ears -->
+      <ellipse cx="48" cy="68" rx="14" ry="24" fill="#c8720a" transform="rotate(-10 48 68)"/>
+      <ellipse cx="112" cy="68" rx="10" ry="20" fill="#c8720a" transform="rotate(10 112 68)"/>
+      <!-- face -->
+      <ellipse cx="80" cy="90" rx="20" ry="18" fill="#f8f8f0"/>
+      <ellipse cx="80" cy="97" rx="12" ry="9" fill="#e8e0d0"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="82" rx="5.5" ry="5.5" fill="#1a0800"/>
+      <ellipse cx="92" cy="82" rx="5.5" ry="5.5" fill="#1a0800"/>
+      <circle cx="69.5" cy="80.5" r="1.8" fill="white"/>
+      <circle cx="93.5" cy="80.5" r="1.8" fill="white"/>
+      <ellipse cx="80" cy="96" rx="4.5" ry="3" fill="#0d0500"/>
+      <path d="M75,100 Q80,105 85,100" stroke="#0d0500" stroke-width="1.5" fill="none"/>
+      <circle cx="62" cy="90" r="6" fill="#e07858" opacity="0.25"/>
+      <circle cx="98" cy="90" r="6" fill="#e07858" opacity="0.25"/>
+    </svg>`,
+
+    ESFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Poodle - curly, fancy -->
+      <circle cx="80" cy="78" r="38" fill="#c060a0" opacity="0.9"/>
+      <!-- curly texture -->
+      <circle cx="58" cy="66" r="12" fill="#a04888" opacity="0.5"/>
+      <circle cx="102" cy="66" r="12" fill="#a04888" opacity="0.5"/>
+      <circle cx="70" cy="55" r="10" fill="#d080b8" opacity="0.4"/>
+      <circle cx="90" cy="55" r="10" fill="#d080b8" opacity="0.4"/>
+      <circle cx="60" cy="88" r="10" fill="#a04888" opacity="0.4"/>
+      <circle cx="100" cy="88" r="10" fill="#a04888" opacity="0.4"/>
+      <!-- ears fluffy -->
+      <circle cx="46" cy="75" r="18" fill="#b060a0" opacity="0.8"/>
+      <circle cx="114" cy="75" r="18" fill="#b060a0" opacity="0.8"/>
+      <!-- face clear -->
+      <ellipse cx="80" cy="84" rx="22" ry="20" fill="#e0a0d0"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="78" rx="6" ry="6" fill="#1a0a1a"/>
+      <ellipse cx="92" cy="78" rx="6" ry="6" fill="#1a0a1a"/>
+      <circle cx="69.5" cy="76.5" r="2" fill="white"/>
+      <circle cx="93.5" cy="76.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="90" rx="5" ry="3.5" fill="#0d0508"/>
+      <path d="M74,94 Q80,99 86,94" stroke="#0d0508" stroke-width="1.5" fill="none"/>
+      <circle cx="62" cy="88" r="6" fill="#ff80c0" opacity="0.3"/>
+      <circle cx="98" cy="88" r="6" fill="#ff80c0" opacity="0.3"/>
+    </svg>`,
+
+    ENTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Australian Shepherd - merle pattern -->
+      <ellipse cx="80" cy="88" rx="46" ry="42" fill="#4a7a5a"/>
+      <ellipse cx="80" cy="90" rx="30" ry="26" fill="#8aba9a"/>
+      <!-- merle patches -->
+      <ellipse cx="58" cy="78" rx="18" ry="14" fill="#2d5a3a" opacity="0.7"/>
+      <ellipse cx="95" cy="85" rx="16" ry="12" fill="#2d5a3a" opacity="0.5"/>
+      <ellipse cx="70" cy="100" rx="20" ry="12" fill="#2d5a3a" opacity="0.4"/>
+      <!-- ears floppy -->
+      <ellipse cx="47" cy="68" rx="14" ry="26" fill="#3d6a4a" transform="rotate(-12 47 68)"/>
+      <ellipse cx="113" cy="68" rx="14" ry="26" fill="#3d6a4a" transform="rotate(12 113 68)"/>
+      <!-- face -->
+      <ellipse cx="80" cy="90" rx="20" ry="18" fill="#a0c8a8"/>
+      <!-- heterochromia eyes -->
+      <ellipse cx="67" cy="82" rx="6" ry="6" fill="#4a8ab0"/>
+      <ellipse cx="93" cy="82" rx="6" ry="6" fill="#b0603a"/>
+      <ellipse cx="67" cy="82" rx="3.5" ry="3.5" fill="#1a0a00"/>
+      <ellipse cx="93" cy="82" rx="3.5" ry="3.5" fill="#1a0a00"/>
+      <circle cx="68.5" cy="80.5" r="1.5" fill="white"/>
+      <circle cx="94.5" cy="80.5" r="1.5" fill="white"/>
+      <ellipse cx="80" cy="94" rx="5" ry="3.5" fill="#0d0800"/>
+      <path d="M75,98 Q80,103 85,98" stroke="#0d0800" stroke-width="1.5" fill="none"/>
+    </svg>`,
+
+    ESTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Rottweiler -->
+      <ellipse cx="80" cy="90" rx="46" ry="42" fill="#1a0f08"/>
+      <ellipse cx="80" cy="90" rx="32" ry="28" fill="#1c1008" opacity="0.9"/>
+      <!-- tan markings on face -->
+      <ellipse cx="68" cy="85" rx="10" ry="8" fill="#8b5a2a" opacity="0.7"/>
+      <ellipse cx="92" cy="85" rx="10" ry="8" fill="#8b5a2a" opacity="0.7"/>
+      <ellipse cx="80" cy="96" rx="14" ry="10" fill="#8b5a2a" opacity="0.8"/>
+      <!-- ears floppy small -->
+      <ellipse cx="48" cy="60" rx="14" ry="20" fill="#0d0808" transform="rotate(-8 48 60)"/>
+      <ellipse cx="112" cy="60" rx="14" ry="20" fill="#0d0808" transform="rotate(8 112 60)"/>
+      <!-- eyes amber -->
+      <ellipse cx="68" cy="82" rx="6" ry="6" fill="#c8841a"/>
+      <ellipse cx="92" cy="82" rx="6" ry="6" fill="#c8841a"/>
+      <ellipse cx="68" cy="82" rx="4" ry="4" fill="#0d0500"/>
+      <ellipse cx="92" cy="82" rx="4" ry="4" fill="#0d0500"/>
+      <circle cx="69.5" cy="80.5" r="1.5" fill="white"/>
+      <circle cx="93.5" cy="80.5" r="1.5" fill="white"/>
+      <ellipse cx="80" cy="97" rx="5.5" ry="4" fill="#080404"/>
+      <path d="M74.5,101 Q80,106 85.5,101" stroke="#080404" stroke-width="1.5" fill="none"/>
+    </svg>`,
+
+    ESFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Bichon Frise - fluffy white curly -->
+      <circle cx="80" cy="84" r="42" fill="white"/>
+      <!-- fluffy clouds -->
+      <circle cx="54" cy="72" r="16" fill="#f8f8ff"/>
+      <circle cx="106" cy="72" r="16" fill="#f8f8ff"/>
+      <circle cx="62" cy="95" r="14" fill="#f8f8ff"/>
+      <circle cx="98" cy="95" r="14" fill="#f8f8ff"/>
+      <circle cx="80" cy="56" r="14" fill="#f8f8ff"/>
+      <!-- face -->
+      <circle cx="80" cy="86" r="24" fill="#fafaff"/>
+      <!-- eyes round black -->
+      <circle cx="68" cy="80" r="6.5" fill="#0a0a1a"/>
+      <circle cx="92" cy="80" r="6.5" fill="#0a0a1a"/>
+      <circle cx="69.5" cy="78.5" r="2" fill="white"/>
+      <circle cx="93.5" cy="78.5" r="2" fill="white"/>
+      <!-- nose -->
+      <ellipse cx="80" cy="91" rx="4.5" ry="3" fill="#0a0a14"/>
+      <!-- smile -->
+      <path d="M73,95 Q80,101 87,95" stroke="#0a0a14" stroke-width="2" fill="none"/>
+      <!-- rosy cheeks -->
+      <circle cx="60" cy="90" r="7" fill="#ffb0c0" opacity="0.35"/>
+      <circle cx="100" cy="90" r="7" fill="#ffb0c0" opacity="0.35"/>
+    </svg>`,
+
+    ISTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Alaskan Malamute -->
+      <ellipse cx="80" cy="88" rx="46" ry="42" fill="#5b6b7c"/>
+      <ellipse cx="80" cy="90" rx="30" ry="26" fill="#c8d0d8"/>
+      <!-- wolf-like face markings -->
+      <ellipse cx="65" cy="78" rx="12" ry="10" fill="#2d3a4a" opacity="0.6"/>
+      <ellipse cx="95" cy="78" rx="12" ry="10" fill="#2d3a4a" opacity="0.6"/>
+      <!-- pointy ears -->
+      <polygon points="52,55 44,18 68,50" fill="#4a5a6a"/>
+      <polygon points="108,55 116,18 92,50" fill="#4a5a6a"/>
+      <polygon points="54,53 48,24 67,50" fill="#8090a0" opacity="0.5"/>
+      <!-- face white area -->
+      <ellipse cx="80" cy="90" rx="20" ry="18" fill="#d8dce0"/>
+      <ellipse cx="80" cy="96" rx="12" ry="10" fill="#e8ecf0"/>
+      <!-- eyes -->
+      <ellipse cx="67" cy="82" rx="6" ry="6" fill="#3d2800"/>
+      <ellipse cx="93" cy="82" rx="6" ry="6" fill="#3d2800"/>
+      <circle cx="68.5" cy="80.5" r="2" fill="white"/>
+      <circle cx="94.5" cy="80.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="96" rx="5" ry="3.5" fill="#0d0800"/>
+      <path d="M75,100 Q80,104 85,100" stroke="#0d0800" stroke-width="1.5" fill="none"/>
+    </svg>`,
+  };
+  return svgs[mbtiType] || svgs['ENFP'];
+}
+
+
+
+function getMBTIAvatar(type) {
+  const d = MBTI_DATA[type];
+  const color = d.accent;
+  const g = d.gradient;
+  const svgs = {
+    INTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g1" cx="50%" cy="40%"><stop offset="0%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[2]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g1)" opacity="0.7"/><polygon points="80,15 135,50 135,110 80,145 25,110 25,50" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.8"/><polygon points="80,35 118,58 118,102 80,125 42,102 42,58" fill="${color}" opacity="0.12"/><line x1="80" y1="15" x2="80" y2="145" stroke="${color}" stroke-width="0.8" opacity="0.4"/><line x1="25" y1="50" x2="135" y2="110" stroke="${color}" stroke-width="0.8" opacity="0.4"/><line x1="135" y1="50" x2="25" y2="110" stroke="${color}" stroke-width="0.8" opacity="0.4"/><circle cx="80" cy="80" r="20" fill="${color}" opacity="0.85"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">INTJ</text></svg>`,
+    INTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g2" cx="50%" cy="50%"><stop offset="0%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g2)" opacity="0.7"/><circle cx="80" cy="80" r="60" fill="none" stroke="${color}" stroke-width="1" stroke-dasharray="4 4" opacity="0.6"/><circle cx="80" cy="80" r="40" fill="none" stroke="${color}" stroke-width="1" opacity="0.5"/><circle cx="80" cy="80" r="22" fill="${color}" opacity="0.15"/><line x1="20" y1="80" x2="140" y2="80" stroke="${color}" stroke-width="0.8" opacity="0.4"/><line x1="80" y1="20" x2="80" y2="140" stroke="${color}" stroke-width="0.8" opacity="0.4"/><circle cx="80" cy="80" r="15" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">INTP</text></svg>`,
+    ENTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g[0]}"/><stop offset="100%" stop-color="${g[2]}"/></linearGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g3)" opacity="0.7"/><polygon points="80,10 150,80 80,150 10,80" fill="none" stroke="${color}" stroke-width="2" opacity="0.8"/><polygon points="80,30 130,80 80,130 30,80" fill="${color}" opacity="0.15"/><line x1="80" y1="10" x2="80" y2="150" stroke="${color}" stroke-width="1" opacity="0.5"/><line x1="10" y1="80" x2="150" y2="80" stroke="${color}" stroke-width="1" opacity="0.5"/><circle cx="80" cy="80" r="22" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ENTJ</text></svg>`,
+    ENTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g4"><stop offset="0%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g4)" opacity="0.7"/><path d="M80,20 L105,45 L140,42 L130,75 L148,98 L116,102 L98,132 L80,108 L62,132 L44,102 L12,98 L30,75 L20,42 L55,45 Z" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.7"/><circle cx="80" cy="80" r="28" fill="${color}" opacity="0.15"/><circle cx="80" cy="80" r="16" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ENTP</text></svg>`,
+    INFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g5" cx="50%" cy="30%"><stop offset="0%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g5)" opacity="0.7"/><path d="M80 25 Q118 52 118 80 Q118 118 80 140 Q42 118 42 80 Q42 52 80 25Z" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.7"/><path d="M80 45 Q105 62 105 80 Q105 105 80 122 Q55 105 55 80 Q55 62 80 45Z" fill="${color}" opacity="0.2"/><ellipse cx="80" cy="80" rx="16" ry="20" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">INFJ</text></svg>`,
+    INFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g6" cx="50%" cy="50%"><stop offset="0%" stop-color="${g[2]}"/><stop offset="60%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g6)" opacity="0.7"/><path d="M80,25 C100,42 122,42 130,62 C142,88 128,118 80,138 C32,118 18,88 30,62 C38,42 60,42 80,25Z" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.6"/><path d="M66,68 Q80,52 94,68 Q100,82 80,96 Q60,82 66,68Z" fill="${color}" opacity="0.75"/><text x="80" y="124" text-anchor="middle" font-size="8" font-weight="bold" fill="${color}" font-family="sans-serif" opacity="0.8">INFP</text></svg>`,
+    ENFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g7" cx="50%" cy="40%"><stop offset="0%" stop-color="#ff7f50"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g7)" opacity="0.7"/><path d="M80,20 L94,66 L142,66 L104,94 L118,140 L80,112 L42,140 L56,94 L18,66 L66,66 Z" fill="${color}" opacity="0.25"/><circle cx="80" cy="80" r="60" fill="none" stroke="${color}" stroke-width="1" opacity="0.4"/><circle cx="80" cy="80" r="20" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ENFJ</text></svg>`,
+    ENFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g8" cx="50%" cy="50%"><stop offset="0%" stop-color="#e100ff"/><stop offset="60%" stop-color="#7928ca"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g8)" opacity="0.7"/><circle cx="50" cy="52" r="16" fill="${color}" opacity="0.3"/><circle cx="110" cy="52" r="13" fill="${color}" opacity="0.25"/><circle cx="80" cy="118" r="19" fill="${color}" opacity="0.2"/><circle cx="36" cy="98" r="11" fill="${color}" opacity="0.2"/><circle cx="124" cy="98" r="9" fill="${color}" opacity="0.2"/><circle cx="80" cy="80" r="26" fill="rgba(255,215,0,0.15)"/><circle cx="80" cy="80" r="18" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ENFP</text></svg>`,
+    ISTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g9" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g[0]}"/><stop offset="100%" stop-color="${g[2]}"/></linearGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g9)" opacity="0.8"/><rect x="28" y="28" width="104" height="104" rx="8" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.6"/><rect x="44" y="44" width="72" height="72" rx="4" fill="${color}" opacity="0.1"/><line x1="28" y1="80" x2="132" y2="80" stroke="${color}" stroke-width="1" opacity="0.4"/><line x1="80" y1="28" x2="80" y2="132" stroke="${color}" stroke-width="1" opacity="0.4"/><rect x="62" y="62" width="36" height="36" rx="4" fill="${color}" opacity="0.85"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ISTJ</text></svg>`,
+    ISFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g10" cx="50%" cy="50%"><stop offset="0%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g10)" opacity="0.7"/><path d="M80,35 C104,35 122,56 122,80 C122,104 104,128 80,136 C56,128 38,104 38,80 C38,56 56,35 80,35Z" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.6"/><path d="M80,52 C98,52 108,65 108,80 C108,96 98,110 80,116 C62,110 52,96 52,80 C52,65 62,52 80,52Z" fill="${color}" opacity="0.15"/><circle cx="80" cy="80" r="20" fill="${color}" opacity="0.85"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ISFJ</text></svg>`,
+    ESTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g11" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g[0]}"/><stop offset="100%" stop-color="#c0392b"/></linearGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g11)" opacity="0.8"/><polygon points="80,16 148,66 124,148 36,148 12,66" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.7"/><polygon points="80,36 130,70 110,136 50,136 30,70" fill="${color}" opacity="0.12"/><circle cx="80" cy="80" r="20" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ESTJ</text></svg>`,
+    ESFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g12" cx="50%" cy="50%"><stop offset="0%" stop-color="#ff6b6b"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g12)" opacity="0.7"/><circle cx="80" cy="80" r="62" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.4"/><circle cx="52" cy="62" r="18" fill="${color}" opacity="0.2"/><circle cx="108" cy="62" r="18" fill="${color}" opacity="0.2"/><circle cx="80" cy="108" r="22" fill="${color}" opacity="0.2"/><circle cx="80" cy="80" r="20" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ESFJ</text></svg>`,
+    ISTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g13" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g[0]}"/><stop offset="100%" stop-color="${g[2]}"/></linearGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g13)" opacity="0.8"/><rect x="22" y="56" width="116" height="48" rx="5" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.6"/><circle cx="80" cy="80" r="30" fill="none" stroke="${color}" stroke-width="1" opacity="0.5"/><line x1="50" y1="80" x2="110" y2="80" stroke="${color}" stroke-width="2" opacity="0.5"/><circle cx="80" cy="80" r="15" fill="${color}" opacity="0.85"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ISTP</text></svg>`,
+    ISFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g14" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g[0]}"/><stop offset="50%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[2]}"/></linearGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g14)" opacity="0.7"/><path d="M80,25 C90,25 128,44 132,72 C136,100 118,136 80,148 C42,136 24,100 28,72 C32,44 70,25 80,25Z" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.6"/><ellipse cx="66" cy="72" rx="11" ry="16" fill="${color}" opacity="0.3" transform="rotate(-20 66 72)"/><ellipse cx="94" cy="72" rx="11" ry="16" fill="${color}" opacity="0.3" transform="rotate(20 94 72)"/><circle cx="80" cy="96" r="20" fill="${color}" opacity="0.7"/><text x="80" y="100" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ISFP</text></svg>`,
+    ESTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g15" cx="50%" cy="50%"><stop offset="0%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g15)" opacity="0.7"/><polygon points="80,14 146,80 80,146 14,80" fill="none" stroke="${color}" stroke-width="2" opacity="0.8"/><polygon points="80,34 126,80 80,126 34,80" fill="${color}" opacity="0.1"/><polygon points="80,54 106,80 80,106 54,80" fill="${color}" opacity="0.2"/><circle cx="80" cy="80" r="18" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ESTP</text></svg>`,
+    ESFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g16" cx="50%" cy="50%"><stop offset="0%" stop-color="#f953c6"/><stop offset="100%" stop-color="#b91d73"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g16)" opacity="0.7"/><circle cx="80" cy="80" r="65" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/><circle cx="48" cy="48" r="14" fill="${color}" opacity="0.4"/><circle cx="112" cy="48" r="11" fill="${color}" opacity="0.3"/><circle cx="48" cy="112" r="11" fill="${color}" opacity="0.3"/><circle cx="112" cy="112" r="14" fill="${color}" opacity="0.4"/><circle cx="80" cy="80" r="28" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="18" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ESFP</text></svg>`,
+  };
+  return svgs[type] || svgs['ENFP'];
+}
+
+function showResult(rec) {
+  const data = MBTI_DATA[rec.mbtiType] || MBTI_DATA['ENFP'];
+
+  // ── Dog breed card ──
+  const dog = getDogBreed(rec.mbtiType);
+  document.getElementById('dog-svg').innerHTML = getDogSVG(rec.mbtiType);
+  document.getElementById('dog-breed-name').textContent = dog.name;
+  document.getElementById('dog-breed-sub').textContent = dog.en + ' · ' + dog.sub;
+  document.getElementById('dog-traits-row').innerHTML = dog.traits.map(t =>
+    `<span class="dog-trait-pill">${t}</span>`).join('');
+  document.getElementById('dog-desc-title').textContent = '🐶 ' + dog.name + '（' + dog.en + '）';
+  document.getElementById('dog-desc-text').textContent = dog.desc;
+
+  const loyaltyPct = rec.loyaltyScore || 0;
+  const loyaltyData = LOYALTY_LEVELS.find(l => loyaltyPct >= l.min && loyaltyPct <= l.max) || LOYALTY_LEVELS[2];
+
+  // ── Personality card ──
+  document.getElementById('card-bg').style.background =
+    `linear-gradient(135deg, ${data.gradient[0]}, ${data.gradient[1]}, ${data.gradient[2]})`;
+  document.getElementById('personality-avatar').innerHTML = getMBTIAvatar(rec.mbtiType);
+  document.getElementById('card-type-label').textContent = rec.mbtiType;
+  document.getElementById('card-archetype').textContent = data.name;
+  document.getElementById('card-tagline').textContent = data.archetype;
+
+  const badges = [
+    { label: `野心 ${rec.ambitionScore}%`, color: '#ff6b9d' },
+    { label: `阴暗面 ${rec.darkScore}%`, color: '#ff4757' },
+    { label: loyaltyData.label, color: '#ff85a1' },
+  ];
+  document.getElementById('card-bottom-badges').innerHTML = badges.map(b =>
+    `<span class="card-badge" style="border-color:${b.color}60;color:${b.color}">${b.label}</span>`
+  ).join('');
+
+  // ── Loyalty ──
+  document.getElementById('loyalty-level-text').textContent = loyaltyData.label;
+  document.getElementById('loyalty-desc-text').textContent = loyaltyData.desc;
+
+  // ── Score grid ──
+  document.getElementById('score-grid').innerHTML = [
+    {label:'野心指数',   val:rec.ambitionScore, color:'#ff6b9d'},
+    {label:'阴暗面指数', val:rec.darkScore,     color:'#ff4757'},
+    {label:'欲望深度',   val:rec.desireScore,   color:'#ffd166'},
+    {label:'多情指数',   val:rec.loyaltyScore||0, color:'#ff85a1'},
+  ].map(item => `
+    <div class="score-card">
+      <div class="score-card-label">${item.label}</div>
+      <div class="score-card-value" style="color:${item.color}">${item.val}<span style="font-size:18px;color:var(--text-muted)">%</span></div>
+      <div class="score-bar-wrap"><div class="score-bar" style="width:${item.val}%;background:${item.color}"></div></div>
+    </div>
+  `).join('');
+
+  // ── Description ──
+  document.getElementById('result-full-desc').innerHTML = `
+    <strong style="color:var(--text)">${data.name}（${rec.mbtiType}）：</strong>${data.desc}<br><br>
+    你的野心指数为 <strong style="color:#ff6b9d">${rec.ambitionScore}%</strong>，
+    阴暗面指数为 <strong style="color:#ff4757">${rec.darkScore}%</strong>，
+    欲望深度为 <strong style="color:#ffd166">${rec.desireScore}%</strong>，
+    多情指数为 <strong style="color:#ff85a1">${rec.loyaltyScore||0}%</strong>。<br><br>
+    ${rec.darkScore >= 60 ? '你的内心深处潜伏着强烈的暗黑驱动力，这既是你的力量来源，也需要有意识地加以引导。' :
+      rec.darkScore >= 35 ? '你拥有适度的内心阴影，这使你更真实、更有深度，同时保持了对道德边界的基本认知。' :
+      '你展现出较高的心理整合度，内心的光暗面相对平衡，有较强的自我约束能力。'}
+  `;
+
+  document.getElementById('result-traits').innerHTML = data.traits.map(t =>
+    `<span class="trait-tag">${t}</span>`).join('');
+  document.getElementById('result-shadows').innerHTML = data.shadows.map(s =>
+    `<span class="trait-tag" style="border-color:rgba(255,71,87,0.3);color:#ff8a94">${s}</span>`).join('');
+
+  goTo('result');
+}
+
+// ─── ADMIN ───
+function renderAdmin() {
+  const records = getRecords();
+  const filterName = document.getElementById('filter-name').value.toLowerCase();
+  const filterType = document.getElementById('filter-type').value;
+  const filterDark = document.getElementById('filter-dark').value;
+
+  const filtered = records.filter(r => {
+    if (filterName && !r.userInfo.name.toLowerCase().includes(filterName)) return false;
+    if (filterType && r.mbtiType !== filterType) return false;
+    if (filterDark && r.darkLevel !== filterDark) return false;
+    return true;
+  });
+
+  // Stats
+  const statsDiv = document.getElementById('admin-stats');
+  if (records.length === 0) {
+    statsDiv.innerHTML = `<div class="stat-card"><div class="num">0</div><div class="lbl">暂无记录</div></div>`;
+  } else {
+    const avgDark = Math.round(records.reduce((s,r) => s+r.darkScore,0)/records.length);
+    const avgAmb = Math.round(records.reduce((s,r) => s+r.ambitionScore,0)/records.length);
+    const typeCount = {};
+    records.forEach(r => typeCount[r.mbtiType] = (typeCount[r.mbtiType]||0)+1);
+    const topType = Object.entries(typeCount).sort((a,b)=>b[1]-a[1])[0];
+    const dogCount = {}; records.forEach(r => { if(r.dogBreed) dogCount[r.dogBreed]=(dogCount[r.dogBreed]||0)+1; });
+    const topDog = Object.entries(dogCount).sort((a,b)=>b[1]-a[1])[0];
+    const avgLoyalty = Math.round(records.reduce((s,r)=>s+(r.loyaltyScore||0),0)/records.length);
+    statsDiv.innerHTML = `
+      <div class="stat-card"><div class="num" style="color:var(--accent)">${records.length}</div><div class="lbl">总参与人数</div></div>
+      <div class="stat-card"><div class="num" style="color:#ff4757">${avgDark}%</div><div class="lbl">平均阴暗面</div></div>
+      <div class="stat-card"><div class="num" style="color:#ff85a1">${avgLoyalty}%</div><div class="lbl">平均多情指数</div></div>
+      <div class="stat-card"><div class="num" style="color:#ffd166;font-size:18px">${topType?topType[0]:'—'}</div><div class="lbl">最多MBTI类型</div></div>
+      <div class="stat-card"><div class="num" style="color:#ffd580;font-size:16px">🐶${topDog?topDog[0]:'—'}</div><div class="lbl">最多灵魂犬系</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--success)">${filtered.length}</div><div class="lbl">当前筛选</div></div>
+    `;
+  }
+
+  const listDiv = document.getElementById('respondent-list');
+  if (filtered.length === 0) {
+    listDiv.innerHTML = `<div class="no-data">暂无符合条件的记录<br><span style="font-size:12px;margin-top:8px;display:block">让被测者完成测试后数据将显示在这里</span></div>`;
+    return;
+  }
+
+  listDiv.innerHTML = filtered.sort((a,b)=>b.id-a.id).map((rec, idx) => {
+    const initials = rec.userInfo.name.slice(0,2);
+    const time = new Date(rec.endTime).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const darkClass = rec.darkLevel==='高'?'high':rec.darkLevel==='中'?'mid':'low';
+    return `
+    <div class="respondent-card" id="card-${idx}">
+      <div class="respondent-header" onclick="toggleCard(${idx})">
+        <div class="avatar">${initials}</div>
+        <div class="respondent-info">
+          <div class="respondent-name">${rec.userInfo.name}</div>
+          <div class="respondent-meta">${rec.userInfo.age||'?'} · ${rec.userInfo.gender||'?'} · ${time}</div>
+        </div>
+        <div class="respondent-scores">
+          <span class="score-pill type">${rec.mbtiType}</span>
+          <span class="score-pill ${darkClass}">阴暗:${rec.darkScore}%</span>
+          <span class="score-pill mid">野心:${rec.ambitionScore}%</span>
+        </div>
+        <span class="expand-arrow">▼</span>
+      </div>
+      <div class="respondent-detail">
+        <div class="detail-tabs">
+          <div class="detail-tab active" onclick="switchTab(${idx},'overview',this)">概览</div>
+          <div class="detail-tab" onclick="switchTab(${idx},'mbti',this)">MBTI</div>
+          <div class="detail-tab" onclick="switchTab(${idx},'loyalty',this)">💕忠诚度</div>
+          <div class="detail-tab" onclick="switchTab(${idx},'dark',this)">阴暗面</div>
+          <div class="detail-tab" onclick="switchTab(${idx},'desire',this)">欲望</div>
+          <div class="detail-tab" onclick="switchTab(${idx},'dog',this)">🐶灵魂犬</div>
+        </div>
+        <div class="tab-content active" id="tab-${idx}-overview">
+          <div class="dim-chart">
+            ${[
+              {l:'野心指数',v:rec.ambitionScore+'%',d:rec.ambitionScore>=70?'强烈':'中等'},
+              {l:'阴暗面',v:rec.darkScore+'%',d:rec.darkLevel+'风险'},
+              {l:'欲望深度',v:rec.desireScore+'%',d:rec.desireScore>=70?'深度':'适中'},
+              {l:'已知类型',v:rec.userInfo.knownMbti||'未知',d:'自报MBTI'},
+            ].map(d=>`<div class="dim-item"><div class="dim-label">${d.l}</div><div class="dim-value">${d.v}</div><div class="dim-desc">${d.d}</div></div>`).join('')}
+          </div>
+          <div style="margin-top:16px">
+            ${['ambition','dark','desire'].map(sec=>{
+              const secQ = rec.answers.filter(a=>a.section===sec);
+              const avg = secQ.length? (secQ.reduce((s,a)=>s+a.score,0)/secQ.length).toFixed(1):'0';
+              const labels = {ambition:'野心维度',dark:'阴暗面维度',desire:'欲望维度'};
+              return `<div class="chart-bar-row">
+                <div class="chart-bar-label"><span>${labels[sec]}</span><span>均分 ${avg}</span></div>
+                <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${Math.min(100,Math.max(0,(parseFloat(avg)+1)*20))}%"></div></div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-mbti">
+          <div class="answers-grid">
+            ${rec.answers.filter(a=>a.section==='mbti').map((a,i)=>`
+              <div class="answer-row">
+                <div class="answer-q">Q${i+1}. ${a.q}</div>
+                <div class="answer-a">${a.a}</div>
+                <div class="answer-score">得分：${a.score > 0?'+':''}${a.score}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-ambition">
+          <div class="answers-grid">
+            ${rec.answers.filter(a=>a.section==='ambition').map((a,i)=>`
+              <div class="answer-row">
+                <div class="answer-q">野心Q${i+1}. ${a.q}</div>
+                <div class="answer-a">${a.a}</div>
+                <div class="answer-score" style="color:#ff6b9d">得分：${a.score > 0?'+':''}${a.score}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-loyalty">
+          <div class="answers-grid">
+            ${rec.answers.filter(a=>a.section==='loyalty'||a.section==='loyalty2'||a.section==='loyalty3').map((a,i)=>`
+              <div class="answer-row">
+                <div class="answer-q">💕 忠诚Q${i+1}. ${a.q}</div>
+                <div class="answer-a">${a.a}</div>
+                <div class="answer-score" style="color:#ff85a1">得分：${a.score > 0?'+':''}${a.score}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-dark">
+          <div class="answers-grid">
+            ${rec.answers.filter(a=>a.section==='dark').map((a,i)=>`
+              <div class="answer-row">
+                <div class="answer-q">阴暗Q${i+1}. ${a.q}</div>
+                <div class="answer-a">${a.a}</div>
+                <div class="answer-score" style="color:#ff4757">得分：${a.score > 0?'+':''}${a.score}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-desire">
+          <div class="answers-grid">
+            ${rec.answers.filter(a=>a.section==='desire').map((a,i)=>`
+              <div class="answer-row">
+                <div class="answer-q">欲望Q${i+1}. ${a.q}</div>
+                <div class="answer-a">${a.a}</div>
+                <div class="answer-score" style="color:#ffd166">得分：${a.score > 0?'+':''}${a.score}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-dog">
+          <div style="text-align:center;padding:20px 0">
+            <div style="font-size:40px;margin-bottom:10px">🐶</div>
+            <div style="font-size:11px;letter-spacing:3px;color:rgba(255,213,128,0.5);margin-bottom:8px">SOUL DOG BREED</div>
+            <div style="font-size:26px;font-weight:700;color:#ffd580;font-family:serif;margin-bottom:4px">${rec.dogBreed||'—'}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">${rec.dogEn||''}</div>
+            <div style="background:rgba(255,180,80,0.07);border:1px solid rgba(255,180,80,0.18);border-radius:10px;padding:14px;font-size:13px;color:var(--text-muted);line-height:1.8;text-align:left;max-width:400px;margin:0 auto">
+              ${(()=>{const d=DOG_DATA[rec.mbtiType];return d?d.desc:'暂无数据';})()}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+  }).join('');
+}
+
+function toggleCard(idx) {
+  const card = document.getElementById('card-'+idx);
+  card.classList.toggle('open');
+}
+
+function switchTab(cardIdx, tabName, el) {
+  const card = document.getElementById('card-'+cardIdx);
+  card.querySelectorAll('.detail-tab').forEach(t=>t.classList.remove('active'));
+  card.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const target = document.getElementById(`tab-${cardIdx}-${tabName}`);
+  if (target) target.classList.add('active');
+}
+
+function exportCSV() {
+  const records = getRecords();
+  if (!records.length) { alert('暂无数据'); return; }
+  const rows = [['ID','昵称','年龄','性别','已知MBTI','测出MBTI','野心%','阴暗面%','欲望%','阴暗等级','完成时间']];
+  records.forEach(r => {
+    rows.push([r.id, r.userInfo.name, r.userInfo.age, r.userInfo.gender, r.userInfo.knownMbti||'未知', r.mbtiType, r.ambitionScore, r.darkScore, r.desireScore, r.darkLevel, r.endTime]);
+  });
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'mbti_dark_quiz_' + Date.now() + '.csv';
+  a.click();
+}
+
+</script>
+</body>
+</html>
