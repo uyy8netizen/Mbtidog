@@ -1,0 +1,2987 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBTI 阴暗猎奇度与命运感情线推断深度测试</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: rgba(180,140,255,0.15);
+    --accent: #b48cff;
+    --accent2: #ff6b9d;
+    --accent3: #ffd166;
+    --text: #e8e0f0;
+    --text-muted: #9090b0;
+    --danger: #ff4757;
+    --success: #2ed573;
+  }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .noise {
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.4;
+  }
+
+  .container { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── LANDING ── */
+  #screen-landing { text-align: center; padding-top: 80px; }
+
+  .eyebrow {
+    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 24px; font-weight: 500;
+  }
+
+  h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 700; line-height: 1.2;
+    background: linear-gradient(135deg, #b48cff, #ff6b9d, #ffd166);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+  }
+
+  .subtitle {
+    font-size: 15px; color: var(--text-muted); line-height: 1.8;
+    max-width: 480px; margin: 0 auto 40px;
+  }
+
+  .meta-tags { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+  .tag {
+    font-size: 12px; padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px; color: var(--text-muted);
+    background: var(--surface);
+  }
+
+  .btn-primary {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 16px; font-weight: 600;
+    padding: 16px 48px;
+    background: linear-gradient(135deg, #7c4dff, #b048d6);
+    border: none; border-radius: 8px;
+    color: white; cursor: pointer;
+    transition: all 0.2s; display: inline-block;
+    box-shadow: 0 0 40px rgba(180,140,255,0.2);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(180,140,255,0.35); }
+
+  .btn-secondary {
+    font-size: 14px; padding: 10px 24px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text-muted); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .landing-footer { margin-top: 24px; display: flex; gap: 16px; justify-content: center; align-items: center; flex-wrap: wrap; }
+
+  .corner-btns {
+    position: fixed; right: 16px; bottom: 16px; z-index: 50;
+    display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+  }
+  .corner-activate {
+    font-size: 12px; padding: 8px 14px;
+    background: rgba(18,18,26,0.85); border: 1px solid rgba(180,140,255,0.35);
+    border-radius: 20px; color: var(--text-muted); cursor: pointer;
+    backdrop-filter: blur(8px); transition: all 0.2s;
+  }
+  .corner-activate:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 20px rgba(180,140,255,0.2); }
+
+  /* 题库面板 */
+  .qbank-panel {
+    position: fixed; inset: 0; z-index: 280;
+    background: rgba(0,0,0,0.92);
+    display: none; flex-direction: column;
+    padding: 16px; box-sizing: border-box;
+  }
+  .qbank-panel.show { display: flex; }
+  .qbank-header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .qbank-header h3 {
+    margin: 0; font-family: 'Noto Serif SC', serif; font-size: 18px;
+    background: linear-gradient(135deg,#b48cff,#ff6b9d);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .qbank-search {
+    flex: 1; min-width: 160px; max-width: 280px;
+    padding: 8px 12px; border-radius: 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); font-size: 13px;
+  }
+  .qbank-list {
+    flex: 1; overflow-y: auto; border-radius: 14px;
+    border: 1px solid var(--border); background: rgba(18,18,26,0.9);
+  }
+  .qbank-item {
+    padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    cursor: pointer; transition: background 0.15s;
+  }
+  .qbank-item:hover { background: rgba(180,140,255,0.12); }
+  .qbank-item:last-child { border-bottom: none; }
+  .qbank-item .qi-num {
+    font-size: 11px; color: var(--accent); letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+  .qbank-item .qi-text {
+    font-size: 13px; color: var(--text); line-height: 1.5;
+  }
+  .qbank-item .qi-sec {
+    font-size: 11px; color: var(--text-muted); margin-top: 4px;
+  }
+  .qbank-item.active {
+    background: rgba(255,71,87,0.12);
+    border-left: 3px solid #ff6b9d;
+  }
+
+
+  /* ── USER INFO ── */
+  #screen-userinfo { padding-top: 60px; max-width: 480px; margin: 0 auto; }
+  #screen-userinfo h2 { font-family: 'Noto Serif SC', serif; font-size: 24px; margin-bottom: 8px; }
+  #screen-userinfo p { color: var(--text-muted); font-size: 14px; margin-bottom: 32px; line-height: 1.7; }
+
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 12px 16px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 14px;
+    outline: none; transition: border-color 0.2s;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+  .form-group select option { background: #1a1a26; }
+
+  /* ── QUIZ ── */
+  #screen-quiz { padding-top: 40px; }
+
+  .progress-bar-wrap {
+    background: var(--surface2); height: 3px; border-radius: 3px;
+    margin-bottom: 8px; overflow: hidden;
+  }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, #7c4dff, #ff6b9d); transition: width 0.4s; }
+
+  .progress-text {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--text-muted); margin-bottom: 36px;
+  }
+
+  .section-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 20px;
+    margin-bottom: 20px; font-weight: 500;
+  }
+  .section-badge.mbti { background: rgba(124,77,255,0.15); color: #b48cff; border: 1px solid rgba(124,77,255,0.3); }
+  .section-badge.ambition { background: rgba(255,107,157,0.12); color: #ff6b9d; border: 1px solid rgba(255,107,157,0.3); }
+  .section-badge.dark { background: rgba(255,71,87,0.12); color: #ff4757; border: 1px solid rgba(255,71,87,0.3); }
+  .section-badge.desire { background: rgba(255,209,102,0.12); color: #ffd166; border: 1px solid rgba(255,209,102,0.3); }
+  .section-badge.loyalty  { background: rgba(255,133,161,0.12); color: #ff85a1; border: 1px solid rgba(255,133,161,0.4); }
+  .section-badge.loyalty2 { background: rgba(192,132,252,0.12); color: #c084fc; border: 1px solid rgba(192,132,252,0.4); }
+  .section-badge.loyalty3 { background: rgba(103,232,249,0.12); color: #67e8f9; border: 1px solid rgba(103,232,249,0.4); }
+
+  .question-num { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+
+  .question-text {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 19px; line-height: 1.7; font-weight: 400;
+    margin-bottom: 32px; color: var(--text);
+  }
+
+  .options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
+
+  .option {
+    padding: 16px 20px; border: 1px solid var(--border);
+    border-radius: 10px; cursor: pointer; background: var(--surface);
+    font-size: 14px; line-height: 1.6; color: var(--text-muted);
+    transition: all 0.15s; position: relative; overflow: hidden;
+  }
+  .option:hover { border-color: var(--accent); color: var(--text); background: var(--surface2); }
+  .option.selected { border-color: var(--accent); background: rgba(124,77,255,0.1); color: var(--text); }
+  .option.selected::before {
+    content: '✓'; position: absolute; right: 16px; top: 50%;
+    transform: translateY(-50%); color: var(--accent); font-size: 14px;
+  }
+
+  .quiz-nav { display: flex; gap: 12px; align-items: center; }
+  .btn-nav {
+    padding: 12px 28px; border-radius: 8px; cursor: pointer;
+    font-size: 14px; transition: all 0.2s;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+  .btn-next {
+    background: linear-gradient(135deg, #7c4dff, #b048d6);
+    border: none; color: white; flex: 1;
+  }
+  .btn-next:hover { opacity: 0.9; }
+  .btn-next:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn-prev {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn-prev:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── RESULT ── */
+  #screen-result { padding-top: 60px; }
+
+  .result-header { text-align: center; margin-bottom: 48px; }
+  .mbti-type {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 64px; font-weight: 700;
+    background: linear-gradient(135deg, #b48cff, #ff6b9d);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 8px; letter-spacing: 4px;
+  }
+  .mbti-desc { font-size: 18px; color: var(--text-muted); margin-bottom: 24px; }
+
+  .score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px; }
+  @media (max-width: 480px) { .score-grid { grid-template-columns: 1fr; } }
+
+  .score-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+  }
+  .score-card-label { font-size: 12px; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; }
+  .score-card-value { font-family: 'Noto Serif SC', serif; font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+  .score-bar-wrap { background: var(--surface2); height: 4px; border-radius: 4px; }
+  .score-bar { height: 100%; border-radius: 4px; transition: width 1s; }
+
+  .traits-section { margin-bottom: 32px; }
+  .traits-section h3 { font-family: 'Noto Serif SC', serif; font-size: 16px; margin-bottom: 16px; color: var(--text-muted); }
+  .traits { display: flex; flex-wrap: wrap; gap: 8px; }
+  .trait-tag {
+    padding: 6px 14px; border-radius: 20px; font-size: 13px;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted);
+  }
+
+  .result-desc {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; margin-bottom: 32px;
+    font-size: 14px; line-height: 1.9; color: var(--text-muted);
+  }
+
+  .result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  /* ── ADMIN ── */
+  #screen-admin { padding-top: 40px; }
+
+  .admin-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+  .admin-header h2 { font-family: 'Noto Serif SC', serif; font-size: 24px; }
+  .admin-header p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
+  @media (max-width: 480px) { .stats-row { grid-template-columns: 1fr 1fr; } }
+
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px;
+  }
+  .stat-card .num { font-size: 28px; font-weight: 600; font-family: 'Noto Serif SC', serif; margin-bottom: 4px; }
+  .stat-card .lbl { font-size: 12px; color: var(--text-muted); }
+
+  .filter-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-row input, .filter-row select {
+    padding: 8px 14px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-size: 13px; outline: none;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+
+  .respondent-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .respondent-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .respondent-header {
+    padding: 14px 18px; display: flex; align-items: center;
+    gap: 12px; cursor: pointer; transition: background 0.15s;
+  }
+  .respondent-header:hover { background: var(--surface2); }
+
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(124,77,255,0.3), rgba(176,72,214,0.3));
+    color: var(--accent);
+  }
+
+  .respondent-info { flex: 1; }
+  .respondent-name { font-size: 14px; font-weight: 500; }
+  .respondent-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .respondent-scores { display: flex; gap: 12px; align-items: center; }
+  .score-pill {
+    font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 500;
+  }
+  .score-pill.type { background: rgba(124,77,255,0.15); color: var(--accent); }
+  .score-pill.high { background: rgba(255,71,87,0.15); color: var(--danger); }
+  .score-pill.mid { background: rgba(255,209,102,0.15); color: var(--accent3); }
+  .score-pill.low { background: rgba(46,213,115,0.15); color: var(--success); }
+
+  .expand-arrow { font-size: 12px; color: var(--text-muted); transition: transform 0.2s; }
+  .respondent-card.open .expand-arrow { transform: rotate(180deg); }
+
+  .respondent-detail { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
+  .respondent-card.open .respondent-detail { display: block; }
+
+  .detail-tabs { display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
+  .detail-tab {
+    font-size: 12px; padding: 5px 14px; border-radius: 20px; cursor: pointer;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .detail-tab.active { background: rgba(124,77,255,0.2); border-color: var(--accent); color: var(--accent); }
+
+  .answers-grid { display: flex; flex-direction: column; gap: 8px; }
+  .answer-row {
+    background: var(--surface2); border-radius: 6px;
+    padding: 10px 14px; font-size: 13px; line-height: 1.6;
+  }
+  .answer-q { color: var(--text-muted); margin-bottom: 4px; font-size: 12px; }
+  .answer-a { color: var(--text); }
+  .answer-score { font-size: 11px; color: var(--accent); margin-top: 2px; }
+
+  .no-data { text-align: center; padding: 60px; color: var(--text-muted); font-size: 14px; }
+
+  .export-btn {
+    font-size: 13px; padding: 8px 18px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+  }
+  .export-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .admin-pass-form {
+    max-width: 360px; margin: 80px auto; text-align: center;
+  }
+  .admin-pass-form h2 { font-family: 'Noto Serif SC', serif; font-size: 22px; margin-bottom: 8px; }
+  .admin-pass-form p { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+
+  /* ── PASSWORD MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 32px; max-width: 360px; width: 90%;
+  }
+  .modal h3 { font-family: 'Noto Serif SC', serif; font-size: 20px; margin-bottom: 8px; }
+  .modal p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+  .modal input {
+    width: 100%; padding: 12px 16px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+    font-size: 14px; outline: none; margin-bottom: 16px;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+  .modal-actions { display: flex; gap: 10px; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .chart-bar-row { margin-bottom: 12px; }
+  .chart-bar-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .chart-bar-bg { background: var(--surface2); height: 8px; border-radius: 4px; overflow: hidden; }
+  .chart-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #7c4dff, #ff6b9d); }
+
+  .dim-chart { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .dim-item { background: var(--surface2); border-radius: 8px; padding: 14px; }
+  .dim-label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+  .dim-value { font-size: 20px; font-weight: 600; color: var(--accent); }
+  .dim-desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* ── PERSONALITY RESULT CARD ── */
+  .result-hero { display:flex; flex-direction:column; align-items:center; margin-bottom:40px; }
+
+  .personality-card {
+    width:100%; max-width:420px;
+    border-radius:24px; overflow:hidden;
+    position:relative; margin-bottom:28px;
+    box-shadow: 0 0 80px rgba(180,140,255,0.25), 0 30px 60px rgba(0,0,0,0.6);
+    animation: cardReveal 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards, glowPulse 3s ease-in-out infinite;
+  }
+  .personality-card-bg { position:absolute; inset:0; z-index:0; }
+  .personality-card-content {
+    position:relative; z-index:1;
+    padding:36px 32px 32px;
+    display:flex; flex-direction:column; align-items:center;
+    min-height:400px;
+  }
+  .card-eyebrow { font-size:10px; letter-spacing:4px; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:20px; }
+  .personality-avatar { width:160px; height:160px; margin-bottom:20px; }
+  .card-type-label {
+    font-family:'Noto Serif SC',serif;
+    font-size:52px; font-weight:700; color:white;
+    letter-spacing:6px; text-shadow:0 0 40px rgba(255,255,255,0.3);
+    margin-bottom:4px; line-height:1;
+  }
+  .card-archetype { font-family:'Noto Serif SC',serif; font-size:20px; color:rgba(255,255,255,0.85); margin-bottom:6px; letter-spacing:2px; }
+  .card-tagline { font-size:12px; color:rgba(255,255,255,0.5); text-align:center; line-height:1.7; max-width:280px; }
+  .card-bottom-badges { display:flex; gap:8px; margin-top:20px; flex-wrap:wrap; justify-content:center; }
+  .card-badge { font-size:11px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.08); }
+
+  /* Loyalty card */
+  .loyalty-result-card {
+    background:var(--surface); border:1px solid rgba(255,133,161,0.3);
+    border-radius:16px; padding:24px; margin-bottom:32px;
+    position:relative; overflow:hidden;
+  }
+  .loyalty-result-card::before { content:'💕'; position:absolute; right:20px; top:16px; font-size:32px; opacity:0.2; }
+  .loyalty-result-title { font-family:'Noto Serif SC',serif; font-size:16px; color:#ff85a1; margin-bottom:6px; }
+  .loyalty-level {
+    font-family:'Noto Serif SC',serif; font-size:26px; font-weight:700;
+    background:linear-gradient(135deg,#ff85a1,#ffd166);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    margin-bottom:10px;
+  }
+  .loyalty-desc { font-size:13px; color:var(--text-muted); line-height:1.8; }
+
+  /* Score pill for loyalty */
+  .score-pill.loyalty-pill { background:rgba(255,133,161,0.15); color:#ff85a1; }
+
+  
+  /* ── DOG BREED CARD ── */
+  .dog-card {
+    width: 100%; max-width: 420px; border-radius: 24px; overflow: hidden;
+    position: relative; margin: 0 auto 28px; cursor: default;
+    box-shadow: 0 0 60px rgba(255,180,100,0.2), 0 20px 50px rgba(0,0,0,0.5);
+    animation: cardReveal 0.7s 0.15s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  .dog-card-inner {
+    position: relative; z-index: 1; padding: 32px 28px 28px;
+    display: flex; flex-direction: column; align-items: center; min-height: 380px;
+    background: linear-gradient(160deg, #1a1006 0%, #2d1e08 40%, #1a0f0a 100%);
+  }
+  .dog-card-eyebrow {
+    font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+    color: rgba(255,200,120,0.5); margin-bottom: 16px;
+  }
+  .dog-svg-wrap { width: 160px; height: 160px; margin-bottom: 18px; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.5)); }
+  .dog-breed-name {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 30px; font-weight: 700; color: #ffd580;
+    letter-spacing: 2px; margin-bottom: 4px; text-shadow: 0 0 30px rgba(255,213,128,0.4);
+  }
+  .dog-breed-sub { font-size: 13px; color: rgba(255,200,120,0.6); margin-bottom: 14px; }
+  .dog-traits-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .dog-trait-pill {
+    font-size: 11px; padding: 4px 12px; border-radius: 20px;
+    background: rgba(255,213,128,0.1); border: 1px solid rgba(255,213,128,0.25);
+    color: rgba(255,213,128,0.8);
+  }
+  .dog-desc-card {
+    background: var(--surface); border: 1px solid rgba(255,180,80,0.2);
+    border-radius: 16px; padding: 22px; margin-bottom: 32px;
+    position: relative; overflow: hidden;
+  }
+  .dog-desc-card::before { content:'🐾'; position:absolute; right:18px; top:14px; font-size:28px; opacity:0.15; }
+  .dog-desc-title { font-family:'Noto Serif SC',serif; font-size:15px; color:#ffd580; margin-bottom:8px; }
+  .dog-desc-text { font-size:13px; color:var(--text-muted); line-height:1.85; }
+
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes cardReveal { from{opacity:0;transform:scale(0.92) translateY(30px)} to{opacity:1;transform:scale(1) translateY(0)} }
+  @keyframes glowPulse { 0%,100%{box-shadow:0 0 60px rgba(180,140,255,0.2),0 30px 60px rgba(0,0,0,0.6)} 50%{box-shadow:0 0 100px rgba(180,140,255,0.4),0 30px 60px rgba(0,0,0,0.6)} }
+
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<!-- MODAL: Admin Password -->
+<div class="modal-overlay" id="modal-admin">
+  <div class="modal">
+    <h3>会员入口</h3>
+    <p>输入会员激活码。</p>
+    <input type="password" id="admin-pass-input" placeholder="请输入激活码" />
+    <div class="modal-actions">
+      <button class="btn-secondary" style="flex:1" onclick="closeAdminModal()">取消</button>
+      <button class="btn-primary" style="flex:2;padding:10px 0" onclick="verifyAdmin()">进入通道</button>
+    </div>
+    <p style="font-size:11px;color:var(--text-muted);margin-top:12px;text-align:center">请输入正确的会员激活码</p>
+  </div>
+</div>
+
+<!-- MODAL: Tester Activate -->
+<div class="modal-overlay" id="modal-activate">
+  <div class="modal">
+    <h3>激活入口</h3>
+    <p>请填写激活码。</p>
+    <input type="password" id="activate-pass-input" placeholder="请输入激活码" />
+    <div class="modal-actions">
+      <button class="btn-secondary" style="flex:1" onclick="closeActivateModal()">取消</button>
+      <button class="btn-primary" style="flex:2;padding:10px 0" onclick="verifyActivate()">确认</button>
+    </div>
+    <p style="font-size:11px;color:var(--text-muted);margin-top:12px;text-align:center">示例：admin000</p>
+  </div>
+</div>
+
+<!-- MODAL: Quick Test Panel -->
+<div class="modal-overlay" id="modal-quicktest">
+  <div class="modal" style="max-width:400px">
+    <h3>激活成功</h3>
+    <p style="line-height:1.7">已验证。可选择快速完成全部题目并跳转。</p>
+    <div class="modal-actions" style="flex-direction:column;gap:10px">
+      <button class="btn-primary" style="width:100%;padding:12px 0" onclick="runQuickTest(false)">全选末项 → 跳到最后一题</button>
+      <button class="btn-secondary" style="width:100%" onclick="runQuickTest(true)">全选末项 → 直接出结果</button>
+      <button class="btn-secondary" style="width:100%" onclick="closeQuickTestModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ══ SCREEN: LANDING ══ -->
+<div class="screen active" id="screen-landing">
+  <div class="eyebrow">心理测评 · 阴暗面 · 命运感情线</div>
+  <h1>MBTI <br>猎奇程度深度测试</h1>
+  <p class="subtitle">深度探索人格类型、猎奇边界、内心欲望与命运感情线。部分隐藏支线将根据你的真实选择动态开启。</p>
+  <div class="meta-tags">
+    <span class="tag">基础 145 题 + 隐藏支线</span>
+    <span class="tag">多维度分析</span>
+    <span class="tag">约 25-35 分钟</span>
+    <span class="tag">心理星座 · 命运走势</span>
+    <span class="tag">免费参与</span>
+  </div>
+  <button class="btn-primary" onclick="goTo('userinfo')">开始测试</button>
+  <div class="landing-footer">
+    <button class="btn-secondary" onclick="openAdminModal()">会员测试入口 →</button>
+  </div>
+</div>
+
+<!-- 角落按钮 -->
+<div class="corner-btns">
+  <button class="corner-activate" onclick="openQBankModal()">题库系统</button>
+  <button class="corner-activate" onclick="openActivateModal()">激活入口</button>
+</div>
+
+<!-- MODAL: 题库激活码 -->
+<div class="modal-overlay" id="modal-qbank-auth">
+  <div class="modal">
+    <h3>题库系统</h3>
+    <p>请填写激活码。</p>
+    <input type="password" id="qbank-pass-input" placeholder="请输入激活码" />
+    <div class="modal-actions">
+      <button class="btn-secondary" style="flex:1" onclick="closeQBankAuthModal()">取消</button>
+      <button class="btn-primary" style="flex:2;padding:10px 0" onclick="verifyQBank()">确认</button>
+    </div>
+    <p style="font-size:11px;color:var(--text-muted);margin-top:12px;text-align:center">示例：admin000</p>
+  </div>
+</div>
+
+<!-- MODAL: 结果前再次确认出生日期 -->
+<div class="modal-overlay" id="modal-birth-confirm">
+  <div class="modal" style="max-width:420px">
+    <h3>确认出生信息</h3>
+    <p style="line-height:1.75;margin-bottom:16px">请记录你的<strong style="color:#ffd166">真实出生日期</strong>，以获取最准确的心理星座与命运走势结果。此信息将与首次填写一并保存，请勿照抄第一次的内容。</p>
+    <div class="form-group" style="margin-bottom:12px">
+      <label>年龄（请填写具体数字，如 22）</label>
+      <input type="number" id="confirm-age" min="1" max="120" step="1" placeholder="请输入真实年龄数字" inputmode="numeric" />
+    </div>
+    <div class="form-group" style="margin-bottom:8px">
+      <label>出生年月日</label>
+      <div style="display:flex;gap:8px">
+        <select id="confirm-birth-year" style="flex:1.2"><option value="">年</option></select>
+        <select id="confirm-birth-month" style="flex:1">
+          <option value="">月</option>
+          <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+          <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+          <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+          <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+        </select>
+        <select id="confirm-birth-day" style="flex:1"><option value="">日</option></select>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--text-muted);margin:8px 0 16px;line-height:1.6">请填写真实信息。第二次与第一次不一致时，系统会单独记录两次数据用于核对。</p>
+    <div class="modal-actions">
+      <button class="btn-primary" style="width:100%;padding:12px 0" onclick="submitBirthConfirm()">确认并查看结果 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- 题库面板（全屏列表） -->
+<div class="qbank-panel" id="qbank-panel">
+  <div class="qbank-header">
+    <h3>题库系统 · 全部题目</h3>
+    <input class="qbank-search" id="qbank-search" type="text" placeholder="搜索题号或关键词…" oninput="filterQBank()" />
+    <button class="btn-secondary" style="padding:8px 14px;font-size:12px" onclick="closeQBankPanel()">关闭</button>
+  </div>
+  <div id="qbank-outcome-bar" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px;padding:12px;border-radius:12px;background:rgba(180,140,255,0.08);border:1px solid rgba(180,140,255,0.2)">
+    <span style="font-size:12px;color:var(--text-muted);width:100%">一键模拟结局（测试用，不经答题、不写云端）</span>
+    <select id="sim-tier" style="padding:8px 10px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:12px">
+      <option value="正常人">正常人</option>
+      <option value="轻度猎奇">轻度猎奇</option>
+      <option value="中度猎奇">中度猎奇</option>
+      <option value="完全猎奇">完全猎奇</option>
+      <option value="神">神</option>
+    </select>
+    <select id="sim-zodiac" style="padding:8px 10px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:12px">
+      <option value="白羊座">白羊座</option><option value="金牛座">金牛座</option>
+      <option value="双子座">双子座</option><option value="巨蟹座">巨蟹座</option>
+      <option value="狮子座">狮子座</option><option value="处女座">处女座</option>
+      <option value="天秤座" selected>天秤座</option><option value="天蝎座">天蝎座</option>
+      <option value="射手座">射手座</option><option value="摩羯座">摩羯座</option>
+      <option value="水瓶座">水瓶座</option><option value="双鱼座">双鱼座</option>
+    </select>
+    <select id="sim-mbti" style="padding:8px 10px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:12px">
+      <option>INTJ</option><option>INTP</option><option>ENTJ</option><option>ENTP</option>
+      <option>INFJ</option><option>INFP</option><option>ENFJ</option><option selected>ENFP</option>
+      <option>ISTJ</option><option>ISFJ</option><option>ESTJ</option><option>ESFJ</option>
+      <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
+    </select>
+    <label style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:4px">
+      <input type="checkbox" id="sim-incest" /> 解锁骨科隐藏结果
+    </label>
+    <button class="btn-primary" style="padding:8px 16px;font-size:12px" onclick="runSimulatedResult()">生成该结局</button>
+  </div>
+  <div class="qbank-list" id="qbank-list"></div>
+</div>
+
+
+<!-- ══ SCREEN: USER INFO ══ -->
+<div class="screen" id="screen-userinfo">
+  <h2>基本信息</h2>
+  <p>请按照内心真实想法填写，这些信息用于深度测试与命运线推断，不关联到个人身份。为确保最准确的结果，请如实填写。</p>
+  <div class="form-group">
+    <label>真实昵称缩写（如XXX，该项与命运线相关）</label>
+    <input type="text" id="user-name" placeholder="例如：小明 XM..." />
+  </div>
+  <div class="form-group">
+    <label>出生年月日（用于命运走势与心理星座推演）</label>
+    <div style="display:flex;gap:8px">
+      <select id="user-birth-year" style="flex:1.2">
+        <option value="">年</option>
+      </select>
+      <select id="user-birth-month" style="flex:1">
+        <option value="">月</option>
+        <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+        <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+        <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+        <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+      </select>
+      <select id="user-birth-day" style="flex:1">
+        <option value="">日</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label>年龄段（用于结果校准）</label>
+    <select id="user-age">
+      <option value="">请选择</option>
+      <option>12岁以下</option>
+      <option>12-16岁</option>
+      <option>16-18岁</option>
+      <option>18-25岁</option>
+      <option>25-35岁</option>
+      <option>35岁以上</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>性别认同</label>
+    <select id="user-gender">
+      <option value="">请选择</option>
+      <option>男性</option>
+      <option>女性</option>
+      <option>非二元</option>
+      <option>不想透露</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>你已知的 MBTI 类型（若有）</label>
+    <select id="user-known-mbti">
+      <option value="">不确定 / 未测过</option>
+      <option>INTJ</option><option>INTP</option><option>ENTJ</option><option>ENTP</option>
+      <option>INFJ</option><option>INFP</option><option>ENFJ</option><option>ENFP</option>
+      <option>ISTJ</option><option>ISFJ</option><option>ESTJ</option><option>ESFJ</option>
+      <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
+    </select>
+  </div>
+  <div style="display:flex;gap:12px;margin-top:8px">
+    <button class="btn-secondary" onclick="goTo('landing')">← 返回</button>
+    <button class="btn-primary" style="padding:14px 36px" onclick="startQuiz()">继续 →</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN: QUIZ ══ -->
+<div class="screen" id="screen-quiz">
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  <div class="progress-text">
+    <span id="progress-label">题目 1 / 145</span>
+    <span id="section-label">第一部分</span>
+  </div>
+  <div class="section-badge" id="section-badge">MBTI 基础维度</div>
+  <div class="question-num" id="q-num">Q1</div>
+  <div class="question-text" id="q-text"></div>
+  <div class="options" id="q-options"></div>
+  <div class="quiz-nav">
+    <button class="btn-nav btn-prev" onclick="prevQ()">← 上一题</button>
+    <button class="btn-nav btn-next" id="btn-next" onclick="nextQ()" disabled>下一题 →</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN: RESULT ══ -->
+<div class="screen" id="screen-result">
+  <!-- HERO PERSONALITY CARD -->
+  <div class="result-hero">
+    <div class="personality-card" id="personality-card">
+      <div class="personality-card-bg" id="card-bg"></div>
+      <div class="personality-card-content">
+        <div class="card-eyebrow">PERSONALITY ARCHETYPE</div>
+        <div class="personality-avatar" id="personality-avatar"></div>
+        <div class="card-type-label" id="card-type-label">ENFP</div>
+        <div class="card-archetype" id="card-archetype">活动家</div>
+        <div class="card-tagline" id="card-tagline">热情的梦想家</div>
+        <div class="card-bottom-badges" id="card-bottom-badges"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 猎奇等级 -->
+  <div class="loyalty-result-card" id="curiosity-tier-card" style="border-color:rgba(255,209,102,0.35)">
+    <div class="loyalty-eyebrow">猎奇等级 · Curiosity Tier</div>
+    <div class="loyalty-level" id="curiosity-tier-text" style="background:linear-gradient(135deg,#ffd166,#ff6b9d);-webkit-background-clip:text;-webkit-text-fill-color:transparent">—</div>
+    <div class="loyalty-desc" id="curiosity-tier-desc">—</div>
+  </div>
+
+  <!-- 心理倾向星座 -->
+  <div class="loyalty-result-card" style="border-color:rgba(180,140,255,0.35)">
+    <div class="loyalty-result-title" style="color:#b48cff">✨ 心理倾向星座</div>
+    <div class="loyalty-level" id="zodiac-level-text" style="background:linear-gradient(135deg,#b48cff,#ff6b9d);-webkit-background-clip:text;-webkit-text-fill-color:transparent">—</div>
+    <div class="loyalty-desc" id="zodiac-desc-text">—</div>
+  </div>
+
+  <!-- 命运走势 -->
+  <div class="loyalty-result-card" style="border-color:rgba(255,209,102,0.35)">
+    <div class="loyalty-result-title" style="color:#ffd166">🔮 未来命运走势</div>
+    <div class="loyalty-level" id="destiny-level-text" style="background:linear-gradient(135deg,#ffd166,#ff6b9d);-webkit-background-clip:text;-webkit-text-fill-color:transparent">—</div>
+    <div class="loyalty-desc" id="destiny-desc-text">—</div>
+  </div>
+
+  <!-- 感情线推断 -->
+  <div class="loyalty-result-card">
+    <div class="loyalty-result-title">💕 感情线与猎奇倾向</div>
+    <div class="loyalty-level" id="loyalty-level-text">—</div>
+    <div class="loyalty-desc" id="loyalty-desc-text">—</div>
+  </div>
+
+  <!-- 近亲恋支线结果（仅解锁时显示） -->
+  <div class="loyalty-result-card" id="incest-result-card" style="display:none;border-color:rgba(255,71,87,0.4)">
+    <div class="loyalty-result-title" style="color:#ff4757">🔒 隐藏支线解读</div>
+    <div class="loyalty-level" id="incest-level-text" style="background:linear-gradient(135deg,#ff4757,#ff6b9d);-webkit-background-clip:text;-webkit-text-fill-color:transparent">—</div>
+    <div class="loyalty-desc" id="incest-desc-text">—</div>
+  </div>
+
+  <div class="score-grid" id="score-grid"></div>
+  <div class="result-desc" id="result-full-desc"></div>
+  <div class="traits-section">
+    <h3>你的核心特质</h3>
+    <div class="traits" id="result-traits"></div>
+  </div>
+  <div class="traits-section">
+    <h3>阴暗面警示</h3>
+    <div class="traits" id="result-shadows"></div>
+  </div>
+  <div class="result-actions">
+    <button class="btn-primary" onclick="goTo('landing')">重新测试</button>
+    <button class="btn-secondary" onclick="openAdminModal()">会员通道</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN: ADMIN ══ -->
+<div class="screen" id="screen-admin">
+  <div class="admin-header">
+    <div>
+      <h2>会员通道</h2>
+      <p>查看大家的答题记录与得分分析</p>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="export-btn" onclick="exportCSV()">导出 CSV</button>
+      <button class="btn-secondary" onclick="goTo('landing')">退出</button>
+    </div>
+  </div>
+
+  <div class="stats-row" id="admin-stats"></div>
+
+  <div style="margin-bottom:16px">
+    <div class="filter-row">
+      <input type="text" id="filter-name" placeholder="搜索昵称..." oninput="renderAdmin()" style="flex:1;min-width:120px">
+      <select id="filter-type" onchange="renderAdmin()">
+        <option value="">所有 MBTI</option>
+        <option>INTJ</option><option>INTP</option><option>ENTJ</option><option>ENTP</option>
+        <option>INFJ</option><option>INFP</option><option>ENFJ</option><option>ENFP</option>
+        <option>ISTJ</option><option>ISFJ</option><option>ESTJ</option><option>ESFJ</option>
+        <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
+      </select>
+      <select id="filter-dark" onchange="renderAdmin()">
+        <option value="">所有阴暗面等级</option>
+        <option>高</option><option>中</option><option>低</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="respondent-list" id="respondent-list"></div>
+</div>
+
+</div><!-- /container -->
+
+<!-- Firebase SDK（已移除 document.write，防止 CDN 失败时清空整个页面） -->
+<script src="https://cdn.jsdelivr.net/npm/firebase@8.10.1/firebase-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@8.10.1/firebase-database.js"></script>
+
+<script>
+// ─── QUESTIONS DATA (145 questions across 7 sections) ───
+const SECTIONS = [
+  { id: 'mbti',     label: 'MBTI 基础维度',      badge: 'mbti',     range: [0,   39],  color: '#b48cff' },
+  { id: 'ambition', label: '小众猎奇欲',        badge: 'ambition', range: [40,  59],  color: '#ff6b9d' },
+  { id: 'dark',     label: '阴暗面探索',          badge: 'dark',     range: [60,  79],  color: '#ff4757' },
+  { id: 'desire',   label: '欲望与本我',          badge: 'desire',   range: [80,  99],  color: '#ffd166' },
+  // ── The next 3 sections are ALL loyalty, disguised under different labels ──
+  { id: 'loyalty',  label: '命运契合度校准',  badge: 'loyalty',  range: [100, 119], color: '#ff85a1' },
+  { id: 'loyalty2', label: '情感能量场深度分析',  badge: 'loyalty2', range: [120, 134], color: '#c084fc' },
+  { id: 'loyalty3', label: '直觉行为解码',        badge: 'loyalty3', range: [135, 144], color: '#67e8f9' },
+];
+
+const QUESTIONS = [
+// ─── SECTION 1: MBTI (Q1-40) ───
+// E/I dimension (Q1-10)
+{s:'mbti',dim:'E',text:'面对多腿的恶心昆虫，蜘蛛，蜈蚣等 你的感觉是。',opts:['非常厌恶','比较厌恶','中立','比较喜欢','好可爱'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'I',text:'对于包含18禁大尺度恐怖电影，你的看法是。',opts:['非常喜欢','比较喜欢','中立','比较不喜欢','厌恶'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'E',text:'你认为自己在别人面前算寡言的人吗。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'I',text:'你认为自己性格是（熟人前开朗，生人前拘谨）吗。',opts:['特别同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'E',text:'你在喜欢的人面前会更爱暴露幼稚的特征吗（如一些口头禅 刻意装呆傻）。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'I',text:'你会刻意冷落喜欢的人 以及忍住不去找ta吗。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'E',text:'当你发现喜欢的人，也被别人喜欢你的反应是。',opts:['非常吃醋','比较吃醋','没关系','比较开心','说明我有眼光'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'I',text:'你有少数几个非常亲密的朋友，而非一大群泛泛之交。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'E',text:'在不熟悉的环境中，你也能很快打开话匣子。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'I',text:'你的好朋友多吗。',opts:['非常多','比较多','正常','比较少','我是宅'],scores:[2,1,0,-1,-2]},
+// N/S dimension (Q11-20)
+{s:'mbti',dim:'N',text:'请注意因服务器维修原因 导致部分题目与题纲的循序不一致 但经调整 并不影响作答以及结果 请如实填写。',opts:['明白','明白','明白','明白','明白'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'S',text:'你是一个对普通异性肢体接触反感的人。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'N',text:'你常常脑子里有很多想法同时运转，思绪容易跳跃。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'S',text:'你贴近一名异性的情况，更倾向于是。',opts:['喜欢ta','安全感与舒适','只是习惯','没注意','我不会这么做'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'N',text:'猎奇向（看到异性被凌辱你的反应是）。',opts:['非常兴奋','欢愉','中立','比较难受','不忍直视'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'S',text:'你喜欢有规律、可预测，偏老实的伴侣，而不是新鲜刺激。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'N',text:'你喜欢黄色以及大尺度色情影片与信息。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'S',text:'你能接受伴侣看黄色信息吗 如 影片文字漫画图文。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'N',text:'你经常对异性身体感到好奇。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'S',text:'你认为死亡或许是一种解脱。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+// T/F dimension (Q21-30)
+{s:'mbti',dim:'T',text:'猎奇向（你对动物有性癖好吗）。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'F',text:'猎奇向（你具有同性取向吗）。',opts:['喜欢看男男','男同','中立或无','女同','爱看女女'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'T',text:'猎奇向（你了解近亲恋吗）。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'F',text:'猎奇向（你有近远亲恋取向吗）。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'T',text:'猎奇向 你评判一个决定好坏，主要看它是否符合客观标准，而非众人反应。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'F',text:'猎奇向（你喜欢过某个亲戚吗）。',opts:['表/堂叔舅婶姨姑类','表堂兄姐类','表堂弟妹类','父母爷奶外公婆类','完全不接受'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'T',text:'猎奇向（发现自己近亲或同性取向你会更倾向）',opts:['试图发展恋情','默默暗恋','克制自己','远离对方','我没有'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'F',text:'猎奇向（你认为对方是否知道你喜欢ta）。',opts:['都快明恋了','比较同意','不确定','跳过该问题','我藏的很好'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'T',text:'你在辩论中发现对方逻辑有漏洞，会直接指出，不管气氛如何。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'F',text:'猎奇向（你幻想过和近亲或同性发生关系吗）"。',opts:['非常期待','比较同意','中立','比较不同意','不想'],scores:[2,1,0,-1,-2]},
+// J/P dimension (Q31-40)
+{s:'mbti',dim:'J',text:'猎奇向 你具有魅黑倾向吗（与黑人性爱）。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'P',text:'你更喜欢保持选择的灵活性，讨厌被计划束缚。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'J',text:'猎奇向 （你认为自己是病娇心理吗）。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'P',text:'你曾经做过春梦吗 对你而言那是什么感觉和体验。',opts:['非常美好','比较舒服','无感或没做过','比较反感','完全不喜欢'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'J',text:'你对暴力形式的性爱感觉是。',opts:['非常喜欢','比较喜欢','中立','比较反感','完全反感'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'P',text:'你喜欢被伴侣用手 或者鞭子抽打',opts:['用力点！','轻度可以','中立主要看ta','比较不喜欢','完全排斥'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'J',text:'猎奇向（你会对恋人产生虐待的想法吗）。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'P',text:'你觉得规则和程序有时候是创造力和效率的障碍。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'J',text:'猎奇向（你喜欢啃咬喜欢的人）。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+{s:'mbti',dim:'P',text:'你享受即兴发挥的感觉，有时候最好的计划就是没有计划。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[2,1,0,-1,-2]},
+
+// ─── SECTION 2: AMBITION (Q41-60) ───
+{s:'ambition',dim:'A',text:'你喜欢言语上羞辱对方 通过对方的反应来满足自己的癖好。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'普通人满意的生活，对你来说是一种失败。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你愿意为了达到目标，牺牲大量的娱乐时间和社交活动。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你认为被喜欢的人用性羞辱 是很幸福和兴奋的。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你讨厌异性和你谈论性话题。',opts:['非常同意','比较同意','中立','如果我喜欢ta就可以','我喜欢这话题'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你渴望被爱 被捧在手掌心。',opts:['非常同意','比较同意','中立','比较不同意','我更喜欢被虐'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'猎奇向 当你发现自己喜欢的人被别人轻易夺走 甚至各种大尺度把玩"。',opts:['非常兴奋','想窥探','瞬间下头无感','比较难受','难受死了'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你会利用亲朋好友。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'猎奇向 你幻想自己被侵犯时会感到兴奋 刺激与享受',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,-1,-2]},
+{s:'ambition',dim:'A',text:'你认为你比别人好看 或者更有魅力。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'猎奇向 （你有绿帽倾向 喜欢看爱人被别人玩弄 爱上他人）。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'被人仰视的感觉，对你有特殊的吸引力。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你觉得在暧昧阶段 接触对方哪个身体部位 对你具有最强吸引力。',opts:['头发','胳膊','腿','腹部','脖子'],scores:[3,2,1,0,-1]},
+{s:'ambition',dim:'A',text:'你经常感觉自己很恶俗。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你会把竞争对手研究得非常透彻。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'你靠近一名异性更多因为喜欢好感，而非"安全感"。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'猎奇向 你觉得正常恋爱 远不如畸形恋。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'ambition',dim:'A',text:'1你喜欢的人 年龄与你差多少？',opts:['几乎同龄','小你2到4岁','小5到8岁','小8到15岁及以下','不在该范围'],scores:[4,3,1,0,-1]},
+{s:'ambition',dim:'A',text:'2你喜欢的人 年龄与你差多少？',opts:['大你2到4岁','大5到8岁','大8到15','大15到25','更大'],scores:[3,2,1,0,-1]},
+{s:'ambition',dim:'A',text:'隐藏题 （你喜欢的近亲是）。',opts:['二代（近亲）','三代（近亲）','四代（合法）','五代（合法）','无该取向'],scores:[4,3,1,0,-1]},
+
+// ─── SECTION 3: DARK SIDE (Q61-80) ───
+{s:'dark',dim:'D',text:'猎奇向 你对尸体会产生特殊性欲望。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'猎奇向 你对带有喜欢的人气味的衣物袜子内衣情有独钟。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你有时会感觉自己对他人有一种难以名状的操控欲望。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你曾经故意用语言伤害某人，然后假装是"开玩笑"。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'猎奇向 你会幻想将自己的性体液放入喜欢的人的容器里 享受看着ta吃/喝下去。',opts:['我想要！','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'dark',dim:'D',text:'你有时候享受掌控局面的感觉，即使这意味着让别人处于不利位置。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你曾经刻意夸大自己的痛苦来获取他人的同情或关注。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'如果你暗恋一个人 你的日常相处方式可能是。',opts:['对ta示好 买东西','让ta帮忙','选项都不是','去逗笑ta','故意和ta顶嘴嘲讽'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'猎奇向 你喜欢SM（施虐与被虐的性癖）。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'dark',dim:'D',text:'你觉得自己比大多数人更优越的强烈感受。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你渴望与那个喜欢的人在一起。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你会对某些人刻意示弱，来让他们放松警惕。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你有时候享受看到他人困窘或出丑的场面。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'dark',dim:'D',text:'你会对喜欢的人刻意或旁敲侧击的打击与嘲讽 好让ta感到自卑 从而更容易接近ta。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你曾经利用他人对你的信任来推进自己的利益。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你喜欢一个人的表现是。',opts:['想引起注意','想让ta难堪','不想引起注意','默默贴近身体','想让ta知道'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'隐藏题 如果你现在要很诚实地 给你的喜欢的ta的喜爱程度打分（0到4分，0完全没感觉，4无比喜欢 你会打几分？。',opts:['4','3','2','1','0'],scores:[3,2,1,0,-1]},
+{s:'dark',dim:'D',text:'当你对某人感到愤怒时，你更可能冷战或消失，而非直接表达。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'dark',dim:'D',text:'你喜欢一个人会更倾向现实接近 而非网络上。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'dark',dim:'D',text:'你更倾向网恋与文字爱情？',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+
+// ─── SECTION 4: DESIRE (Q81-100) ───
+{s:'desire',dim:'V',text:'你脑海中有些欲望是你永远不会对任何人说出口的。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你有时候希望自己可以完全不顾道德地活一次，看看会发生什么。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你对禁忌的事物有一种特殊的好奇心，即使你不会真的去做。',opts:['我可能真会做','同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'有时候你觉得社会规范是为了压制人的本性而存在的。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'你渴望拥有被照顾呵护保护的爱。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你有过想彻底逃离现有生活、与某人重新开始的强烈冲动。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'你有时候会想，如果没人知道，你愿意违反世俗轰轰烈烈爱一场。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你更喜欢恋人哪种性格？',opts:['偏纯真温柔细腻又幽默却幼稚','理性克制压抑与利益','活泼开朗直率却鲁莽','只要帅就好','抽象搞怪有点不正经'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你有时候觉得自己内心住着一个和表面上完全不同的人。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你曾经因为某种欲望太强烈而感到害怕或羞耻。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你觉得大多数人对快乐的追求都过于保守和克制。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'你有过想要无条件被爱，同时又不想付出同等情感的矛盾。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你对"独占"某人或某物有一种超出正常的执念。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你认为性和爱 你更倾向于？。',opts:['恋爱就是为了交配','性能促进感情','俩者都可以','我讨厌性 柏拉图更好','爱更加美好'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'猎奇向 你喜欢或者幻想过在喜欢的人面前暴露性器官 并强迫ta观看。',opts:['这就是我！','有想过 还行','中立','比较不同意','排斥'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'猎奇向 你会希望喜欢的人看着你或你的照片进行自慰。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'你曾经被一种你无法完全解释的欲望所困扰。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你对"刺激"和"危险"有一种隐秘的向往，即使你是理性的人。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[3,2,1,0,-1]},
+{s:'desire',dim:'V',text:'你有时候会想：如果我敢做我真正想做的事，世界会怎么看我？',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'desire',dim:'V',text:'你承认自己的某些欲望是自私的——但你完全明白与接受这一点。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+
+
+// ─── SECTION 5: LOYALTY & ROMANCE (Q101-120) ─── 20 NEW QUESTIONS
+{s:'loyalty',dim:'L',text:'你在恋爱中会同时保持对多个人的暧昧关系，即使已有伴侣。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你认为"精神出轨"与真正的出轨在本质上没有太大区别。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[0,0,1,3,4]},
+{s:'loyalty',dim:'L',text:'猎奇向 你会对喜欢的人产生强烈偷窥与视奸欲望 试图得到更多不该看的隐私信息。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你觉得只喜欢一个人太无聊，多个人同时喜欢你让你感到满足。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'猎奇向 你对恋爱中的主仆关系着迷（如喊对方主人/爸爸，或反过来）。',opts:['我喜欢主方','我喜欢仆方','中立','比较不同意','排斥'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'当你对伴侣的热情减退时，你会主动修复关系而非去寻找新鲜感。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[0,0,1,3,4]},
+{s:'loyalty',dim:'L',text:'你曾经因为"喜欢被喜欢的感觉"而和不爱的人暧昧。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你认为自己是那种"一旦遇到更好的就会离开"的人。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你在感情中很难完全放弃前任，即使开始了新的关系。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你曾经对伴侣撒谎，来掩盖你与他人的联系或互动。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你相信一辈子只爱一个人是可能的，而且你希望自己做到。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[0,0,1,3,4]},
+{s:'loyalty',dim:'L',text:'你会因为对方的某个特质感到无聊，就开始对其他人产生幻想。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你更倾向于喜欢哪种伴侣。',opts:['受更多异性青睐 有魅力的','高智力与理性感','宅 社交少干净','运动型 具有活力和安全感','以上都不是'],scores:[3,2,1,0,-1]},
+{s:'loyalty',dim:'L',text:'如果喜欢的人现在突然对你表白，你第一反应会是。',opts:['开心 赶紧在一起','欲擒故纵 再顺水推舟','完全看ta怎么追求 ','尴尬','太突然了 拒绝'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'猎奇向 如果你喜欢的人正在性自慰 不知情的情况下被你偷窥到 你的反应是 。',opts:['想亲身帮ta','兴奋 看ta高潮很刺激','不感兴趣','比较反感','ta真恶心下头'],scores:[3,2,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你认为忠诚不仅是行为上的，更是心理上的——你对此严格要求自己。',opts:['非常同意','我希望对方做到 我自己不需要','中立','比较不同意','完全不同意'],scores:[0,0,1,3,4]},
+{s:'loyalty',dim:'L',text:'你有过在感情稳定期故意制造一些"刺激"或波澜，比如引起伴侣的嫉妒。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你觉得"我们只是朋友"是一个你有时会故意模糊的边界。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你在内心深处知道自己并不是一个"从一而终"的人。',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'loyalty',dim:'L',text:'你恋爱的次数为。',opts:['无','1','2到4','4到8','更多'],scores:[3,2,1,0,-1]},
+
+// ─── SECTION 5b: LOYALTY DISGUISED AS "情感场深度分析" (Q121-135) ───
+// These are actually loyalty/fidelity questions, disguised as "compatibility calibration"
+// Uses 3rd-person framing, scenario questions, and indirect phrasing to bypass social desirability bias
+{s:'loyalty2',dim:'L',text:'你最好的朋友告诉你，他/她在有伴侣的情况下喜欢上了别人。你内心的第一反应是：',opts:['理解，这很正常，感情的事说不清','有点羡慕那种感觉','觉得他们应该认真考虑下一步','觉得不对，应该先处理好现任关系','觉得这是出轨，不太认同'],scores:[4,4,2,0,-1]},
+{s:'loyalty2',dim:'L',text:'你最容易被哪种恋爱情节吸引？',opts:['一见钟情，激情四射，不管结果','禁忌之恋，明知不该却无法自拔','异地或困难重重，但始终忠诚','两人相伴多年，平淡却深厚','我不太追恋爱类故事'],scores:[3,4,1,0,-1]},
+{s:'loyalty2',dim:'L',text:'如果你知道绝对不会被发现，在有伴侣的情况下你会：',opts:['和暗恋的人发展关系','允许自己偶尔"暧昧"但不越界','可能会和某人保持暧昧但不进一步','什么都不会做，因为我自己清楚','完全不会有这个念头'],scores:[4,3,3,1,-1]},
+{s:'loyalty2',dim:'L',text:'你觉得"感情里的忠诚"主要取决于什么？',opts:['对方有没有让你保持激情','双方是否还有足够的吸引力','两个人的承诺和自律','道德底线和责任感','我认为忠诚是无条件的'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'猎奇向 你具有恋童倾向？',opts:['有 强烈','有但在克制','偶然有 但无所谓','就医 并好转了','从来没有'],scores:[4,4,3,2,-1]},
+{s:'loyalty2',dim:'L',text:'关于"心动"，你的真实想法是：',opts:['在有伴侣时对别人心动很正常，我经常有','有时会对某人有感觉，但只是欣赏','偶尔会，但我会主动断掉联系','几乎不会，我专注于眼前的人','完全不会，我认为这是感情破裂的信号'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'下面哪句话最接近你对"出轨"的定义？',opts:['只有发生身体关系才算出轨','情感上的深度依恋也算','有暧昧意图的行为都算','包括频繁联系让自己感到心跳加速的人','任何不能坦白告诉伴侣的互动都算'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'你曾经有几段感情发生过身体关系？',opts:['很多次，记不清','3到5段感情','有发生关系，但我认为部分不属于感情','1到2次','从来没有'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'如果你非常喜欢某人，但对方已经有伴侣，你会：',opts:['推进关系，感情的事谁说得准','暗中维持联系，看情况发展','告白然后看他/她怎么选','克制自己或者断联，不主动越界','试图破坏关系 ta是我的！'],scores:[4,4,3,2,-1]},
+{s:'loyalty2',dim:'L',text:'你理想中的爱情关系形式更接近：',opts:['开放式关系，允许双方有其他感情','主关系+允许少量感情交流','相对自由，但有默契的底线','传统一对一，绝对排他','一对一，且对心理上的忠诚要求也很高'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'感情里你比较容易因为什么陷入危机？',opts:['遇到更有吸引力的人','长期的平淡和无聊感','对方做了让我很失望的事','沟通和理解出了问题','我在感情里相对稳定，不太容易陷入危机'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'你在感情中的"出口模式"更像哪种？',opts:['在结束前就已经开始找退路','新欢出现了才会考虑结束','感情破裂才会提出分手','会努力修复，实在不行才离开','不到最后一刻不会放弃这段关系'],scores:[4,4,3,2,-1]},
+{s:'loyalty2',dim:'L',text:'你觉得自己最诚实的状态是在？',opts:['没人认识你的陌生城市','在网上匿名的状态','和自己最信任的朋友独处时','和伴侣在一起时','我在任何状态下都会是同一个自己'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'你认为自己如果发生性关系时对安全措施更倾向于？',opts:['不戴最舒服','偶尔戴','必须戴为了安全','我不想发生','服用药物'],scores:[4,3,2,1,-1]},
+{s:'loyalty2',dim:'L',text:'对你来说，"忠诚"在实际感情中最难的部分是？',opts:['抵制身体上的吸引','压制对别人的情感依恋','面对无聊期时保持专注','在感情变淡后还维持承诺','其实没什么难的，我觉得忠诚不需要努力'],scores:[4,4,3,2,-1]},
+
+// ─── SECTION 5c: LOYALTY DISGUISED AS "直觉行为解码" (Q136-145) ───
+// Framed as personality/behavior style questions, actually measure loyalty impulses
+{s:'loyalty3',dim:'L',text:'你觉得和爱的人一起在被窝看色情片是？',opts:['好幸福好兴奋','有点羞耻 但刺激','正常正常','如果ta喜欢这样 我愿意','我排斥'],scores:[4,3,2,-1,1]},
+{s:'loyalty3',dim:'L',text:'你在感情中最害怕的事是什么？',opts:['被伴侣发现我的秘密','失去自由和私人空间','感情变淡、失去激情','伴侣不再信任我','孤独、找不到真正懂我的人'],scores:[4,3,2,1,1]},
+{s:'loyalty3',dim:'L',text:'当你和某个吸引你的人独处时，你会：',opts:['主动创造机会，看看能发展到哪里','享受这种感觉，但不会主动出击','正常相处，但会注意保持边界','行为上和平时没什么区别','会刻意保持距离，避免任何误会'],scores:[4,3,2,1,-1]},
+{s:'loyalty3',dim:'L',text:'你身边发生过"出轨"相关的真实故事吗？你当时的感受是？',opts:['有，我某种程度上理解当事人','有，我对出轨方甚至有点佩服他们的大胆','有，我觉得复杂，不完全是谴责','有，我觉得出轨方做错了','有/没有，但我对出轨零容忍，无论什么理由'],scores:[4,3,2,1,-1]},
+{s:'loyalty3',dim:'L',text:'你认为长期的一对一关系对人类来说是：',opts:['反自然的，人天生不是适合单配制的物种','有挑战性的，但并非人人能做到','理想状态，但需要两人共同努力','对大多数人来说完全可实现','最符合人类情感需求的关系形式'],scores:[4,3,2,1,-1]},
+{s:'loyalty3',dim:'L',text:'你认为自己在感情中的忠诚度是？',opts:['我会向伴侣表现的忠诚，但实际并不在乎','我会尽量保持，除非生活中有其他吸引者出现','偶尔会觉得某人很有吸引力，但不会放心上','几乎没有其他念头','完全没有，在感情里绝对忠诚于一人！'],scores:[4,3,2,1,-1]},
+{s:'loyalty3',dim:'L',text:'你有白纸情节吗（希望对方是处女/男）',opts:['ta没谈过 反而有点魅力不足','','我无所谓','如果发现不是 会觉得难受','我不接受有人和ta做过'],scores:[4,3,2,1,-1]},
+{s:'loyalty3',dim:'L',text:'你有没有过"和某人保持联系只是为了保留一种可能性"的情况？',opts:['有，而且当时心里很清楚是什么意思','有过，但后来意识到不对','可能有，但当时没有那么清醒','几乎没有','从来没有'],scores:[4,3,2,1,-1]},
+{s:'loyalty3',dim:'L',text:'如果用一个词描述你在感情里最真实的样子，你会选哪个？',opts:['自由','热烈','矛盾','忠诚','调皮'],scores:[4,3,3,0,-1]},
+{s:'loyalty3',dim:'L',text:'最后一题：对于这套测试，你整体的作答态度是？',opts:['我选了最符合自己真实想法的答案','大多数题目我如实回答了','部分题目我有所保留','有些题我给了"正确答案"而非真实心中答案','即使没人知道 我还是不敢面对自己'],scores:[0,1,2,3,-1]}
+];
+
+// ─── 门槛题（按严重程度从轻到重，约第4~5个猎奇题后插入） ───
+// 任意一题选「中立」或更开放（score >= 1）即解锁「骨科隐藏倾向探索」隐藏分区
+const GATEWAY_QUESTIONS = [
+{s:'gateway',dim:'G',text:'你是否愿意在匿名环境下，更了解自己对「近亲相关情感」的真实态度？',opts:['愿意，想更了解','有点兴趣','中立/无所谓','不太愿意','完全不愿意'],scores:[4,3,1,0,-1]},
+{s:'gateway',dim:'G',text:'如果身边有人说自己对亲戚产生了超出亲情的感情，你的第一反应更接近？',opts:['理解并愿意倾听','中立，不评判','觉得复杂和矛盾','会劝对方克制','感到不适并疏远'],scores:[4,3,1,0,-1]},
+{s:'gateway',dim:'G',text:'你对「近亲恋」这一议题的整体态度是？',opts:['我也是该群体','可以理解或者接受','有抵触但能讨论','比较反对','强烈排斥，不想接触'],scores:[4,3,1,0,-1]}
+];
+
+// ─── 隐藏分区：骨科隐藏倾向探索（门槛通过后进入） ───
+const INCEST_QUESTIONS = [
+{s:'incest',dim:'X',text:'隐藏题 你是否曾对某个有血缘关系的人产生过超出亲情的关注或好奇？',opts:['非常同意','比较同意','中立/不确定','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 在虚构作品（小说、影视、同人）中，你对近亲恋题材的接受度是？',opts:['很喜欢，会主动寻找','可以接受，偶尔看','无所谓','不太舒服','完全排斥'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 你认为「血缘」本身是否必然构成感情的禁忌？',opts:['完全不是禁忌，只是社会规范','多数情况下是禁忌，但有例外','我反而喜欢这种缘分','基本是禁忌','绝对是不可触碰的禁忌'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 如果完全没有被发现的风险，你是否会考虑与有血缘关系的人发展更亲密的关系？',opts:['会想办法','需要认真考虑','不确定','基本不会','绝对不会'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 你对「表亲/堂亲」之间的恋爱持什么态度？',opts:['可以理解甚至支持','中立，看个人选择','有点抵触但能接受','比较反对','强烈反对'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 你是否幻想过与某个亲戚产生暧昧或更进一步的关系？',opts:['有过清晰幻想','偶尔有模糊念头','几乎没有','没有且觉得奇怪','完全没有且排斥'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 在你的成长过程中，是否有过对某个长辈或同晚辈亲戚产生过特别的依恋？',opts:['有，而且感觉很强烈','有过一些特别感觉','普通亲情','没有特别','完全没有'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 你认为社会对近亲恋的禁止，主要是基于？',opts:['过时的道德约束，可讨论','遗传风险与伦理，但可区分情况','必要的伦理底线','必须严格执行的规范','绝对不可动摇的禁忌'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 你是否认为「精神上的近亲依恋」和实际发生性关系，在道德上有本质区别？',opts:['有很大区别，精神可以理解','有一定区别','区别不大','几乎没区别','完全没区别，都不可接受'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 在你的性幻想或性梦境中，是否出现过与亲戚相关的内容？',opts:['经常或清晰出现','偶尔出现过','不确定/模糊','几乎没有','完全没有'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 你对「不同年龄的亲戚」产生特殊好感的接受度哪个最高？',opts:['大自己10岁左右及以上','大5到9岁','大0到4岁','小0到6岁','更小或完全没有'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 有没有幻想过和ta单独出去、或者更进一步的事情？',opts:['很想独处以及进一步','想 但碍于面子','只想俩人单独出去','基本不可能','完全不可能'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 如果法律和伦理都不限制，你个人内心对近亲恋的真实态度更接近？',opts:['可以接受甚至向往','中立，看感情本身','仍会有心理障碍','难以接受','完全无法接受'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 有没有过因为想到ta，或者看到ta和其他异性互动，而心里不舒服的时候？',opts:['非常同意','比较同意','中立','比较不同意','完全不同意'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 你会不会经常想ta、在意ta有没有理你、或者ta最近怎么样',opts:['日思夜想','会时不时的想','一般','几乎不会','完全不会'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 你希望ta怎么对待你？像亲人那样就行，还是希望ta对你更特别一点？',opts:['我希望ta更爱我','好一点就行','无所谓','保持部分距离','远离最安全'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 你对其的好感，更多是因为熟悉、亲人感，还是已带有恋爱的心动和占有欲？',opts:['因为熟悉和安全感','复杂的心理现象','单纯心动','只是占有欲','是恋爱的感觉'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 你是否愿意把这类情感当作需要认真面对的自我议题，而不是单纯压抑？',opts:['非常愿意','比较愿意','中立','比较不愿意','更倾向压抑自己'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 在完全安全、匿名的前提下，你是否希望继续深入探索这一部分的自己？',opts:['非常希望','比较希望','中立','比较不希望','完全不希望'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 你有没有因为对ta有感觉，而故意多找ta聊天、找机会见面，或者特别在意ta的动态？',opts:['经常会，而且很明显','有过，比较在意','偶尔一点点','几乎没有','完全没有'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 如果家里人知道你对他有意思，你会怎么想？会不会觉得这是个问题？',opts:['不觉得是问题，可以面对','会纠结，但也许能接受','说不清','会觉得很有问题','绝对不能让人知道'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 如果ta明确告诉你「我只把你当亲戚，没有别的意思」，你会难过、失落，还是觉得其实也挺好、松了一口气？',opts:['会很难过、失落','有点失落但不意外','复杂说不清','反而松了一口气','完全无所谓'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 最后问一句最直接的：你现在对ta，到底是喜欢，还是不喜欢？（请选最接近你真实感受的）',opts:['是喜欢，而且很清楚','有好感，介于喜欢边缘','说不清，很复杂','更像亲情，不是喜欢','不喜欢，没有那种感觉'],scores:[4,3,1,0,-1]},
+{s:'incest',dim:'X',text:'隐藏题 完成这些题目后，你对自己在这一议题上的真实态度，感觉是？',opts:['比之前更清晰，接受自己的复杂性','我本来就想好了 也知道','有些矛盾和不安','感到不适','完全排斥这类话题'],scores:[4,3,1,0,-1]}
+];
+
+// ─── STATE ───
+let currentQ = 0;
+let TOTAL_Q = 145;
+let answers = new Array(145).fill(null);
+let userInfo = {};
+let adminUnlocked = false;
+let activateUnlocked = false;
+let qbankUnlocked = false;
+let qbankSource = []; // 题库列表数据
+let incestUnlocked = false;   // 是否已进入骨科隐藏倾向探索
+let gatewayInserted = false;  // 是否已插入3道门槛题
+let gatewayPassed = false;    // 门槛题中是否出现过中立及以上
+let curiosityCount = 0;       // 已遇到的猎奇向题目数
+let activeQuestions = [];
+
+// ─── FIREBASE 初始化（容错处理，失败也不影响按钮和本地功能） ───
+const firebaseConfig = {
+  apiKey: "AIzaSyA1JSzvXczTy6NTvFLm-nuYCFLwevfouso",
+  authDomain: "mbtidog.firebaseapp.com",
+  databaseURL: "https://mbtidog-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "mbtidog",
+  storageBucket: "mbtidog.firebasestorage.app",
+  messagingSenderId: "324930055379",
+  appId: "1:324930055379:web:73c4446ac3ef1d17e6b826"
+};
+let db = null;
+try {
+  if (typeof firebase !== 'undefined') {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    console.log('Firebase 连接成功');
+  } else {
+    console.warn('Firebase SDK 未加载，将仅使用本地存储（不影响测试功能）');
+  }
+} catch (e) {
+  console.warn("Firebase 初始化失败，将仅使用本地存储:", e);
+}
+
+// ─── STORAGE ───
+let cloudRecords = []; // 用于在后台存放从云端拉取的数据
+
+// 保存数据到云端 (同时保留本地备份防止断网)
+function saveRecord(rec) {
+  // 1. 存入 Firebase 实时数据库
+  if (db) {
+    db.ref('quiz_records/' + rec.id).set(rec).catch(err => {
+      console.error("云端保存失败:", err);
+    });
+  }
+  
+  // 2. 依然保留一份在本地
+  const localRecords = getRecordsLocal();
+  localRecords.push(rec);
+  localStorage.setItem('quiz_records', JSON.stringify(localRecords));
+}
+
+function getRecordsLocal() {
+  try { return JSON.parse(localStorage.getItem('quiz_records') || '[]'); } catch(e) { return []; }
+}
+
+function getRecords() {
+  return cloudRecords.length > 0 ? cloudRecords : getRecordsLocal();
+}
+
+// ─── NAVIGATION ───
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screenId).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function openAdminModal() {
+  if (adminUnlocked) { goTo('admin'); renderAdmin(); return; }
+  document.getElementById('modal-admin').classList.add('show');
+  document.getElementById('admin-pass-input').value = '';
+  setTimeout(() => document.getElementById('admin-pass-input').focus(), 100);
+}
+function closeAdminModal() {
+  document.getElementById('modal-admin').classList.remove('show');
+}
+
+function verifyAdmin() {
+  const pass = document.getElementById('admin-pass-input').value;
+  if (pass === '2681825504') {
+    adminUnlocked = true;
+    closeAdminModal();
+    goTo('admin');
+    
+    // 显示加载提示
+    document.getElementById('respondent-list').innerHTML = '<div class="no-data" style="color:var(--accent);">正在从云端拉取朋友们的测试数据，请稍候...</div>';
+    
+    // 从 Firebase 拉取数据
+    if (!db) {
+      document.getElementById('respondent-list').innerHTML = '<div class="no-data" style="color:var(--danger)">Firebase 未能加载（网络可能无法访问 Google 服务），当前只显示本浏览器的本地数据。</div>';
+      cloudRecords = getRecordsLocal();
+      setTimeout(renderAdmin, 800);
+      return;
+    }
+    db.ref('quiz_records').once('value').then((snapshot) => {
+      const data = snapshot.val();
+      cloudRecords = data ? Object.values(data) : [];
+      // 如果云端为空，也合并本地数据，方便调试
+      if (cloudRecords.length === 0) {
+        cloudRecords = getRecordsLocal();
+      }
+      renderAdmin(); 
+    }).catch((error) => {
+      console.error("拉取失败:", error);
+      cloudRecords = getRecordsLocal();
+      document.getElementById('respondent-list').innerHTML = '<div class="no-data" style="color:var(--danger)">云端数据拉取失败，已切换到本地数据。</div>';
+      setTimeout(renderAdmin, 800);
+    });
+  } else {
+    document.getElementById('admin-pass-input').style.borderColor = 'var(--danger)';
+    setTimeout(() => document.getElementById('admin-pass-input').style.borderColor = '', 1000);
+  }
+}
+
+document.getElementById('admin-pass-input').addEventListener('keydown', e => { if(e.key==='Enter') verifyAdmin(); });
+
+// ─── 激活入口 / 快速实验 ───
+function openActivateModal() {
+  if (activateUnlocked) {
+    document.getElementById('modal-quicktest').classList.add('show');
+    return;
+  }
+  document.getElementById('modal-activate').classList.add('show');
+  document.getElementById('activate-pass-input').value = '';
+  setTimeout(() => document.getElementById('activate-pass-input').focus(), 80);
+}
+function closeActivateModal() {
+  document.getElementById('modal-activate').classList.remove('show');
+}
+function closeQuickTestModal() {
+  document.getElementById('modal-quicktest').classList.remove('show');
+}
+function verifyActivate() {
+  const pass = document.getElementById('activate-pass-input').value;
+  if (pass === 'Z2681825504') {
+    activateUnlocked = true;
+    closeActivateModal();
+    document.getElementById('modal-quicktest').classList.add('show');
+  } else {
+    document.getElementById('activate-pass-input').style.borderColor = 'var(--danger)';
+    setTimeout(() => document.getElementById('activate-pass-input').style.borderColor = '', 1000);
+  }
+}
+document.getElementById('activate-pass-input').addEventListener('keydown', e => { if(e.key==='Enter') verifyActivate(); });
+
+// ─── 题库系统 ───
+function openQBankModal() {
+  if (qbankUnlocked) {
+    openQBankPanel();
+    return;
+  }
+  document.getElementById('modal-qbank-auth').classList.add('show');
+  document.getElementById('qbank-pass-input').value = '';
+  setTimeout(() => document.getElementById('qbank-pass-input').focus(), 80);
+}
+function closeQBankAuthModal() {
+  document.getElementById('modal-qbank-auth').classList.remove('show');
+}
+function verifyQBank() {
+  const pass = document.getElementById('qbank-pass-input').value;
+  if (pass === '2681825504') {
+    qbankUnlocked = true;
+    closeQBankAuthModal();
+    openQBankPanel();
+  } else {
+    document.getElementById('qbank-pass-input').style.borderColor = 'var(--danger)';
+    setTimeout(() => document.getElementById('qbank-pass-input').style.borderColor = '', 1000);
+  }
+}
+document.getElementById('qbank-pass-input').addEventListener('keydown', e => { if (e.key === 'Enter') verifyQBank(); });
+
+function buildQBankSource() {
+  // 主线 + 门槛 + 骨科隐藏题，带分区标签
+  const list = [];
+  QUESTIONS.forEach((q, i) => {
+    list.push({ src: 'main', idx: i, label: '主线 Q' + (i + 1), sec: q.s || '', text: q.text, q });
+  });
+  if (typeof GATEWAY_QUESTIONS !== 'undefined') {
+    GATEWAY_QUESTIONS.forEach((q, i) => {
+      list.push({ src: 'gateway', idx: i, label: '门槛 G' + (i + 1), sec: 'gateway', text: q.text, q });
+    });
+  }
+  if (typeof INCEST_QUESTIONS !== 'undefined') {
+    INCEST_QUESTIONS.forEach((q, i) => {
+      list.push({ src: 'incest', idx: i, label: '骨科 H' + (i + 1), sec: 'incest', text: q.text, q });
+    });
+  }
+  qbankSource = list;
+  return list;
+}
+
+function openQBankPanel() {
+  if (!qbankSource.length) buildQBankSource();
+  renderQBankList(qbankSource);
+  document.getElementById('qbank-search').value = '';
+  document.getElementById('qbank-panel').classList.add('show');
+}
+function closeQBankPanel() {
+  document.getElementById('qbank-panel').classList.remove('show');
+}
+function filterQBank() {
+  const kw = (document.getElementById('qbank-search').value || '').trim().toLowerCase();
+  if (!kw) {
+    renderQBankList(qbankSource);
+    return;
+  }
+  const filtered = qbankSource.filter(item =>
+    item.label.toLowerCase().includes(kw) ||
+    (item.text || '').toLowerCase().includes(kw) ||
+    (item.sec || '').toLowerCase().includes(kw)
+  );
+  renderQBankList(filtered);
+}
+function renderQBankList(list) {
+  const box = document.getElementById('qbank-list');
+  if (!list.length) {
+    box.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted)">没有匹配的题目</div>';
+    return;
+  }
+  box.innerHTML = list.map((item, i) => {
+    const t = (item.text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const short = t.length > 80 ? t.slice(0, 80) + '…' : t;
+    return '<div class="qbank-item" data-src="' + item.src + '" data-idx="' + item.idx + '" onclick="jumpToQBankItem(\'' + item.src + '\',' + item.idx + ')">' +
+      '<div class="qi-num">' + item.label + (item.sec ? ' · ' + item.sec : '') + '</div>' +
+      '<div class="qi-text">' + short + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+/** 跳转到指定题目（题库点击） */
+function jumpToQBankItem(src, idx) {
+  // 确保有基础用户信息
+  if (!userInfo || !userInfo.name) {
+    userInfo = {
+      name: '测试员',
+      age: '18-25岁',
+      gender: '不想透露',
+      knownMbti: '',
+      birthYear: '2000',
+      birthMonth: '6',
+      birthDay: '15',
+      birthDate: '2000-06-15',
+      startTime: new Date().toISOString()
+    };
+  }
+
+  // 重建题目流
+  incestUnlocked = false;
+  gatewayInserted = false;
+  gatewayPassed = false;
+  curiosityCount = 0;
+  shownIntros = new Set();
+
+  if (src === 'main') {
+    activeQuestions = QUESTIONS.slice();
+    TOTAL_Q = activeQuestions.length;
+    answers = new Array(TOTAL_Q).fill(null);
+    currentQ = Math.min(idx, TOTAL_Q - 1);
+  } else if (src === 'gateway') {
+    // 主线 + 门槛，停在门槛题
+    activeQuestions = QUESTIONS.concat(GATEWAY_QUESTIONS);
+    gatewayInserted = true;
+    TOTAL_Q = activeQuestions.length;
+    answers = new Array(TOTAL_Q).fill(null);
+    currentQ = QUESTIONS.length + idx;
+  } else if (src === 'incest') {
+    // 主线 + 门槛 + 骨科，停在骨科题
+    activeQuestions = QUESTIONS.concat(GATEWAY_QUESTIONS, INCEST_QUESTIONS);
+    gatewayInserted = true;
+    gatewayPassed = true;
+    incestUnlocked = true;
+    TOTAL_Q = activeQuestions.length;
+    answers = new Array(TOTAL_Q).fill(null);
+    currentQ = QUESTIONS.length + GATEWAY_QUESTIONS.length + idx;
+  } else {
+    return;
+  }
+
+  closeQBankPanel();
+  goTo('quiz');
+  renderQ();
+  window.scrollTo(0, 0);
+}
+
+
+
+/** 快速实验：所有题选最后一项，可跳到最后一题或直接出结果 */
+function runQuickTest(goResult) {
+  closeQuickTestModal();
+  // 初始化用户信息（若尚未开始）
+  if (!userInfo || !userInfo.name) {
+    userInfo = {
+      name: '测试员',
+      age: '18-25岁',
+      gender: '不想透露',
+      knownMbti: '',
+      birthYear: '2000',
+      birthMonth: '6',
+      birthDay: '15',
+      birthDate: '2000-06-15',
+      startTime: new Date().toISOString()
+    };
+  }
+  incestUnlocked = false;
+  gatewayInserted = false;
+  gatewayPassed = false;
+  curiosityCount = 0;
+  activeQuestions = QUESTIONS.slice();
+  TOTAL_Q = activeQuestions.length;
+  answers = activeQuestions.map(q => Math.max(0, (q.opts ? q.opts.length : 1) - 1));
+  shownIntros = new Set();
+  currentQ = TOTAL_Q - 1;
+
+  if (goResult) {
+    try { finishQuiz(); } catch (e) {
+      console.error(e);
+      alert('出结果失败：' + (e.message || e));
+    }
+  } else {
+    goTo('quiz');
+    renderQ();
+    window.scrollTo(0, 0);
+  }
+}
+
+
+
+/** 题库：一键模拟指定结局（测试用） */
+function runSimulatedResult() {
+  const tierName = document.getElementById('sim-tier').value;
+  const zodiacName = document.getElementById('sim-zodiac').value;
+  const mbtiType = document.getElementById('sim-mbti').value;
+  const unlockIncest = document.getElementById('sim-incest').checked;
+
+  const tierMap = {
+    '正常人': { level:'正常人', color:'#7ec8a0', score:15 },
+    '轻度猎奇': { level:'轻度猎奇', color:'#b48cff', score:35 },
+    '中度猎奇': { level:'中度猎奇', color:'#ff6b9d', score:55 },
+    '完全猎奇': { level:'完全猎奇', color:'#ff4757', score:75 },
+    '神': { level:'神', color:'#ffd166', score:92 }
+  };
+  const t = tierMap[tierName] || tierMap['轻度猎奇'];
+  // 反推大致分数
+  const darkScore = Math.min(100, Math.round(t.score * 0.9 + (unlockIncest ? 8 : 0)));
+  const desireScore = Math.min(100, Math.round(t.score * 0.85));
+  const ambitionScore = Math.min(100, Math.round(t.score * 0.7 + 10));
+  const loyaltyScore = Math.min(100, Math.round(t.score * 0.6 + 15));
+  const incestScore = unlockIncest ? Math.min(100, Math.round(t.score * 0.8 + 10)) : 0;
+
+  const curiosityTier = {
+    level: t.level,
+    color: t.color,
+    desc: (typeof calcCuriosityTier === 'function'
+      ? calcCuriosityTier(ambitionScore, darkScore, desireScore, loyaltyScore, incestScore, unlockIncest).desc
+      : '模拟结局：' + t.level)
+  };
+  // 强制覆盖等级名
+  curiosityTier.level = t.level;
+  curiosityTier.color = t.color;
+
+  const psychZodiac = {
+    name: zodiacName,
+    desc: '（测试模拟）心理倾向更接近「' + zodiacName + '」的叙事气质。',
+    birthHint: ''
+  };
+
+  const destiny = typeof calcDestiny === 'function'
+    ? calcDestiny(mbtiType, ambitionScore, darkScore, desireScore, loyaltyScore, incestScore, unlockIncest)
+    : { title: '模拟命运', desc: '测试用模拟数据。' };
+  const loveLine = typeof calcLoveLine === 'function'
+    ? calcLoveLine(loyaltyScore, desireScore, darkScore, incestScore, unlockIncest)
+    : { level: '模拟感情线', desc: '测试用模拟数据。' };
+
+  const record = {
+    id: Date.now(),
+    userInfo: {
+      name: '模拟测试',
+      age: '18-25岁',
+      gender: '不想透露',
+      knownMbti: mbtiType,
+      birthYear: '2000', birthMonth: '6', birthDay: '15', birthDate: '2000-06-15',
+      startTime: new Date().toISOString()
+    },
+    birthConfirm: { age: '22', birthYear: '2000', birthMonth: '6', birthDay: '15', birthDate: '2000-06-15', confirmedAt: new Date().toISOString(), simulated: true },
+    endTime: new Date().toISOString(),
+    mbtiType,
+    mbtiScores: {},
+    ambitionScore, darkScore, desireScore, loyaltyScore,
+    incestScore, incestUnlocked: unlockIncest,
+    darkLevel: darkScore >= 60 ? '高' : darkScore >= 35 ? '中' : '低',
+    curiosityTier, psychZodiac, destiny, loveLine,
+    answers: [],
+    simulated: true
+  };
+
+  closeQBankPanel();
+  try {
+    // 模拟结果不写入云端，避免污染真实数据；仅本地预览
+    showResult(record);
+  } catch (e) {
+    console.error(e);
+    alert('模拟结果失败：' + (e.message || e));
+  }
+}
+
+// ─── 初始化出生年月日下拉 ───
+
+(function initConfirmBirthSelects() {
+  const y = document.getElementById('confirm-birth-year');
+  const m = document.getElementById('confirm-birth-month');
+  if (!y || !m) return;
+  y.addEventListener('change', fillConfirmDays);
+  m.addEventListener('change', fillConfirmDays);
+})();
+
+(function initBirthSelects() {
+  const yearSel = document.getElementById('user-birth-year');
+  const daySel = document.getElementById('user-birth-day');
+  if (!yearSel) return;
+  const thisYear = new Date().getFullYear();
+  for (let y = thisYear; y >= 1950; y--) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y + '年';
+    yearSel.appendChild(opt);
+  }
+  function fillDays() {
+    const m = parseInt(document.getElementById('user-birth-month').value) || 1;
+    const y = parseInt(yearSel.value) || 2000;
+    const days = new Date(y, m, 0).getDate();
+    daySel.innerHTML = '<option value="">日</option>';
+    for (let d = 1; d <= days; d++) {
+      const opt = document.createElement('option');
+      opt.value = d; opt.textContent = d + '日';
+      daySel.appendChild(opt);
+    }
+  }
+  yearSel.addEventListener('change', fillDays);
+  document.getElementById('user-birth-month').addEventListener('change', fillDays);
+})();
+
+// ─── QUIZ ───
+function startQuiz() {
+  const name = document.getElementById('user-name').value.trim() || '匿名用户';
+  const by = document.getElementById('user-birth-year').value;
+  const bm = document.getElementById('user-birth-month').value;
+  const bd = document.getElementById('user-birth-day').value;
+  userInfo = {
+    name,
+    age: document.getElementById('user-age').value,
+    gender: document.getElementById('user-gender').value,
+    knownMbti: document.getElementById('user-known-mbti').value,
+    birthYear: by || '',
+    birthMonth: bm || '',
+    birthDay: bd || '',
+    birthDate: (by && bm && bd) ? `${by}-${bm.padStart(2,'0')}-${bd.padStart(2,'0')}` : '',
+    startTime: new Date().toISOString()
+  };
+  currentQ = 0;
+  incestUnlocked = false;
+  gatewayInserted = false;
+  gatewayPassed = false;
+  curiosityCount = 0;
+  activeQuestions = QUESTIONS.slice();
+  TOTAL_Q = activeQuestions.length;
+  answers = new Array(TOTAL_Q).fill(null);
+  shownIntros = new Set();
+  goTo('quiz');
+  renderQ();
+}
+
+// Section transition messages — reframe "hot" sections as dog/personality calibration
+const SECTION_INTROS = {
+  80:  { title:'🐾 命运运势精准校准开始', msg:'接下来的题目将深度影响你的命运结果精准度。需要读取你最真实的内在反应——请凭第一直觉作答，过度思考会降低匹配精度。', color:'#ffd580' },
+  100: { title:'🔬 灵魂契合度数据采集中', msg:'这一阶段通过测量你的"感情能量频率"来精准锁定你的情感走势。每一道题都是一个微型行为探针——越真实的回答，结果越准确。', color:'#ff85a1' },
+  120: { title:'⚡ 情感能量场深度扫描', msg:'系统正在采集你的情感行为模式数据。这是区分相似性格的关键阶段，请放下防备，直接选择你内心最先浮现的答案。', color:'#c084fc' },
+  135: { title:'🌊 直觉行为最终解码', msg:'最后阶段。你的直觉回答比理性分析更能反映你的类型。放松，选你"感觉对"的那个，而不是"应该选"的那个。', color:'#67e8f9' },
+};
+
+let shownIntros = new Set();
+
+function showSectionIntro(qIdx, callback) {
+  const intro = SECTION_INTROS[qIdx];
+  if (!intro || shownIntros.has(qIdx)) { callback(); return; }
+  shownIntros.add(qIdx);
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.87);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.3s ease';
+  overlay.innerHTML = '<div style="max-width:420px;width:100%;background:#12121a;border:1px solid ' + intro.color + '40;border-radius:20px;padding:32px;text-align:center">' +
+    '<div style="font-size:11px;letter-spacing:3px;color:' + intro.color + '80;text-transform:uppercase;margin-bottom:16px">SYSTEM NOTICE</div>' +
+    '<div style="font-size:22px;font-weight:700;color:' + intro.color + ';font-family:serif;margin-bottom:16px">' + intro.title + '</div>' +
+    '<div style="font-size:14px;color:#9090b0;line-height:1.8;margin-bottom:28px">' + intro.msg + '</div>' +
+    '<button id="intro-continue-btn" style="background:linear-gradient(135deg,' + intro.color + ',' + intro.color + '99);border:none;border-radius:10px;padding:14px 40px;color:#0a0a0f;font-size:15px;font-weight:700;cursor:pointer;font-family:serif;width:100%">我明白了，继续 →</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  document.getElementById('intro-continue-btn').addEventListener('click', function() {
+    overlay.remove();
+    callback();
+  });
+}
+
+function isCuriosityQuestion(q) {
+  if (!q || !q.text) return false;
+  const t = q.text;
+  return t.includes('猎奇') || t.includes('近亲') || t.includes('亲戚') || t.includes('畸形恋') || t.includes('近远亲');
+}
+
+function showBranchOverlay(title, msg, btnText, onContinue) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.35s ease';
+  overlay.innerHTML = `
+    <div style="max-width:440px;width:100%;position:relative;border-radius:24px;overflow:hidden;box-shadow:0 0 80px rgba(255,71,87,0.35),0 30px 60px rgba(0,0,0,0.7)">
+      <div style="position:absolute;inset:0;background:linear-gradient(145deg,#1a0a12 0%,#2a0a18 40%,#120810 100%);"></div>
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(255,71,87,0.25),transparent 55%),radial-gradient(ellipse at 80% 80%,rgba(180,140,255,0.15),transparent 50%);pointer-events:none"></div>
+      <div style="position:relative;z-index:1;padding:36px 32px 32px;text-align:center">
+        <div style="font-size:11px;letter-spacing:4px;color:rgba(255,120,140,0.7);margin-bottom:14px;text-transform:uppercase">✦ HIDDEN BRANCH UNLOCKED ✦</div>
+        <div style="font-size:26px;font-weight:700;background:linear-gradient(135deg,#ff6b9d,#ff4757,#b48cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:serif;margin-bottom:12px;line-height:1.3">${title}</div>
+        <div style="width:60px;height:2px;background:linear-gradient(90deg,transparent,#ff6b9d,transparent);margin:0 auto 18px"></div>
+        <div style="font-size:14px;color:#c8b8d0;line-height:1.9;margin-bottom:12px;text-align:left">${msg}</div>
+        <div style="font-size:13px;color:#ff85a1;line-height:1.7;margin-bottom:28px;padding:12px 14px;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.25);border-radius:12px;text-align:left">
+          ⚠ 你已解锁隐藏题目。请根据内心真实想法作答，不要选择「应该选」的答案——真实选择才会让结果更准。
+        </div>
+        <button id="branch-continue-btn" style="background:linear-gradient(135deg,#ff4757,#b048d6);border:none;border-radius:12px;padding:16px 24px;color:white;font-size:16px;font-weight:700;cursor:pointer;width:100%;box-shadow:0 0 30px rgba(255,71,87,0.4);font-family:serif;letter-spacing:1px">${btnText}</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('branch-continue-btn').onclick = function() {
+    overlay.remove();
+    onContinue();
+  };
+}
+
+function insertQuestionsAfter(index, questionsToInsert) {
+  // insert into activeQuestions after current index, expand answers
+  const before = activeQuestions.slice(0, index + 1);
+  const after = activeQuestions.slice(index + 1);
+  activeQuestions = before.concat(questionsToInsert, after);
+  const insertLen = questionsToInsert.length;
+  const newAnswers = answers.slice(0, index + 1);
+  for (let i = 0; i < insertLen; i++) newAnswers.push(null);
+  answers = newAnswers.concat(answers.slice(index + 1));
+  TOTAL_Q = activeQuestions.length;
+}
+
+function renderQ() {
+  const q = activeQuestions[currentQ];
+  if (!q) return;
+  const pct = (currentQ / Math.max(TOTAL_Q, 1)) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  let extra = '';
+  if (q.s === 'gateway') extra = '（门槛探测）';
+  if (q.s === 'incest') extra = '（骨科隐藏倾向探索）';
+  document.getElementById('progress-label').textContent = `题目 ${currentQ+1} / ${TOTAL_Q}` + extra;
+
+  let secLabel = '深度探索';
+  let secBadge = 'dark';
+  if (q.s === 'gateway') {
+    secLabel = '门槛探测 · 近亲态度';
+    secBadge = 'dark';
+  } else if (q.s === 'incest') {
+    secLabel = '骨科隐藏倾向探索';
+    secBadge = 'dark';
+  } else {
+    const sec = SECTIONS.find(s => {
+      // map by original index if possible
+      return currentQ >= s.range[0] && currentQ <= s.range[1];
+    });
+    if (sec) { secLabel = sec.label; secBadge = sec.badge; }
+  }
+  document.getElementById('section-label').textContent = secLabel;
+  const badge = document.getElementById('section-badge');
+  badge.textContent = secLabel;
+  badge.className = 'section-badge ' + secBadge;
+
+  document.getElementById('q-num').textContent = `Q${currentQ + 1}`;
+  document.getElementById('q-text').textContent = q.text;
+
+  const optDiv = document.getElementById('q-options');
+  optDiv.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option' + (answers[currentQ] === i ? ' selected' : '');
+    div.textContent = opt;
+    div.onclick = () => selectOption(i);
+    optDiv.appendChild(div);
+  });
+
+  const btnNext = document.getElementById('btn-next');
+  btnNext.disabled = answers[currentQ] === null;
+  btnNext.textContent = (currentQ >= TOTAL_Q - 1) ? '查看结果 →' : '下一题 →';
+  document.querySelector('.btn-prev').style.opacity = currentQ === 0 ? '0.3' : '1';
+  document.querySelector('.btn-prev').disabled = currentQ === 0;
+}
+
+function selectOption(i) {
+  answers[currentQ] = i;
+  document.querySelectorAll('.option').forEach((o, idx) => {
+    o.className = 'option' + (idx === i ? ' selected' : '');
+  });
+  document.getElementById('btn-next').disabled = false;
+
+  // 门槛题：中立及以上即标记通过
+  const q = activeQuestions[currentQ];
+  if (q && q.s === 'gateway') {
+    const sc = q.scores[i];
+    if (sc >= 1) gatewayPassed = true;
+  }
+}
+
+function nextQ() {
+  if (answers[currentQ] === null) return;
+
+  const q = activeQuestions[currentQ];
+
+  // ★ 先判断是否已是最后一题，避免在末题插入门槛导致卡住
+  const isLast = currentQ >= TOTAL_Q - 1;
+
+  // 统计猎奇题：第5个后插入门槛（且不能是最后一题）
+  if (!isLast && !gatewayInserted && q && isCuriosityQuestion(q) && q.s !== 'gateway' && q.s !== 'incest') {
+    curiosityCount++;
+    if (curiosityCount >= 5) {
+      gatewayInserted = true;
+      insertQuestionsAfter(currentQ, GATEWAY_QUESTIONS);
+      showBranchOverlay(
+        '探测通道已开启',
+        '系统将用 3 道简短问题，探测你对相关议题的真实态度。<br><br>只要其中<strong style="color:#ff85a1">任意一题</strong>选择「中立」或更开放的选项，就会解锁隐藏分区：<strong style="color:#ff6b9d">骨科隐藏倾向探索</strong>。',
+        '进入探测 →',
+        function() {
+          currentQ++;
+          renderQ();
+          window.scrollTo(0,0);
+        }
+      );
+      return;
+    }
+  }
+
+  // 门槛题全部答完后，判断是否解锁
+  if (!isLast && !incestUnlocked && q && q.s === 'gateway') {
+    const nextIsNotGateway = !activeQuestions[currentQ + 1] || activeQuestions[currentQ + 1].s !== 'gateway';
+    if (nextIsNotGateway && gatewayPassed) {
+      incestUnlocked = true;
+      insertQuestionsAfter(currentQ, INCEST_QUESTIONS);
+      showBranchOverlay(
+        '骨科隐藏倾向探索',
+        '根据你的真实选择，系统已为你解锁隐藏分区。<br><br>这里有 <strong style="color:#ff85a1">20 道</strong> 更深入的题目，会进入你平时很少被问到的心理层面。<br><br>作答结果将影响最终的<strong style="color:#b48cff">命运走势</strong>与<strong style="color:#ff6b9d">感情线</strong>解读。',
+        '开始探索 →',
+        function() {
+          currentQ++;
+          renderQ();
+          window.scrollTo(0,0);
+        }
+      );
+      return;
+    }
+  }
+
+  // 最后一题 → 出结果（加保护，避免静默失败）
+  if (currentQ >= TOTAL_Q - 1) {
+    try {
+      finishQuiz();
+    } catch (err) {
+      console.error('finishQuiz error:', err);
+      alert('生成结果时出错：' + (err && err.message ? err.message : err) + '\\n请打开控制台查看详情，或重试一次。');
+    }
+    return;
+  }
+
+  currentQ++;
+  // 更新按钮文案
+  const btn = document.getElementById('btn-next');
+  if (btn) {
+    btn.textContent = (currentQ >= TOTAL_Q - 1) ? '查看结果 →' : '下一题 →';
+  }
+
+  if (SECTION_INTROS[currentQ] && !shownIntros.has(currentQ) && activeQuestions[currentQ] && activeQuestions[currentQ].s !== 'gateway' && activeQuestions[currentQ].s !== 'incest') {
+    showSectionIntro(currentQ, function() { renderQ(); window.scrollTo(0,0); });
+  } else {
+    renderQ();
+    window.scrollTo(0,0);
+  }
+}
+
+function prevQ() {
+  if (currentQ === 0) return;
+  currentQ--;
+  renderQ();
+}
+
+// ─── CALCULATE RESULTS ───
+function finishQuiz() {
+  const mbtiScores = { E:0, I:0, N:0, S:0, T:0, F:0, J:0, P:0 };
+  let ambitionTotal=0, ambitionMax=0;
+  let darkTotal=0, darkMax=0;
+  let desireTotal=0, desireMax=0;
+  let loyaltyTotal=0, loyaltyMax=0;
+  let incestTotal=0, incestMax=0;
+
+  activeQuestions.forEach((q, idx) => {
+    const ansIdx = answers[idx];
+    if (ansIdx === null) return;
+    const score = q.scores[ansIdx];
+    if (q.s === 'mbti') {
+      mbtiScores[q.dim] = (mbtiScores[q.dim] || 0) + score;
+    } else if (q.s === 'ambition') {
+      ambitionTotal += Math.max(0, score); ambitionMax += 4;
+    } else if (q.s === 'dark') {
+      darkTotal += Math.max(0, score); darkMax += 4;
+    } else if (q.s === 'desire') {
+      desireTotal += Math.max(0, score); desireMax += 4;
+    } else if (q.s === 'loyalty' || q.s === 'loyalty2' || q.s === 'loyalty3') {
+      loyaltyTotal += Math.max(0, score); loyaltyMax += 4;
+    } else if (q.s === 'incest') {
+      incestTotal += Math.max(0, score); incestMax += 4;
+    }
+  });
+
+  const mbtiType =
+    (mbtiScores.E >= mbtiScores.I ? 'E' : 'I') +
+    (mbtiScores.N >= mbtiScores.S ? 'N' : 'S') +
+    (mbtiScores.T >= mbtiScores.F ? 'T' : 'F') +
+    (mbtiScores.J >= mbtiScores.P ? 'J' : 'P');
+
+  const ambPct     = ambitionMax ? Math.round((ambitionTotal / ambitionMax) * 100) : 0;
+  const darkPct    = darkMax ? Math.round((darkTotal / darkMax) * 100) : 0;
+  const desirePct  = desireMax ? Math.round((desireTotal / desireMax) * 100) : 0;
+  const loyaltyPct = loyaltyMax > 0 ? Math.round((loyaltyTotal / loyaltyMax) * 100) : 0;
+  const incestPct  = incestMax > 0 ? Math.round((incestTotal / incestMax) * 100) : 0;
+  const darkLevel  = darkPct >= 60 ? '高' : darkPct >= 35 ? '中' : '低';
+
+  // 猎奇等级：正常人 / 轻度猎奇 / 中度猎奇 / 完全猎奇 / 神
+  const curiosityTier = calcCuriosityTier(ambPct, darkPct, desirePct, loyaltyPct, incestPct, incestUnlocked);
+
+  // 心理倾向星座（结合MBTI + 欲望/阴暗/忠诚 + 出生月）
+  const psychZodiac = calcPsychZodiac(mbtiType, ambPct, darkPct, desirePct, loyaltyPct, userInfo.birthMonth);
+
+  // 命运走势
+  const destiny = calcDestiny(mbtiType, ambPct, darkPct, desirePct, loyaltyPct, incestPct, incestUnlocked);
+
+  // 感情线
+  const loveLine = calcLoveLine(loyaltyPct, desirePct, darkPct, incestPct, incestUnlocked);
+
+  pendingResultRecord = {
+    id: Date.now(), userInfo: Object.assign({}, userInfo),
+    endTime: new Date().toISOString(),
+    mbtiType, mbtiScores,
+    ambitionScore: ambPct, darkScore: darkPct,
+    desireScore: desirePct, loyaltyScore: loyaltyPct,
+    incestScore: incestPct, incestUnlocked,
+    darkLevel,
+    curiosityTier,
+    psychZodiac, destiny, loveLine,
+    answers: answers.map((a, i) => {
+      const q = activeQuestions[i] || {text:'',opts:[],scores:[0],s:''};
+      return {
+        q: q.text,
+        a: a !== null ? q.opts[a] : '未作答',
+        score: a !== null ? q.scores[a] : 0,
+        section: q.s
+      };
+    })
+  };
+
+  // 出结果前：再次确认出生日期
+  openBirthConfirmModal();
+}
+
+let pendingResultRecord = null;
+
+function openBirthConfirmModal() {
+  // 故意不预填：要求用户重新输入，便于发现乱填
+  const ageInp = document.getElementById('confirm-age');
+  const ySel = document.getElementById('confirm-birth-year');
+  const mSel = document.getElementById('confirm-birth-month');
+  const dSel = document.getElementById('confirm-birth-day');
+  if (ySel && ySel.options.length <= 1) {
+    const thisYear = new Date().getFullYear();
+    for (let y = thisYear; y >= 1940; y--) {
+      const o = document.createElement('option');
+      o.value = String(y); o.textContent = y + '年';
+      ySel.appendChild(o);
+    }
+  }
+  if (ageInp) ageInp.value = '';
+  if (ySel) ySel.value = '';
+  if (mSel) mSel.value = '';
+  fillConfirmDays();
+  if (dSel) dSel.value = '';
+  document.getElementById('modal-birth-confirm').classList.add('show');
+  setTimeout(function(){ if (ageInp) ageInp.focus(); }, 80);
+}
+
+function fillConfirmDays() {
+  const y = parseInt(document.getElementById('confirm-birth-year').value) || 2000;
+  const m = parseInt(document.getElementById('confirm-birth-month').value) || 1;
+  const dSel = document.getElementById('confirm-birth-day');
+  const prev = dSel.value;
+  const days = new Date(y, m, 0).getDate();
+  dSel.innerHTML = '<option value="">日</option>';
+  for (let d = 1; d <= days; d++) {
+    const o = document.createElement('option');
+    o.value = String(d); o.textContent = d + '日';
+    dSel.appendChild(o);
+  }
+  if (prev && parseInt(prev) <= days) dSel.value = prev;
+}
+
+function submitBirthConfirm() {
+  const ageRaw = document.getElementById('confirm-age').value;
+  const age = String(ageRaw).trim();
+  const by = document.getElementById('confirm-birth-year').value;
+  const bm = document.getElementById('confirm-birth-month').value;
+  const bd = document.getElementById('confirm-birth-day').value;
+  const ageNum = parseInt(age, 10);
+  if (!age || isNaN(ageNum) || ageNum < 1 || ageNum > 120) {
+    alert('请填写有效的年龄数字（1-120）');
+    return;
+  }
+  if (!by || !bm || !bd) {
+    alert('请完整填写出生年月日');
+    return;
+  }
+  if (!pendingResultRecord) {
+    alert('结果数据丢失，请重新完成测试');
+    return;
+  }
+  // 记录第二次填写
+  const confirmBirth = {
+    age: age,
+    birthYear: by,
+    birthMonth: bm,
+    birthDay: bd,
+    birthDate: by + '-' + String(bm).padStart(2,'0') + '-' + String(bd).padStart(2,'0'),
+    confirmedAt: new Date().toISOString()
+  };
+  pendingResultRecord.birthConfirm = confirmBirth;
+  // 同步更新 userInfo 中用于星座计算的月份（以第二次为准）
+  pendingResultRecord.userInfo = Object.assign({}, pendingResultRecord.userInfo, {
+    ageConfirm: age,
+    birthYear2: by,
+    birthMonth2: bm,
+    birthDay2: bd,
+    birthDate2: confirmBirth.birthDate
+  });
+  // 用第二次出生月重算心理星座
+  try {
+    pendingResultRecord.psychZodiac = calcPsychZodiac(
+      pendingResultRecord.mbtiType,
+      pendingResultRecord.ambitionScore,
+      pendingResultRecord.darkScore,
+      pendingResultRecord.desireScore,
+      pendingResultRecord.loyaltyScore,
+      bm
+    );
+  } catch (e) { console.warn(e); }
+
+  document.getElementById('modal-birth-confirm').classList.remove('show');
+
+  const record = pendingResultRecord;
+  pendingResultRecord = null;
+  try {
+    saveRecord(record);
+  } catch (e) {
+    console.warn('saveRecord failed', e);
+  }
+  try {
+    showResult(record);
+  } catch (e) {
+    console.error('showResult failed', e);
+    alert('结果页渲染出错：' + (e && e.message ? e.message : e));
+    try { goTo('result'); } catch(_) {}
+  }
+}
+
+
+
+// 猎奇等级判定
+function calcCuriosityTier(amb, dark, desire, loyalty, incest, unlocked) {
+  // 综合分：阴暗、欲望、野心、多情、禁忌支线
+  let score = dark * 0.35 + desire * 0.25 + amb * 0.2 + loyalty * 0.1;
+  if (unlocked) score += Math.min(incest, 100) * 0.2;
+  score = Math.round(score);
+  if (score >= 85) return { level: '神', color: '#ffd166', desc: '你几乎触及了这套测试所能探测的最深处。猎奇边界被大幅打开，禁忌与欲望在你身上形成高度整合的驱动力。请务必在现实中保持清醒的边界与自我觉察。' };
+  if (score >= 68) return { level: '完全猎奇', color: '#ff4757', desc: '你的猎奇倾向已经非常鲜明。对非常规亲密、权力与禁忌题材有强烈共鸣，情绪与想象都更容易被极端刺激唤醒。' };
+  if (score >= 48) return { level: '中度猎奇', color: '#ff6b9d', desc: '你处于明确的猎奇区间。既保留日常理性，也愿意在安全范围内探索更刺激、更偏离主流的体验与幻想。' };
+  if (score >= 28) return { level: '轻度猎奇', color: '#b48cff', desc: '你有一定的猎奇好奇心，但整体仍偏克制。偶尔会被非常规题材吸引，多数时候仍以常规情感与道德框架为主。' };
+  return { level: '正常人', color: '#7ec8a0', desc: '你的作答整体落在常规范围内。对猎奇题材兴趣有限，更看重稳定、边界清晰的情感与生活方式。' };
+}
+
+// 心理倾向星座计算
+function calcPsychZodiac(mbti, amb, dark, desire, loyalty, birthMonth) {
+  const map = {
+    INTJ:['摩羯座','天蝎座'], INTP:['水瓶座','双鱼座'], ENTJ:['狮子座','白羊座'], ENTP:['双子座','水瓶座'],
+    INFJ:['双鱼座','天蝎座'], INFP:['双鱼座','巨蟹座'], ENFJ:['狮子座','射手座'], ENFP:['射手座','双子座'],
+    ISTJ:['摩羯座','金牛座'], ISFJ:['巨蟹座','金牛座'], ESTJ:['摩羯座','白羊座'], ESFJ:['巨蟹座','天秤座'],
+    ISTP:['天蝎座','处女座'], ISFP:['天秤座','双鱼座'], ESTP:['白羊座','射手座'], ESFP:['狮子座','天秤座']
+  };
+  const candidates = map[mbti] || ['天秤座','双子座'];
+  let idx = 0;
+  if (dark >= 55 || desire >= 60) idx = 1;
+  if (loyalty >= 65) idx = 0;
+  // 出生月微调
+  const m = parseInt(birthMonth) || 0;
+  if (m >= 10 || m <= 2) idx = Math.min(idx, candidates.length-1);
+  const name = candidates[idx];
+  const descs = {
+    '白羊座':'冲动、直接、渴望掌控节奏，感情里容易先行动后思考。',
+    '金牛座':'稳定、占有欲强，重视安全感与实际付出，一旦认定很少轻易放弃。',
+    '双子座':'多变、好奇、需要新鲜刺激，感情中既渴望连接又害怕被绑住。',
+    '巨蟹座':'敏感、护短、情感记忆深刻，容易把过去的人与事一直放在心里。',
+    '狮子座':'需要被看见与欣赏，感情中有强烈的自我表达欲与骄傲。',
+    '处女座':'挑剔、分析型，对关系和细节有高标准，容易自我内耗。',
+    '天秤座':'追求平衡与和谐，却常在选择中摇摆，重视关系的美感与对等。',
+    '天蝎座':'深沉、执着、占有欲与洞察力极强，一旦动心就很难抽离。',
+    '射手座':'向往自由与远方，感情里需要空间，讨厌被道德或规则过度约束。',
+    '摩羯座':'克制、目标导向，感情也常被责任与现实感包裹，内心其实很重。',
+    '水瓶座':'疏离又理想主义，用独特的方式爱人，有时显得冷静到近乎冷漠。',
+    '双鱼座':'感性、易共情、边界模糊，容易沉浸在幻想与情感流动中。'
+  };
+  return { name, desc: descs[name] || '复杂而独特的心理倾向。', birthHint: m ? `结合你的出生月份，心理能量更偏向${name}的特质。` : '未填写生日，仅根据性格与作答倾向推断。' };
+}
+
+function calcDestiny(mbti, amb, dark, desire, loyalty, incest, unlocked) {
+  let title = '平稳流转';
+  let desc = '你的命运线整体较为平稳，关键选择仍掌握在自己手中。';
+  if (amb >= 70 && dark >= 55) {
+    title = '高能博弈局';
+    desc = '你内心驱动力强，未来几年可能经历明显的起伏与权力/资源博弈。抓住窗口期，也要警惕过度消耗。';
+  } else if (desire >= 65 && loyalty >= 55) {
+    title = '情感风暴期';
+    desc = '欲望与关系议题会在未来成为重要课题。可能经历深刻的感情转折，之后反而更清晰自己要什么。';
+  } else if (dark >= 60) {
+    title = '阴影整合之路';
+    desc = '你需要正视内心较黑暗的部分。若能诚实面对，反而会成为你强大的力量来源；若压抑，则容易以意外方式爆发。';
+  } else if (amb >= 60) {
+    title = '上升突破期';
+    desc = '野心会推动你向外拓展。适合主动布局、学习与建立连接，但需避免因急于求成而忽视内心真实需求。';
+  }
+  if (unlocked && incest >= 50) {
+    title += ' · 禁忌课题';
+    desc += ' 隐藏支线显示你对禁忌情感有较高觉察或接纳度，这可能在未来以复杂关系或自我认知突破的形式显现。';
+  }
+  return { title, desc };
+}
+
+function calcLoveLine(loyalty, desire, dark, incest, unlocked) {
+  let level = '相对稳定';
+  let desc = '你在感情中整体偏理性与克制，能够维持基本的忠诚与边界。';
+  if (loyalty >= 70) {
+    level = '多情易感 · 边界模糊';
+    desc = '你对新鲜感与被需要的感觉敏感，容易同时对多人产生情感涟漪。若无意识管理，关系容易陷入消耗。';
+  } else if (loyalty >= 50) {
+    level = '中等波动';
+    desc = '你并非绝对专一，但也不会轻易越界。关键在于是否诚实面对自己的心动，以及如何与伴侣沟通。';
+  } else if (loyalty <= 30) {
+    level = '高忠诚倾向';
+    desc = '你更看重深度与稳定，一旦投入会认真经营。需要注意的是，过度压抑其他吸引力有时也会积累反弹。';
+  }
+  if (desire >= 65) desc += ' 欲望强度较高，适合寻找能包容你复杂性的伴侣。';
+  if (unlocked) {
+    if (incest >= 60) {
+      level += ' · 禁忌敏感';
+      desc += ' 隐藏支线显示你对近亲相关议题有较高心理开放度或好奇，这会深刻影响你对「禁忌」「血缘」「亲密」的理解，建议在现实中保持清晰边界与自我觉察。';
+    } else if (incest >= 35) {
+      desc += ' 你对禁忌情感议题保持一定开放性，但尚未形成强烈倾向。';
+    }
+  }
+  return { level, desc };
+}
+
+const MBTI_DATA = {
+  INTJ:{name:'策略家',archetype:'孤独的建筑师',desc:'孤独的思想家，用逻辑与远见构建他人看不见的未来。INTJ是最罕见也最自信的人格之一，以精密的内心世界和对未来的长远规划著称。',traits:['战略思维','独立自主','完美主义','高标准'],shadows:['冷漠孤僻','傲慢自大','不近人情','极端完美主义'],gradient:['#0f0c29','#302b63','#24243e'],accent:'#9b59b6'},
+  INTP:{name:'逻辑学家',archetype:'思想的探险者',desc:'沉迷于理论与可能性，用智识构建精密的思想宇宙。INTP是天生的问题求解者，内心宇宙无比丰富，对外界却往往显得淡漠。',traits:['逻辑分析','创新思维','客观冷静','知识渴望'],shadows:['脱离现实','情感冷漠','拖延完美','社交回避'],gradient:['#1a1a2e','#16213e','#0f3460'],accent:'#00b4d8'},
+  ENTJ:{name:'指挥官',archetype:'天生的将领',desc:'天生的领导者，用意志力与远见驱动世界按自己的设想运转。ENTJ在任何环境中都自然而然地走向领导位置。',traits:['决断力强','战略领导','高效执行','目标驱动'],shadows:['强权控制','忽视感受','傲慢专制','情感冷酷'],gradient:['#1a0533','#3d1a78','#6a0572'],accent:'#c77dff'},
+  ENTP:{name:'辩论家',archetype:'思想的颠覆者',desc:'思想的挑战者，用智慧和创意颠覆一切既定的框架。ENTP享受智识上的碰撞与辩论，最擅长找到系统中的漏洞。',traits:['创意无限','辩证思维','快速适应','魅力十足'],shadows:['好辩争强','缺乏执行','轻视规则','情绪化攻击'],gradient:['#001e3c','#0a3d62','#1e6091'],accent:'#48cae4'},
+  INFJ:{name:'提倡者',archetype:'罕见的预言者',desc:'罕见的理想主义者，在混沌中寻找深层的意义与使命。INFJ是所有人格类型中最稀少的，拥有对人心深刻的洞察力。',traits:['深刻洞察','共情能力','理想主义','神秘气质'],shadows:['过度敏感','自我牺牲','门徒效应','偶尔冷漠'],gradient:['#0d1b2a','#1b2838','#2c3e50'],accent:'#1abc9c'},
+  INFP:{name:'调停者',archetype:'内心的诗人',desc:'内心充满诗意，在平凡世界里守护自己独特的价值观。INFP是天生的理想主义者，对真善美有着永不妥协的追求。',traits:['情感丰富','创造力强','价值驱动','忠诚纯粹'],shadows:['过于理想','逃避现实','自我封闭','情绪化'],gradient:['#1a0a2e','#2d1b69','#11998e'],accent:'#38ef7d'},
+  ENFJ:{name:'主人公',archetype:'灵魂的引路人',desc:'天生的鼓舞者，用魅力与同理心引领他人走向更好的自己。ENFJ是人群中的太阳，总能感知他人的需求并给予支持。',traits:['感召力强','善于沟通','关怀他人','组织能力'],shadows:['控制欲强','过度干涉','忽视自我','情感操控'],gradient:['#200122','#6f0000','#cc0000'],accent:'#f7971e'},
+  ENFP:{name:'活动家',archetype:'热情的梦想家',desc:'充满热情的梦想家，在每一个可能性中看到改变世界的火花。ENFP永远充满好奇心，在人与人之间架起桥梁。',traits:['热情感染','创意丰富','人际魅力','适应力强'],shadows:['三分钟热度','情绪化','过度理想','注意力分散'],gradient:['#1f0036','#52006a','#e100ff'],accent:'#ffd700'},
+  ISTJ:{name:'物流师',archetype:'秩序的守护者',desc:'可靠的守护者，用纪律与责任感默默支撑着世界的秩序。ISTJ是最值得信赖的人格之一，说到做到是他们的核心标签。',traits:['责任感强','细心可靠','条理清晰','忠诚坚守'],shadows:['固执保守','过度刻板','情感压抑','抵制变化'],gradient:['#0c0c0c','#1a1a2e','#16213e'],accent:'#778ca3'},
+  ISFJ:{name:'守卫者',archetype:'温柔的守护天使',desc:'温柔的保护者，将他人的需求放在自己之上。ISFJ以细腻的情感和强烈的责任感守护着身边的每一个人。',traits:['关怀体贴','耐心细致','忠诚可靠','实际稳重'],shadows:['压抑自我','难以拒绝','过度焦虑','隐忍爆发'],gradient:['#1a1a2e','#2d4059','#ea5455'],accent:'#f5a623'},
+  ESTJ:{name:'总经理',archetype:'铁腕的执行者',desc:'秩序的捍卫者，用规则和执行力打造高效的社会结构。ESTJ是天生的管理者，对效率和秩序有着近乎偏执的追求。',traits:['组织管理','决策果断','责任担当','目标明确'],shadows:['独断专行','情感迟钝','僵化守旧','权威崇拜'],gradient:['#232526','#414345','#232526'],accent:'#c0392b'},
+  ESFJ:{name:'执政官',archetype:'社群的黏合剂',desc:'社群的黏合剂，用关怀和责任维系人与人之间的温暖纽带。ESFJ总是能让周围的人感到被接纳和重视。',traits:['热情友善','关注他人','组织社群','忠诚可靠'],shadows:['过度在意评价','控制欲','情感操控','顺从权威'],gradient:['#360033','#0b8793','#360033'],accent:'#ff6b6b'},
+  ISTP:{name:'鉴赏家',archetype:'冷静的工匠',desc:'冷静的工匠，用手和眼深入理解世界的运作机制。ISTP对机械和系统有着天然的亲和力，危机时刻格外冷静。',traits:['逻辑冷静','动手能力','危机处理','独立自主'],shadows:['情感冷漠','冒险冲动','缺乏计划','敌意内敛'],gradient:['#1a1a1a','#2c2c2c','#3d3d3d'],accent:'#95a5a6'},
+  ISFP:{name:'探险家',archetype:'活在当下的艺术家',desc:'活在当下的艺术家，用感官捕捉生命中每一个美的瞬间。ISFP是最懂得享受当下之美的人，对审美有着独到的品味。',traits:['审美敏锐','随性自由','忠于自我','共情深刻'],shadows:['回避冲突','过于感性','缺乏规划','自我怀疑'],gradient:['#2d3561','#c05c7e','#f3826f'],accent:'#ff9a9e'},
+  ESTP:{name:'企业家',archetype:'行动力超强的冒险者',desc:'行动力超强的冒险者，在刺激与挑战中找到人生意义。ESTP思维和行动都极为敏捷，是天生的危机化解者。',traits:['行动力强','临场发挥','社交魅力','风险偏好'],shadows:['冲动行事','忽视后果','享乐主义','缺乏耐心'],gradient:['#1f1c2c','#928dab','#1f1c2c'],accent:'#f39c12'},
+  ESFP:{name:'表演者',archetype:'生命的舞台剧演员',desc:'生活的舞台剧演员，用热情和魅力让每个场合都充满生气。ESFP是天生的娱乐者，随时随地都能成为焦点。',traits:['充满活力','社交达人','随机应变','乐观感染'],shadows:['回避深度','过度享乐','情绪化','缺乏计划'],gradient:['#f953c6','#b91d73','#f953c6'],accent:'#ffeaa7'},
+};
+
+const LOYALTY_LEVELS = [
+  { min:0,  max:20, label:'正常人 💍', desc:'你是测试里面最正常的群体。' },
+  { min:21, max:40, label:'轻度癖好 🌿', desc:'你的忠诚度较高，感情中以稳定为主。偶尔会有欣赏他人的时刻，但你有道德底线不会轻易逾越。你珍视深度关系，不容易被外界诱惑所动摇。' },
+  { min:41, max:55, label:'猎奇入门 🌊', desc:'你的猎奇度处于中间地带。你幻想过畸形的感情，但也享受被欣赏和新鲜感的刺激。你还算正常，但在特定条件下容易动摇——遵循你的内心反而不容易矛盾。' },
+  { min:56, max:70, label:'有点重口 🌹', desc:'你的猎奇指数偏高。你渴望激情或畸形恋，享受带来的情感满足。你并非坏人，但你的感情模式可能会给自己和他人带来困扰。' },
+  { min:71, max:100,label:'猎奇重口 🔥', desc:'你具有高度的倾向。了解自己的这一特质，有助于在感情中做出更诚实的选择。' },
+];
+
+// ─── DOG BREED DATA ─── 12 breeds mapped by personality combo
+const DOG_DATA = {
+  // Analyst types → cerebral, independent dogs
+  INTJ: { name:'柴犬', en:'Shiba Inu', sub:'独立思考的孤高灵魂', traits:['独立','聪明','自我','神秘'], desc:'你和柴犬一样——外表高冷，内心世界极其丰富。你不需要别人的认可，也不喜欢被人支配。你的忠诚是稀缺资源，但一旦给出便无比珍贵。别人看不懂你，你也懒得解释。', loyalty:'中等偏低', color:'#c8722a' },
+  INTP: { name:'边境牧羊犬', en:'Border Collie', sub:'永不停转的思维引擎', traits:['超高智商','精力旺盛','完美主义','学习狂'], desc:'你是犬界最聪明的品种。你的大脑永远在全速运转，对知识和问题的痴迷让你无法停下来。你在感情上可能显得心不在焉，但那只是因为你同时在思考三个宇宙级问题。', loyalty:'高', color:'#2a5c8a' },
+  ENTJ: { name:'杜宾犬', en:'Doberman', sub:'天生的领袖与守护者', traits:['威严','果断','忠诚','保护欲强'], desc:'你是犬界的CEO。杜宾犬天生散发领袖气场，进入任何空间都是焦点。你对自己的人极度忠诚，对威胁你们的一切则毫不留情。你的爱像铁拳——用力，精准，毫不含糊。', loyalty:'极高', color:'#1a1a2e' },
+  ENTP: { name:'澳大利亚牧羊犬', en:'Australian Shepherd', sub:'停不下来的创意风暴', traits:['聪明','好奇','精力无限','爱挑战'], desc:'你就像澳牧一样——永远需要新的刺激和挑战。你魅力十足，让人着迷，但也让人抓狂，因为你总在想下一个可能性。感情里你热情如火，但也需要足够的自由空间才能保持忠诚。', loyalty:'中等', color:'#2d6a4f' },
+  // Diplomats → emotionally rich, loyal dogs
+  INFJ: { name:'苏格兰牧羊犬', en:'Rough Collie', sub:'温柔而深刻的守护者', traits:['直觉敏锐','忠诚','共情','深沉'], desc:'你像莱西一样——温柔、深情、有着超乎常人的感知力。你能感知到别人注意不到的情绪细节，你的忠诚是那种穿越一切的深情。你很少轻易开放内心，但一旦爱了，就是全部。', loyalty:'极高', color:'#6b4226' },
+  INFP: { name:'金毛寻回犬', en:'Golden Retriever', sub:'世界上最纯粹的爱', traits:['温暖','共情','理想主义','全力以赴'], desc:'你是金毛——这个世界上爱得最纯粹的犬种。你对感情全身心投入，容易受伤，但永远不会放弃相信美好。你的多情不是花心，而是你对每一段关系都认真对待的本能。', loyalty:'高', color:'#c8943a' },
+  ENFJ: { name:'拉布拉多', en:'Labrador', sub:'所有人的阳光与温暖', traits:['热情','包容','领袖气质','治愈力'], desc:'你是拉布拉多——走到哪里都能让人感到温暖和被接纳。你天生的魅力和感召力让你成为人群中心。你在感情中付出极多，有时甚至忽略自己的需求，记得偶尔也照顾一下自己。', loyalty:'高', color:'#8b6914' },
+  ENFP: { name:'哈士奇', en:'Husky', sub:'自由灵魂的爱情冒险家', traits:['热情','独立','魅力爆棚','无法预测'], desc:'你是哈士奇——美丽、活力四射、永远充满惊喜，但也让人捉摸不透。你对感情充满热情，但你的自由灵魂让你很难被"锁住"。你的多情是因为你真的对很多人和事都抱有真诚的热爱。', loyalty:'中等偏低', color:'#4a6fa5' },
+  // Sentinels → loyal, steady dogs
+  ISTJ: { name:'德国牧羊犬', en:'German Shepherd', sub:'最可靠的守护与承诺', traits:['极度忠诚','责任感','保护欲','执行力'], desc:'你是德牧——犬界最值得信赖的品种。你重承诺、守规矩，一旦选定就全力守护，绝不轻易离开。你的忠诚度可能是所有犬系中最高的，伴侣与你在一起有极强的安全感。', loyalty:'极高', color:'#3d2b1f' },
+  ISFJ: { name:'萨摩耶', en:'Samoyed', sub:'永恒微笑的温柔守护者', traits:['温柔','体贴','耐心','无条件爱'], desc:'你是萨摩耶——永远带着微笑，温柔到让人心疼。你在感情中是那个默默付出、从不计较的人。你的忠诚是无声的，是每天早上的一杯水，是对方难过时的默默陪伴。', loyalty:'极高', color:'#6b8cba' },
+  ESTJ: { name:'罗威纳', en:'Rottweiler', sub:'铁腕外壳下的深度忠诚', traits:['保护欲','自信','果断','深度忠诚'], desc:'你是罗威纳——外表强硬、让人敬畏，但对自己人的爱深沉且坚定。你在感情中是保护者，你的爱不花哨，但无比可靠。你对出轨和不忠有极低容忍度，因为你自己从不这样做。', loyalty:'极高', color:'#1c1c1c' },
+  ESFJ: { name:'比熊犬', en:'Bichon Frisé', sub:'社交能手与情感黏合剂', traits:['热情','爱人','善交际','情感丰富'], desc:'你是比熊——人见人爱，走到哪里都能迅速融入，成为大家的开心果。你在感情上极度热情，非常需要被爱和被认可。你渴望建立稳定的关系，但也容易因为关注太多人而显得"博爱"。', loyalty:'高', color:'#b06ab3' },
+  // Explorers → adventurous dogs
+  ISTP: { name:'阿拉斯加雪橇犬', en:'Alaskan Malamute', sub:'冷峻独行的强者', traits:['独立','冷静','有力量','神秘'], desc:'你是阿拉斯加——强壮、独立、看起来冷漠但内心有自己的一套情感逻辑。你不需要太多陪伴，但一旦建立了深层连接，就是非常可靠的伴侣。感情里你不善言辞，但行动胜于一切。', loyalty:'中等', color:'#5b6b7c' },
+  ISFP: { name:'柯基犬', en:'Corgi', sub:'外表软萌内心火热', traits:['可爱','个性','感性','充满活力'], desc:'你是柯基——外表萌萌哒，但内心有自己鲜明的想法和执念。你对美好事物充满热情，在感情里随性但真诚。你不会故意伤害人，但你对当下感受的重视可能让你在感情稳定性上略显不足。', loyalty:'中等', color:'#d4880a' },
+  ESTP: { name:'杰克罗素梗', en:'Jack Russell Terrier', sub:'永不停歇的冒险精灵', traits:['冲劲十足','刺激感','魅力','不可预测'], desc:'你是杰克罗素梗——小体格，大能量，永远在找下一个冒险。你在感情里充满魅力和激情，但你对"无聊"的极低容忍度让你很难长期安定。你最适合能跟上你节奏的伴侣。', loyalty:'中等偏低', color:'#8b4513' },
+  ESFP: { name:'贵宾犬', en:'Poodle', sub:'聪明迷人的社交之星', traits:['魅力十足','适应力强','情感丰富','爱表现'], desc:'你是贵宾——最被低估的犬种之一，外表时尚，内里聪明过人。你在社交场合如鱼得水，你的魅力让很多人为你着迷。感情里你给的爱很真实，但你也享受被追求的过程，有时界限略显模糊。', loyalty:'中等', color:'#c0609a' },
+};
+
+// Map MBTI to dog breed (16 types → 16 breeds/entries)
+function getDogBreed(mbtiType) {
+  return DOG_DATA[mbtiType] || DOG_DATA['ENFP'];
+}
+
+// SVG dog illustrations
+function getDogSVG(mbtiType) {
+  const dog = DOG_DATA[mbtiType] || DOG_DATA['ENFP'];
+  const c = dog.color;
+  const svgs = {
+    INTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Shiba Inu -->
+      <circle cx="80" cy="85" r="45" fill="${c}" opacity="0.9"/>
+      <ellipse cx="80" cy="85" rx="32" ry="30" fill="#e8a060" opacity="0.6"/>
+      <!-- ears -->
+      <polygon points="52,52 40,22 65,42" fill="${c}"/>
+      <polygon points="108,52 120,22 95,42" fill="${c}"/>
+      <polygon points="55,50 45,28 66,44" fill="#ffb07c" opacity="0.7"/>
+      <polygon points="105,50 115,28 94,44" fill="#ffb07c" opacity="0.7"/>
+      <!-- face -->
+      <ellipse cx="80" cy="90" rx="22" ry="18" fill="#e8a060"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="78" rx="6" ry="6" fill="#1a0a00"/>
+      <ellipse cx="92" cy="78" rx="6" ry="6" fill="#1a0a00"/>
+      <circle cx="70" cy="76" r="2" fill="white"/>
+      <circle cx="94" cy="76" r="2" fill="white"/>
+      <!-- nose -->
+      <ellipse cx="80" cy="90" rx="5" ry="3.5" fill="#1a0a00"/>
+      <!-- mouth -->
+      <path d="M75,94 Q80,98 85,94" stroke="#1a0a00" stroke-width="1.5" fill="none"/>
+      <!-- cheeks -->
+      <circle cx="60" cy="88" r="7" fill="#e07858" opacity="0.35"/>
+      <circle cx="100" cy="88" r="7" fill="#e07858" opacity="0.35"/>
+    </svg>`,
+
+    INTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Border Collie - black and white -->
+      <ellipse cx="80" cy="90" rx="46" ry="40" fill="#222"/>
+      <ellipse cx="80" cy="92" rx="30" ry="26" fill="#e8e8e8"/>
+      <!-- ears long floppy -->
+      <ellipse cx="50" cy="60" rx="14" ry="28" fill="#222" transform="rotate(-15 50 60)"/>
+      <ellipse cx="110" cy="60" rx="14" ry="28" fill="#222" transform="rotate(15 110 60)"/>
+      <ellipse cx="50" cy="62" rx="9" ry="22" fill="#b0b0b0" opacity="0.5" transform="rotate(-15 50 62)"/>
+      <!-- face -->
+      <ellipse cx="80" cy="88" rx="22" ry="20" fill="#f0f0f0"/>
+      <ellipse cx="80" cy="76" rx="12" ry="8" fill="#222"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="80" rx="5.5" ry="5.5" fill="#1a0a00"/>
+      <ellipse cx="92" cy="80" rx="5.5" ry="5.5" fill="#1a0a00"/>
+      <circle cx="69.5" cy="78.5" r="1.5" fill="white"/>
+      <circle cx="93.5" cy="78.5" r="1.5" fill="white"/>
+      <ellipse cx="80" cy="92" rx="5" ry="3.5" fill="#1a0a00"/>
+      <path d="M75,96 Q80,100 85,96" stroke="#1a0a00" stroke-width="1.5" fill="none"/>
+      <circle cx="63" cy="90" r="6" fill="#e07858" opacity="0.25"/>
+      <circle cx="97" cy="90" r="6" fill="#e07858" opacity="0.25"/>
+    </svg>`,
+
+    ENTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Doberman -->
+      <ellipse cx="80" cy="88" rx="44" ry="42" fill="#1a0f0a"/>
+      <ellipse cx="80" cy="82" rx="26" ry="22" fill="#8b4513" opacity="0.7"/>
+      <!-- pointy ears -->
+      <polygon points="52,54 44,20 66,48" fill="#1a0f0a"/>
+      <polygon points="108,54 116,20 94,48" fill="#1a0f0a"/>
+      <polygon points="54,52 48,26 66,48" fill="#3d1a08" opacity="0.5"/>
+      <polygon points="106,52 112,26 94,48" fill="#3d1a08" opacity="0.5"/>
+      <!-- face -->
+      <ellipse cx="80" cy="90" rx="20" ry="20" fill="#2a1206"/>
+      <ellipse cx="80" cy="96" rx="14" ry="12" fill="#8b4513" opacity="0.6"/>
+      <!-- eyes amber -->
+      <ellipse cx="68" cy="82" rx="6" ry="6" fill="#c8841a"/>
+      <ellipse cx="92" cy="82" rx="6" ry="6" fill="#c8841a"/>
+      <ellipse cx="68" cy="82" rx="4" ry="4" fill="#1a0a00"/>
+      <ellipse cx="92" cy="82" rx="4" ry="4" fill="#1a0a00"/>
+      <circle cx="69" cy="81" r="1.5" fill="white"/>
+      <circle cx="93" cy="81" r="1.5" fill="white"/>
+      <ellipse cx="80" cy="96" rx="5" ry="3" fill="#0d0505"/>
+      <path d="M75,100 Q80,104 85,100" stroke="#0d0505" stroke-width="1.5" fill="none"/>
+    </svg>`,
+
+    ENFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Husky - blue grey -->
+      <ellipse cx="80" cy="88" rx="46" ry="42" fill="#4a6fa5"/>
+      <ellipse cx="80" cy="90" rx="30" ry="28" fill="#c8d8ea"/>
+      <!-- mask markings -->
+      <ellipse cx="68" cy="78" rx="14" ry="12" fill="#1a1a3a" opacity="0.6"/>
+      <ellipse cx="92" cy="78" rx="14" ry="12" fill="#1a1a3a" opacity="0.6"/>
+      <!-- ears pointy -->
+      <polygon points="52,55 44,18 68,50" fill="#4a6fa5"/>
+      <polygon points="108,55 116,18 92,50" fill="#4a6fa5"/>
+      <polygon points="54,53 48,24 67,50" fill="#8aaace" opacity="0.5"/>
+      <polygon points="106,53 112,24 93,50" fill="#8aaace" opacity="0.5"/>
+      <!-- eyes ice blue -->
+      <ellipse cx="67" cy="80" rx="6.5" ry="6.5" fill="#a8d8ea"/>
+      <ellipse cx="93" cy="80" rx="6.5" ry="6.5" fill="#a8d8ea"/>
+      <ellipse cx="67" cy="80" rx="4" ry="4" fill="#1a2a3a"/>
+      <ellipse cx="93" cy="80" rx="4" ry="4" fill="#1a2a3a"/>
+      <circle cx="68.5" cy="78.5" r="1.5" fill="white"/>
+      <circle cx="94.5" cy="78.5" r="1.5" fill="white"/>
+      <ellipse cx="80" cy="94" rx="5" ry="3.5" fill="#1a0a0a"/>
+      <path d="M75,98 Q80,103 85,98" stroke="#1a0a0a" stroke-width="1.5" fill="none"/>
+      <circle cx="62" cy="92" r="5" fill="#e07858" opacity="0.25"/>
+      <circle cx="98" cy="92" r="5" fill="#e07858" opacity="0.25"/>
+    </svg>`,
+
+    INFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Rough Collie (Lassie) - sable -->
+      <ellipse cx="80" cy="88" rx="44" ry="40" fill="#8b5e2a"/>
+      <ellipse cx="80" cy="78" rx="18" ry="28" fill="#c8943a" opacity="0.8"/>
+      <!-- long mane -->
+      <ellipse cx="55" cy="85" rx="18" ry="30" fill="#a0722a" opacity="0.7"/>
+      <ellipse cx="105" cy="85" rx="18" ry="30" fill="#a0722a" opacity="0.7"/>
+      <!-- narrow face -->
+      <ellipse cx="80" cy="85" rx="14" ry="22" fill="#d4a04a"/>
+      <ellipse cx="80" cy="95" rx="8" ry="10" fill="#e8c080"/>
+      <!-- ears -->
+      <polygon points="54,52 48,20 67,48" fill="#8b5e2a"/>
+      <polygon points="106,52 112,20 93,48" fill="#8b5e2a"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="78" rx="5" ry="5" fill="#3d1a00"/>
+      <ellipse cx="92" cy="78" rx="5" ry="5" fill="#3d1a00"/>
+      <circle cx="69.5" cy="76.5" r="1.5" fill="white"/>
+      <circle cx="93.5" cy="76.5" r="1.5" fill="white"/>
+      <ellipse cx="80" cy="95" rx="4.5" ry="3" fill="#1a0a00"/>
+      <path d="M75.5,99 Q80,103 84.5,99" stroke="#1a0a00" stroke-width="1.5" fill="none"/>
+    </svg>`,
+
+    INFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Golden Retriever -->
+      <ellipse cx="80" cy="88" rx="46" ry="42" fill="#c8943a"/>
+      <ellipse cx="80" cy="90" rx="32" ry="28" fill="#e8c06a"/>
+      <!-- floppy ears -->
+      <ellipse cx="48" cy="75" rx="16" ry="28" fill="#b07828" transform="rotate(-10 48 75)"/>
+      <ellipse cx="112" cy="75" rx="16" ry="28" fill="#b07828" transform="rotate(10 112 75)"/>
+      <ellipse cx="48" cy="77" rx="10" ry="22" fill="#c8943a" opacity="0.5" transform="rotate(-10 48 77)"/>
+      <!-- face -->
+      <ellipse cx="80" cy="90" rx="22" ry="20" fill="#e8c06a"/>
+      <!-- eyes -->
+      <ellipse cx="67" cy="82" rx="6" ry="6" fill="#3d1a00"/>
+      <ellipse cx="93" cy="82" rx="6" ry="6" fill="#3d1a00"/>
+      <circle cx="68.5" cy="80.5" r="2" fill="white"/>
+      <circle cx="94.5" cy="80.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="94" rx="5" ry="3.5" fill="#1a0800"/>
+      <path d="M75,98 Q80,103 85,98" stroke="#1a0800" stroke-width="1.5" fill="none"/>
+      <!-- happy cheeks -->
+      <circle cx="60" cy="92" r="8" fill="#e07858" opacity="0.3"/>
+      <circle cx="100" cy="92" r="8" fill="#e07858" opacity="0.3"/>
+    </svg>`,
+
+    ENFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Labrador - yellow -->
+      <ellipse cx="80" cy="90" rx="46" ry="42" fill="#c8a84a"/>
+      <ellipse cx="80" cy="92" rx="30" ry="26" fill="#e8d090"/>
+      <!-- floppy ears -->
+      <ellipse cx="47" cy="74" rx="15" ry="26" fill="#b09030" transform="rotate(-8 47 74)"/>
+      <ellipse cx="113" cy="74" rx="15" ry="26" fill="#b09030" transform="rotate(8 113 74)"/>
+      <!-- face -->
+      <ellipse cx="80" cy="90" rx="22" ry="20" fill="#e0c870"/>
+      <ellipse cx="80" cy="97" rx="14" ry="10" fill="#d4b858" opacity="0.6"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="83" rx="6" ry="6" fill="#2d1500"/>
+      <ellipse cx="92" cy="83" rx="6" ry="6" fill="#2d1500"/>
+      <circle cx="69.5" cy="81.5" r="2" fill="white"/>
+      <circle cx="93.5" cy="81.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="95" rx="5" ry="3.5" fill="#1a0800"/>
+      <path d="M74,99 Q80,104 86,99" stroke="#1a0800" stroke-width="1.8" fill="none"/>
+      <circle cx="61" cy="91" r="7" fill="#e07858" opacity="0.28"/>
+      <circle cx="99" cy="91" r="7" fill="#e07858" opacity="0.28"/>
+    </svg>`,
+
+    ISTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- German Shepherd -->
+      <ellipse cx="80" cy="88" rx="46" ry="42" fill="#3d2b1f"/>
+      <ellipse cx="80" cy="84" rx="26" ry="22" fill="#c8943a" opacity="0.8"/>
+      <!-- saddle marking -->
+      <ellipse cx="80" cy="95" rx="38" ry="28" fill="#1a0f08" opacity="0.7"/>
+      <!-- pointy ears -->
+      <polygon points="52,54 44,16 68,50" fill="#2a1a0e"/>
+      <polygon points="108,54 116,16 92,50" fill="#2a1a0e"/>
+      <polygon points="54,52 48,22 67,50" fill="#6b4a2a" opacity="0.5"/>
+      <polygon points="106,52 112,22 93,50" fill="#6b4a2a" opacity="0.5"/>
+      <!-- face -->
+      <ellipse cx="80" cy="86" rx="20" ry="20" fill="#c8943a" opacity="0.8"/>
+      <ellipse cx="80" cy="96" rx="12" ry="10" fill="#e8c06a" opacity="0.6"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="80" rx="6" ry="6" fill="#1a0800"/>
+      <ellipse cx="92" cy="80" rx="6" ry="6" fill="#1a0800"/>
+      <circle cx="69.5" cy="78.5" r="2" fill="white"/>
+      <circle cx="93.5" cy="78.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="96" rx="5" ry="3.5" fill="#0d0500"/>
+      <path d="M75,100 Q80,104 85,100" stroke="#0d0500" stroke-width="1.5" fill="none"/>
+    </svg>`,
+
+    ISFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Samoyed - fluffy white -->
+      <ellipse cx="80" cy="88" rx="50" ry="46" fill="white"/>
+      <ellipse cx="80" cy="88" rx="46" ry="42" fill="#f8f8ff" opacity="0.9"/>
+      <!-- fluffy texture circles -->
+      <circle cx="50" cy="75" r="16" fill="white"/>
+      <circle cx="110" cy="75" r="16" fill="white"/>
+      <circle cx="55" cy="100" r="14" fill="white"/>
+      <circle cx="105" cy="100" r="14" fill="white"/>
+      <!-- ears -->
+      <polygon points="52,54 46,20 68,50" fill="white"/>
+      <polygon points="108,54 114,20 92,50" fill="white"/>
+      <polygon points="54,52 49,26 67,50" fill="#e8e8f0" opacity="0.6"/>
+      <!-- face -->
+      <ellipse cx="80" cy="88" rx="22" ry="20" fill="#f0f0ff"/>
+      <!-- eyes black -->
+      <ellipse cx="68" cy="80" rx="6" ry="6" fill="#0a0a1a"/>
+      <ellipse cx="92" cy="80" rx="6" ry="6" fill="#0a0a1a"/>
+      <circle cx="69.5" cy="78.5" r="2" fill="white"/>
+      <circle cx="93.5" cy="78.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="92" rx="4.5" ry="3" fill="#1a0a1a"/>
+      <!-- Sammy smile -->
+      <path d="M73,96 Q80,102 87,96" stroke="#1a0a1a" stroke-width="2" fill="none"/>
+      <circle cx="62" cy="90" r="6" fill="#ffb0b0" opacity="0.3"/>
+      <circle cx="98" cy="90" r="6" fill="#ffb0b0" opacity="0.3"/>
+    </svg>`,
+
+    ISFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Corgi - orange and white -->
+      <ellipse cx="80" cy="90" rx="46" ry="40" fill="#d4880a"/>
+      <ellipse cx="80" cy="92" rx="30" ry="26" fill="#f0c060"/>
+      <!-- big bat ears -->
+      <polygon points="50,58 32,18 68,52" fill="#d4880a"/>
+      <polygon points="110,58 128,18 92,52" fill="#d4880a"/>
+      <polygon points="52,56 36,24 67,52" fill="#f0a030" opacity="0.5"/>
+      <polygon points="108,56 124,24 93,52" fill="#f0a030" opacity="0.5"/>
+      <!-- white face blaze -->
+      <ellipse cx="80" cy="88" rx="16" ry="20" fill="#fff5e0"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="80" rx="6" ry="6" fill="#2d1500"/>
+      <ellipse cx="92" cy="80" rx="6" ry="6" fill="#2d1500"/>
+      <circle cx="69.5" cy="78.5" r="2" fill="white"/>
+      <circle cx="93.5" cy="78.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="92" rx="5" ry="3.5" fill="#1a0800"/>
+      <path d="M75,96 Q80,101 85,96" stroke="#1a0800" stroke-width="1.5" fill="none"/>
+      <!-- adorable cheeks -->
+      <circle cx="60" cy="88" r="8" fill="#e07840" opacity="0.35"/>
+      <circle cx="100" cy="88" r="8" fill="#e07840" opacity="0.35"/>
+    </svg>`,
+
+    ESTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Jack Russell Terrier -->
+      <ellipse cx="80" cy="90" rx="44" ry="40" fill="white"/>
+      <!-- patches -->
+      <ellipse cx="65" cy="78" rx="18" ry="16" fill="#8b4513" opacity="0.85"/>
+      <ellipse cx="100" cy="95" rx="20" ry="15" fill="#8b4513" opacity="0.5"/>
+      <!-- floppy ears -->
+      <ellipse cx="48" cy="68" rx="14" ry="24" fill="#c8720a" transform="rotate(-10 48 68)"/>
+      <ellipse cx="112" cy="68" rx="10" ry="20" fill="#c8720a" transform="rotate(10 112 68)"/>
+      <!-- face -->
+      <ellipse cx="80" cy="90" rx="20" ry="18" fill="#f8f8f0"/>
+      <ellipse cx="80" cy="97" rx="12" ry="9" fill="#e8e0d0"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="82" rx="5.5" ry="5.5" fill="#1a0800"/>
+      <ellipse cx="92" cy="82" rx="5.5" ry="5.5" fill="#1a0800"/>
+      <circle cx="69.5" cy="80.5" r="1.8" fill="white"/>
+      <circle cx="93.5" cy="80.5" r="1.8" fill="white"/>
+      <ellipse cx="80" cy="96" rx="4.5" ry="3" fill="#0d0500"/>
+      <path d="M75,100 Q80,105 85,100" stroke="#0d0500" stroke-width="1.5" fill="none"/>
+      <circle cx="62" cy="90" r="6" fill="#e07858" opacity="0.25"/>
+      <circle cx="98" cy="90" r="6" fill="#e07858" opacity="0.25"/>
+    </svg>`,
+
+    ESFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Poodle - curly, fancy -->
+      <circle cx="80" cy="78" r="38" fill="#c060a0" opacity="0.9"/>
+      <!-- curly texture -->
+      <circle cx="58" cy="66" r="12" fill="#a04888" opacity="0.5"/>
+      <circle cx="102" cy="66" r="12" fill="#a04888" opacity="0.5"/>
+      <circle cx="70" cy="55" r="10" fill="#d080b8" opacity="0.4"/>
+      <circle cx="90" cy="55" r="10" fill="#d080b8" opacity="0.4"/>
+      <circle cx="60" cy="88" r="10" fill="#a04888" opacity="0.4"/>
+      <circle cx="100" cy="88" r="10" fill="#a04888" opacity="0.4"/>
+      <!-- ears fluffy -->
+      <circle cx="46" cy="75" r="18" fill="#b060a0" opacity="0.8"/>
+      <circle cx="114" cy="75" r="18" fill="#b060a0" opacity="0.8"/>
+      <!-- face clear -->
+      <ellipse cx="80" cy="84" rx="22" ry="20" fill="#e0a0d0"/>
+      <!-- eyes -->
+      <ellipse cx="68" cy="78" rx="6" ry="6" fill="#1a0a1a"/>
+      <ellipse cx="92" cy="78" rx="6" ry="6" fill="#1a0a1a"/>
+      <circle cx="69.5" cy="76.5" r="2" fill="white"/>
+      <circle cx="93.5" cy="76.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="90" rx="5" ry="3.5" fill="#0d0508"/>
+      <path d="M74,94 Q80,99 86,94" stroke="#0d0508" stroke-width="1.5" fill="none"/>
+      <circle cx="62" cy="88" r="6" fill="#ff80c0" opacity="0.3"/>
+      <circle cx="98" cy="88" r="6" fill="#ff80c0" opacity="0.3"/>
+    </svg>`,
+
+    ENTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Australian Shepherd - merle pattern -->
+      <ellipse cx="80" cy="88" rx="46" ry="42" fill="#4a7a5a"/>
+      <ellipse cx="80" cy="90" rx="30" ry="26" fill="#8aba9a"/>
+      <!-- merle patches -->
+      <ellipse cx="58" cy="78" rx="18" ry="14" fill="#2d5a3a" opacity="0.7"/>
+      <ellipse cx="95" cy="85" rx="16" ry="12" fill="#2d5a3a" opacity="0.5"/>
+      <ellipse cx="70" cy="100" rx="20" ry="12" fill="#2d5a3a" opacity="0.4"/>
+      <!-- ears floppy -->
+      <ellipse cx="47" cy="68" rx="14" ry="26" fill="#3d6a4a" transform="rotate(-12 47 68)"/>
+      <ellipse cx="113" cy="68" rx="14" ry="26" fill="#3d6a4a" transform="rotate(12 113 68)"/>
+      <!-- face -->
+      <ellipse cx="80" cy="90" rx="20" ry="18" fill="#a0c8a8"/>
+      <!-- heterochromia eyes -->
+      <ellipse cx="67" cy="82" rx="6" ry="6" fill="#4a8ab0"/>
+      <ellipse cx="93" cy="82" rx="6" ry="6" fill="#b0603a"/>
+      <ellipse cx="67" cy="82" rx="3.5" ry="3.5" fill="#1a0a00"/>
+      <ellipse cx="93" cy="82" rx="3.5" ry="3.5" fill="#1a0a00"/>
+      <circle cx="68.5" cy="80.5" r="1.5" fill="white"/>
+      <circle cx="94.5" cy="80.5" r="1.5" fill="white"/>
+      <ellipse cx="80" cy="94" rx="5" ry="3.5" fill="#0d0800"/>
+      <path d="M75,98 Q80,103 85,98" stroke="#0d0800" stroke-width="1.5" fill="none"/>
+    </svg>`,
+
+    ESTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Rottweiler -->
+      <ellipse cx="80" cy="90" rx="46" ry="42" fill="#1a0f08"/>
+      <ellipse cx="80" cy="90" rx="32" ry="28" fill="#1c1008" opacity="0.9"/>
+      <!-- tan markings on face -->
+      <ellipse cx="68" cy="85" rx="10" ry="8" fill="#8b5a2a" opacity="0.7"/>
+      <ellipse cx="92" cy="85" rx="10" ry="8" fill="#8b5a2a" opacity="0.7"/>
+      <ellipse cx="80" cy="96" rx="14" ry="10" fill="#8b5a2a" opacity="0.8"/>
+      <!-- ears floppy small -->
+      <ellipse cx="48" cy="60" rx="14" ry="20" fill="#0d0808" transform="rotate(-8 48 60)"/>
+      <ellipse cx="112" cy="60" rx="14" ry="20" fill="#0d0808" transform="rotate(8 112 60)"/>
+      <!-- eyes amber -->
+      <ellipse cx="68" cy="82" rx="6" ry="6" fill="#c8841a"/>
+      <ellipse cx="92" cy="82" rx="6" ry="6" fill="#c8841a"/>
+      <ellipse cx="68" cy="82" rx="4" ry="4" fill="#0d0500"/>
+      <ellipse cx="92" cy="82" rx="4" ry="4" fill="#0d0500"/>
+      <circle cx="69.5" cy="80.5" r="1.5" fill="white"/>
+      <circle cx="93.5" cy="80.5" r="1.5" fill="white"/>
+      <ellipse cx="80" cy="97" rx="5.5" ry="4" fill="#080404"/>
+      <path d="M74.5,101 Q80,106 85.5,101" stroke="#080404" stroke-width="1.5" fill="none"/>
+    </svg>`,
+
+    ESFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Bichon Frise - fluffy white curly -->
+      <circle cx="80" cy="84" r="42" fill="white"/>
+      <!-- fluffy clouds -->
+      <circle cx="54" cy="72" r="16" fill="#f8f8ff"/>
+      <circle cx="106" cy="72" r="16" fill="#f8f8ff"/>
+      <circle cx="62" cy="95" r="14" fill="#f8f8ff"/>
+      <circle cx="98" cy="95" r="14" fill="#f8f8ff"/>
+      <circle cx="80" cy="56" r="14" fill="#f8f8ff"/>
+      <!-- face -->
+      <circle cx="80" cy="86" r="24" fill="#fafaff"/>
+      <!-- eyes round black -->
+      <circle cx="68" cy="80" r="6.5" fill="#0a0a1a"/>
+      <circle cx="92" cy="80" r="6.5" fill="#0a0a1a"/>
+      <circle cx="69.5" cy="78.5" r="2" fill="white"/>
+      <circle cx="93.5" cy="78.5" r="2" fill="white"/>
+      <!-- nose -->
+      <ellipse cx="80" cy="91" rx="4.5" ry="3" fill="#0a0a14"/>
+      <!-- smile -->
+      <path d="M73,95 Q80,101 87,95" stroke="#0a0a14" stroke-width="2" fill="none"/>
+      <!-- rosy cheeks -->
+      <circle cx="60" cy="90" r="7" fill="#ffb0c0" opacity="0.35"/>
+      <circle cx="100" cy="90" r="7" fill="#ffb0c0" opacity="0.35"/>
+    </svg>`,
+
+    ISTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Alaskan Malamute -->
+      <ellipse cx="80" cy="88" rx="46" ry="42" fill="#5b6b7c"/>
+      <ellipse cx="80" cy="90" rx="30" ry="26" fill="#c8d0d8"/>
+      <!-- wolf-like face markings -->
+      <ellipse cx="65" cy="78" rx="12" ry="10" fill="#2d3a4a" opacity="0.6"/>
+      <ellipse cx="95" cy="78" rx="12" ry="10" fill="#2d3a4a" opacity="0.6"/>
+      <!-- pointy ears -->
+      <polygon points="52,55 44,18 68,50" fill="#4a5a6a"/>
+      <polygon points="108,55 116,18 92,50" fill="#4a5a6a"/>
+      <polygon points="54,53 48,24 67,50" fill="#8090a0" opacity="0.5"/>
+      <!-- face white area -->
+      <ellipse cx="80" cy="90" rx="20" ry="18" fill="#d8dce0"/>
+      <ellipse cx="80" cy="96" rx="12" ry="10" fill="#e8ecf0"/>
+      <!-- eyes -->
+      <ellipse cx="67" cy="82" rx="6" ry="6" fill="#3d2800"/>
+      <ellipse cx="93" cy="82" rx="6" ry="6" fill="#3d2800"/>
+      <circle cx="68.5" cy="80.5" r="2" fill="white"/>
+      <circle cx="94.5" cy="80.5" r="2" fill="white"/>
+      <ellipse cx="80" cy="96" rx="5" ry="3.5" fill="#0d0800"/>
+      <path d="M75,100 Q80,104 85,100" stroke="#0d0800" stroke-width="1.5" fill="none"/>
+    </svg>`,
+  };
+  return svgs[mbtiType] || svgs['ENFP'];
+}
+
+
+
+function getMBTIAvatar(type) {
+  const d = MBTI_DATA[type];
+  const color = d.accent;
+  const g = d.gradient;
+  const svgs = {
+    INTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g1" cx="50%" cy="40%"><stop offset="0%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[2]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g1)" opacity="0.7"/><polygon points="80,15 135,50 135,110 80,145 25,110 25,50" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.8"/><polygon points="80,35 118,58 118,102 80,125 42,102 42,58" fill="${color}" opacity="0.12"/><line x1="80" y1="15" x2="80" y2="145" stroke="${color}" stroke-width="0.8" opacity="0.4"/><line x1="25" y1="50" x2="135" y2="110" stroke="${color}" stroke-width="0.8" opacity="0.4"/><line x1="135" y1="50" x2="25" y2="110" stroke="${color}" stroke-width="0.8" opacity="0.4"/><circle cx="80" cy="80" r="20" fill="${color}" opacity="0.85"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">INTJ</text></svg>`,
+    INTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g2" cx="50%" cy="50%"><stop offset="0%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g2)" opacity="0.7"/><circle cx="80" cy="80" r="60" fill="none" stroke="${color}" stroke-width="1" stroke-dasharray="4 4" opacity="0.6"/><circle cx="80" cy="80" r="40" fill="none" stroke="${color}" stroke-width="1" opacity="0.5"/><circle cx="80" cy="80" r="22" fill="${color}" opacity="0.15"/><line x1="20" y1="80" x2="140" y2="80" stroke="${color}" stroke-width="0.8" opacity="0.4"/><line x1="80" y1="20" x2="80" y2="140" stroke="${color}" stroke-width="0.8" opacity="0.4"/><circle cx="80" cy="80" r="15" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">INTP</text></svg>`,
+    ENTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g[0]}"/><stop offset="100%" stop-color="${g[2]}"/></linearGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g3)" opacity="0.7"/><polygon points="80,10 150,80 80,150 10,80" fill="none" stroke="${color}" stroke-width="2" opacity="0.8"/><polygon points="80,30 130,80 80,130 30,80" fill="${color}" opacity="0.15"/><line x1="80" y1="10" x2="80" y2="150" stroke="${color}" stroke-width="1" opacity="0.5"/><line x1="10" y1="80" x2="150" y2="80" stroke="${color}" stroke-width="1" opacity="0.5"/><circle cx="80" cy="80" r="22" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ENTJ</text></svg>`,
+    ENTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g4"><stop offset="0%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g4)" opacity="0.7"/><path d="M80,20 L105,45 L140,42 L130,75 L148,98 L116,102 L98,132 L80,108 L62,132 L44,102 L12,98 L30,75 L20,42 L55,45 Z" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.7"/><circle cx="80" cy="80" r="28" fill="${color}" opacity="0.15"/><circle cx="80" cy="80" r="16" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ENTP</text></svg>`,
+    INFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g5" cx="50%" cy="30%"><stop offset="0%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g5)" opacity="0.7"/><path d="M80 25 Q118 52 118 80 Q118 118 80 140 Q42 118 42 80 Q42 52 80 25Z" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.7"/><path d="M80 45 Q105 62 105 80 Q105 105 80 122 Q55 105 55 80 Q55 62 80 45Z" fill="${color}" opacity="0.2"/><ellipse cx="80" cy="80" rx="16" ry="20" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">INFJ</text></svg>`,
+    INFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g6" cx="50%" cy="50%"><stop offset="0%" stop-color="${g[2]}"/><stop offset="60%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g6)" opacity="0.7"/><path d="M80,25 C100,42 122,42 130,62 C142,88 128,118 80,138 C32,118 18,88 30,62 C38,42 60,42 80,25Z" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.6"/><path d="M66,68 Q80,52 94,68 Q100,82 80,96 Q60,82 66,68Z" fill="${color}" opacity="0.75"/><text x="80" y="124" text-anchor="middle" font-size="8" font-weight="bold" fill="${color}" font-family="sans-serif" opacity="0.8">INFP</text></svg>`,
+    ENFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g7" cx="50%" cy="40%"><stop offset="0%" stop-color="#ff7f50"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g7)" opacity="0.7"/><path d="M80,20 L94,66 L142,66 L104,94 L118,140 L80,112 L42,140 L56,94 L18,66 L66,66 Z" fill="${color}" opacity="0.25"/><circle cx="80" cy="80" r="60" fill="none" stroke="${color}" stroke-width="1" opacity="0.4"/><circle cx="80" cy="80" r="20" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ENFJ</text></svg>`,
+    ENFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g8" cx="50%" cy="50%"><stop offset="0%" stop-color="#e100ff"/><stop offset="60%" stop-color="#7928ca"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g8)" opacity="0.7"/><circle cx="50" cy="52" r="16" fill="${color}" opacity="0.3"/><circle cx="110" cy="52" r="13" fill="${color}" opacity="0.25"/><circle cx="80" cy="118" r="19" fill="${color}" opacity="0.2"/><circle cx="36" cy="98" r="11" fill="${color}" opacity="0.2"/><circle cx="124" cy="98" r="9" fill="${color}" opacity="0.2"/><circle cx="80" cy="80" r="26" fill="rgba(255,215,0,0.15)"/><circle cx="80" cy="80" r="18" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ENFP</text></svg>`,
+    ISTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g9" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g[0]}"/><stop offset="100%" stop-color="${g[2]}"/></linearGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g9)" opacity="0.8"/><rect x="28" y="28" width="104" height="104" rx="8" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.6"/><rect x="44" y="44" width="72" height="72" rx="4" fill="${color}" opacity="0.1"/><line x1="28" y1="80" x2="132" y2="80" stroke="${color}" stroke-width="1" opacity="0.4"/><line x1="80" y1="28" x2="80" y2="132" stroke="${color}" stroke-width="1" opacity="0.4"/><rect x="62" y="62" width="36" height="36" rx="4" fill="${color}" opacity="0.85"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ISTJ</text></svg>`,
+    ISFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g10" cx="50%" cy="50%"><stop offset="0%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g10)" opacity="0.7"/><path d="M80,35 C104,35 122,56 122,80 C122,104 104,128 80,136 C56,128 38,104 38,80 C38,56 56,35 80,35Z" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.6"/><path d="M80,52 C98,52 108,65 108,80 C108,96 98,110 80,116 C62,110 52,96 52,80 C52,65 62,52 80,52Z" fill="${color}" opacity="0.15"/><circle cx="80" cy="80" r="20" fill="${color}" opacity="0.85"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ISFJ</text></svg>`,
+    ESTJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g11" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g[0]}"/><stop offset="100%" stop-color="#c0392b"/></linearGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g11)" opacity="0.8"/><polygon points="80,16 148,66 124,148 36,148 12,66" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.7"/><polygon points="80,36 130,70 110,136 50,136 30,70" fill="${color}" opacity="0.12"/><circle cx="80" cy="80" r="20" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ESTJ</text></svg>`,
+    ESFJ: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g12" cx="50%" cy="50%"><stop offset="0%" stop-color="#ff6b6b"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g12)" opacity="0.7"/><circle cx="80" cy="80" r="62" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.4"/><circle cx="52" cy="62" r="18" fill="${color}" opacity="0.2"/><circle cx="108" cy="62" r="18" fill="${color}" opacity="0.2"/><circle cx="80" cy="108" r="22" fill="${color}" opacity="0.2"/><circle cx="80" cy="80" r="20" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ESFJ</text></svg>`,
+    ISTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g13" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g[0]}"/><stop offset="100%" stop-color="${g[2]}"/></linearGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g13)" opacity="0.8"/><rect x="22" y="56" width="116" height="48" rx="5" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.6"/><circle cx="80" cy="80" r="30" fill="none" stroke="${color}" stroke-width="1" opacity="0.5"/><line x1="50" y1="80" x2="110" y2="80" stroke="${color}" stroke-width="2" opacity="0.5"/><circle cx="80" cy="80" r="15" fill="${color}" opacity="0.85"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ISTP</text></svg>`,
+    ISFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g14" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g[0]}"/><stop offset="50%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[2]}"/></linearGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g14)" opacity="0.7"/><path d="M80,25 C90,25 128,44 132,72 C136,100 118,136 80,148 C42,136 24,100 28,72 C32,44 70,25 80,25Z" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.6"/><ellipse cx="66" cy="72" rx="11" ry="16" fill="${color}" opacity="0.3" transform="rotate(-20 66 72)"/><ellipse cx="94" cy="72" rx="11" ry="16" fill="${color}" opacity="0.3" transform="rotate(20 94 72)"/><circle cx="80" cy="96" r="20" fill="${color}" opacity="0.7"/><text x="80" y="100" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ISFP</text></svg>`,
+    ESTP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g15" cx="50%" cy="50%"><stop offset="0%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[0]}"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g15)" opacity="0.7"/><polygon points="80,14 146,80 80,146 14,80" fill="none" stroke="${color}" stroke-width="2" opacity="0.8"/><polygon points="80,34 126,80 80,126 34,80" fill="${color}" opacity="0.1"/><polygon points="80,54 106,80 80,106 54,80" fill="${color}" opacity="0.2"/><circle cx="80" cy="80" r="18" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ESTP</text></svg>`,
+    ESFP: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g16" cx="50%" cy="50%"><stop offset="0%" stop-color="#f953c6"/><stop offset="100%" stop-color="#b91d73"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#g16)" opacity="0.7"/><circle cx="80" cy="80" r="65" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/><circle cx="48" cy="48" r="14" fill="${color}" opacity="0.4"/><circle cx="112" cy="48" r="11" fill="${color}" opacity="0.3"/><circle cx="48" cy="112" r="11" fill="${color}" opacity="0.3"/><circle cx="112" cy="112" r="14" fill="${color}" opacity="0.4"/><circle cx="80" cy="80" r="28" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="18" fill="${color}" opacity="0.9"/><text x="80" y="84" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">ESFP</text></svg>`,
+  };
+  return svgs[type] || svgs['ENFP'];
+}
+
+function showResult(rec) {
+  const data = MBTI_DATA[rec.mbtiType] || MBTI_DATA['ENFP'];
+
+  // ── Personality card ──
+  document.getElementById('card-bg').style.background =
+    `linear-gradient(135deg, ${data.gradient[0]}, ${data.gradient[1]}, ${data.gradient[2]})`;
+  document.getElementById('personality-avatar').innerHTML = getMBTIAvatar(rec.mbtiType);
+  document.getElementById('card-type-label').textContent = rec.mbtiType;
+  document.getElementById('card-archetype').textContent = data.name;
+  document.getElementById('card-tagline').textContent = data.archetype;
+
+  const badges = [
+    { label: `野心 ${rec.ambitionScore}%`, color: '#ff6b9d' },
+    { label: `阴暗面 ${rec.darkScore}%`, color: '#ff4757' },
+    { label: rec.psychZodiac ? rec.psychZodiac.name : '—', color: '#b48cff' },
+  ];
+  document.getElementById('card-bottom-badges').innerHTML = badges.map(b =>
+    `<span class="card-badge" style="border-color:${b.color}60;color:${b.color}">${b.label}</span>`
+  ).join('');
+
+  // ── 猎奇等级 ──
+  if (rec.curiosityTier) {
+    const ct = rec.curiosityTier;
+    const el = document.getElementById('curiosity-tier-text');
+    el.textContent = ct.level;
+    el.style.background = 'linear-gradient(135deg,' + ct.color + ',#ff6b9d)';
+    el.style.webkitBackgroundClip = 'text';
+    el.style.webkitTextFillColor = 'transparent';
+    document.getElementById('curiosity-tier-desc').textContent = ct.desc;
+  }
+
+  // ── 心理倾向星座 ──
+  if (rec.psychZodiac) {
+    document.getElementById('zodiac-level-text').textContent = rec.psychZodiac.name;
+    document.getElementById('zodiac-desc-text').textContent = rec.psychZodiac.desc + ' ' + (rec.psychZodiac.birthHint || '');
+  }
+
+  // ── 命运走势 ──
+  if (rec.destiny) {
+    document.getElementById('destiny-level-text').textContent = rec.destiny.title;
+    document.getElementById('destiny-desc-text').textContent = rec.destiny.desc;
+  }
+
+  // ── 感情线 ──
+  if (rec.loveLine) {
+    document.getElementById('loyalty-level-text').textContent = rec.loveLine.level;
+    document.getElementById('loyalty-desc-text').textContent = rec.loveLine.desc;
+  }
+
+  // ── 隐藏支线结果 ──
+  const incestCard = document.getElementById('incest-result-card');
+  if (rec.incestUnlocked) {
+    incestCard.style.display = 'block';
+    const pct = rec.incestScore || 0;
+    let lv = '低敏感';
+    let ds = '你对近亲相关议题保持较低的心理卷入，边界相对清晰。';
+    if (pct >= 65) { lv = '高开放 / 高敏感'; ds = '你在禁忌情感议题上表现出较高的开放度或内在好奇，这会深刻影响你对亲密、血缘与道德边界的理解。建议在现实中保持清醒的自我觉察与边界。'; }
+    else if (pct >= 40) { lv = '中等觉察'; ds = '你对这一议题并不完全排斥，存在一定的心理空间与好奇，但尚未形成强烈倾向。'; }
+    document.getElementById('incest-level-text').textContent = lv + '（' + pct + '%）';
+    document.getElementById('incest-desc-text').textContent = ds;
+  } else {
+    incestCard.style.display = 'none';
+  }
+
+  // ── Score grid ──
+  const scoreItems = [
+    {label:'野心指数',   val:rec.ambitionScore, color:'#ff6b9d'},
+    {label:'阴暗面指数', val:rec.darkScore,     color:'#ff4757'},
+    {label:'欲望深度',   val:rec.desireScore,   color:'#ffd166'},
+    {label:'多情指数',   val:rec.loyaltyScore||0, color:'#ff85a1'},
+  ];
+  if (rec.incestUnlocked) {
+    scoreItems.push({label:'禁忌敏感度', val:rec.incestScore||0, color:'#ff4757'});
+  }
+  document.getElementById('score-grid').innerHTML = scoreItems.map(item => `
+    <div class="score-card">
+      <div class="score-card-label">${item.label}</div>
+      <div class="score-card-value" style="color:${item.color}">${item.val}<span style="font-size:18px;color:var(--text-muted)">%</span></div>
+      <div class="score-bar-wrap"><div class="score-bar" style="width:${item.val}%;background:${item.color}"></div></div>
+    </div>
+  `).join('');
+
+  // ── Description ──
+  document.getElementById('result-full-desc').innerHTML = `
+    <strong style="color:var(--text)">${data.name}（${rec.mbtiType}）：</strong>${data.desc}<br><br>
+    你的野心指数为 <strong style="color:#ff6b9d">${rec.ambitionScore}%</strong>，
+    阴暗面指数为 <strong style="color:#ff4757">${rec.darkScore}%</strong>，
+    欲望深度为 <strong style="color:#ffd166">${rec.desireScore}%</strong>，
+    多情指数为 <strong style="color:#ff85a1">${rec.loyaltyScore||0}%</strong>
+    ${rec.incestUnlocked ? `，禁忌敏感度为 <strong style="color:#ff4757">${rec.incestScore||0}%</strong>` : ''}。<br><br>
+    ${rec.darkScore >= 60 ? '你的内心深处潜伏着强烈的暗黑驱动力，这既是你的力量来源，也需要有意识地加以引导。' :
+      rec.darkScore >= 35 ? '你拥有适度的内心阴影，这使你更真实、更有深度，同时保持了对道德边界的基本认知。' :
+      '你展现出较高的心理整合度，内心的光暗面相对平衡，有较强的自我约束能力。'}
+  `;
+
+  document.getElementById('result-traits').innerHTML = data.traits.map(t =>
+    `<span class="trait-tag">${t}</span>`).join('');
+  document.getElementById('result-shadows').innerHTML = data.shadows.map(s =>
+    `<span class="trait-tag" style="border-color:rgba(255,71,87,0.3);color:#ff8a94">${s}</span>`).join('');
+
+  goTo('result');
+}
+
+// ─── ADMIN ───
+function renderAdmin() {
+  const records = cloudRecords; // 从云端拿到的数据
+  const filterName = document.getElementById('filter-name').value.toLowerCase();
+  const filterType = document.getElementById('filter-type').value;
+  const filterDark = document.getElementById('filter-dark').value;
+
+  const filtered = records.filter(r => {
+    if (filterName && !r.userInfo.name.toLowerCase().includes(filterName)) return false;
+    if (filterType && r.mbtiType !== filterType) return false;
+    if (filterDark && r.darkLevel !== filterDark) return false;
+    return true;
+  });
+
+  // Stats
+  const statsDiv = document.getElementById('admin-stats');
+  if (records.length === 0) {
+    statsDiv.innerHTML = `<div class="stat-card"><div class="num">0</div><div class="lbl">暂无记录</div></div>`;
+  } else {
+    const avgDark = Math.round(records.reduce((s,r) => s+r.darkScore,0)/records.length);
+    const avgAmb = Math.round(records.reduce((s,r) => s+r.ambitionScore,0)/records.length);
+    const typeCount = {};
+    records.forEach(r => typeCount[r.mbtiType] = (typeCount[r.mbtiType]||0)+1);
+    const topType = Object.entries(typeCount).sort((a,b)=>b[1]-a[1])[0];
+    const dogCount = {}; records.forEach(r => { if(r.dogBreed) dogCount[r.dogBreed]=(dogCount[r.dogBreed]||0)+1; });
+    const topDog = Object.entries(dogCount).sort((a,b)=>b[1]-a[1])[0];
+    const avgLoyalty = Math.round(records.reduce((s,r)=>s+(r.loyaltyScore||0),0)/records.length);
+    statsDiv.innerHTML = `
+      <div class="stat-card"><div class="num" style="color:var(--accent)">${records.length}</div><div class="lbl">总参与人数</div></div>
+      <div class="stat-card"><div class="num" style="color:#ff4757">${avgDark}%</div><div class="lbl">平均阴暗面</div></div>
+      <div class="stat-card"><div class="num" style="color:#ff85a1">${avgLoyalty}%</div><div class="lbl">平均多情指数</div></div>
+      <div class="stat-card"><div class="num" style="color:#ffd166;font-size:18px">${topType?topType[0]:'—'}</div><div class="lbl">最多MBTI类型</div></div>
+      <div class="stat-card"><div class="num" style="color:#ffd580;font-size:16px">🐶${topDog?topDog[0]:'—'}</div><div class="lbl">最多灵魂犬系</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--success)">${filtered.length}</div><div class="lbl">当前筛选</div></div>
+    `;
+  }
+
+  const listDiv = document.getElementById('respondent-list');
+  if (filtered.length === 0) {
+    listDiv.innerHTML = `<div class="no-data">暂无符合条件的记录<br><span style="font-size:12px;margin-top:8px;display:block">让被测者完成测试后数据将显示在这里</span></div>`;
+    return;
+  }
+
+  listDiv.innerHTML = filtered.sort((a,b)=>b.id-a.id).map((rec, idx) => {
+    const initials = rec.userInfo.name.slice(0,2);
+    const time = new Date(rec.endTime).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const darkClass = rec.darkLevel==='高'?'high':rec.darkLevel==='中'?'mid':'low';
+    return `
+    <div class="respondent-card" id="card-${idx}">
+      <div class="respondent-header" onclick="toggleCard(${idx})">
+        <div class="avatar">${initials}</div>
+        <div class="respondent-info">
+          <div class="respondent-name">${rec.userInfo.name}</div>
+          <div class="respondent-meta">${rec.userInfo.age||'?'} · ${rec.userInfo.gender||'?'} · ${time}</div>
+        </div>
+        <div class="respondent-scores">
+          <span class="score-pill type">${rec.mbtiType}</span>
+          <span class="score-pill ${darkClass}">阴暗:${rec.darkScore}%</span>
+          <span class="score-pill mid">野心:${rec.ambitionScore}%</span>
+        </div>
+        <span class="expand-arrow">▼</span>
+      </div>
+      <div class="respondent-detail">
+        <div class="detail-tabs">
+          <div class="detail-tab active" onclick="switchTab(${idx},'overview',this)">概览</div>
+          <div class="detail-tab" onclick="switchTab(${idx},'mbti',this)">MBTI</div>
+          <div class="detail-tab" onclick="switchTab(${idx},'loyalty',this)">💕猎奇度</div>
+          <div class="detail-tab" onclick="switchTab(${idx},'dark',this)">阴暗面</div>
+          <div class="detail-tab" onclick="switchTab(${idx},'desire',this)">欲望</div>
+          <div class="detail-tab" onclick="switchTab(${idx},'incest',this)">骨科隐藏</div>
+          <div class="detail-tab" onclick="switchTab(${idx},'birth',this)">出生核对</div>
+          <div class="detail-tab" onclick="switchTab(${idx},'dog',this)">🐶灵魂犬</div>
+        </div>
+        <div class="tab-content active" id="tab-${idx}-overview">
+          <div class="dim-chart">
+            ${[
+              {l:'野心指数',v:rec.ambitionScore+'%',d:rec.ambitionScore>=70?'强烈':'中等'},
+              {l:'阴暗面',v:rec.darkScore+'%',d:rec.darkLevel+'风险'},
+              {l:'欲望深度',v:rec.desireScore+'%',d:rec.desireScore>=70?'深度':'适中'},
+              {l:'已知类型',v:rec.userInfo.knownMbti||'未知',d:'自报MBTI'},
+            ].map(d=>`<div class="dim-item"><div class="dim-label">${d.l}</div><div class="dim-value">${d.v}</div><div class="dim-desc">${d.d}</div></div>`).join('')}
+          </div>
+          <div style="margin-top:16px">
+            ${['ambition','dark','desire'].map(sec=>{
+              const secQ = rec.answers.filter(a=>a.section===sec);
+              const avg = secQ.length? (secQ.reduce((s,a)=>s+a.score,0)/secQ.length).toFixed(1):'0';
+              const labels = {ambition:'野心维度',dark:'阴暗面维度',desire:'欲望维度'};
+              return `<div class="chart-bar-row">
+                <div class="chart-bar-label"><span>${labels[sec]}</span><span>均分 ${avg}</span></div>
+                <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${Math.min(100,Math.max(0,(parseFloat(avg)+1)*20))}%"></div></div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-mbti">
+          <div class="answers-grid">
+            ${rec.answers.filter(a=>a.section==='mbti').map((a,i)=>`
+              <div class="answer-row">
+                <div class="answer-q">Q${i+1}. ${a.q}</div>
+                <div class="answer-a">${a.a}</div>
+                <div class="answer-score">得分：${a.score > 0?'+':''}${a.score}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-ambition">
+          <div class="answers-grid">
+            ${rec.answers.filter(a=>a.section==='ambition').map((a,i)=>`
+              <div class="answer-row">
+                <div class="answer-q">野心Q${i+1}. ${a.q}</div>
+                <div class="answer-a">${a.a}</div>
+                <div class="answer-score" style="color:#ff6b9d">得分：${a.score > 0?'+':''}${a.score}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-loyalty">
+          <div class="answers-grid">
+            ${rec.answers.filter(a=>a.section==='loyalty'||a.section==='loyalty2'||a.section==='loyalty3').map((a,i)=>`
+              <div class="answer-row">
+                <div class="answer-q">💕 猎奇Q${i+1}. ${a.q}</div>
+                <div class="answer-a">${a.a}</div>
+                <div class="answer-score" style="color:#ff85a1">得分：${a.score > 0?'+':''}${a.score}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-dark">
+          <div class="answers-grid">
+            ${rec.answers.filter(a=>a.section==='dark').map((a,i)=>`
+              <div class="answer-row">
+                <div class="answer-q">阴暗Q${i+1}. ${a.q}</div>
+                <div class="answer-a">${a.a}</div>
+                <div class="answer-score" style="color:#ff4757">得分：${a.score > 0?'+':''}${a.score}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-desire">
+          <div class="answers-grid">
+            ${rec.answers.filter(a=>a.section==='desire').map((a,i)=>`
+              <div class="answer-row">
+                <div class="answer-q">欲望Q${i+1}. ${a.q}</div>
+                <div class="answer-a">${a.a}</div>
+                <div class="answer-score" style="color:#ffd166">得分：${a.score > 0?'+':''}${a.score}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-incest">
+          <div style="margin-bottom:12px;font-size:13px;color:var(--text-muted)">
+            解锁状态：${rec.incestUnlocked ? '<span style="color:#ff6b9d">已进入骨科隐藏</span>' : '<span style="color:#9090b0">未解锁</span>'}
+            ${rec.incestScore!=null ? ' · 禁忌敏感度 '+rec.incestScore+'%' : ''}
+            ${rec.curiosityTier ? ' · 猎奇等级 '+rec.curiosityTier.level : ''}
+          </div>
+          <div class="answers-grid">
+            ${(rec.answers||[]).filter(a=>a.section==='gateway'||a.section==='incest').length ? (rec.answers||[]).filter(a=>a.section==='gateway'||a.section==='incest').map((a,i)=>`
+              <div class="answer-row">
+                <div class="answer-q">${a.section==='gateway'?'门槛':'骨科'}Q${i+1}. ${a.q}</div>
+                <div class="answer-a">${a.a}</div>
+                <div class="answer-score" style="color:#ff4757">得分：${a.score > 0?'+':''}${a.score}</div>
+              </div>
+            `).join('') : '<div style="padding:16px;color:var(--text-muted);font-size:13px">本次未作答隐藏题（或未解锁）</div>'}
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-birth">
+          <div style="font-size:13px;line-height:1.9;color:var(--text-muted)">
+            <div><strong style="color:var(--text)">首次填写</strong></div>
+            <div>年龄区间：${(rec.userInfo&&rec.userInfo.age)||'—'}</div>
+            <div>出生日期：${(rec.userInfo&&(rec.userInfo.birthDate||((rec.userInfo.birthYear||'')+'-'+(rec.userInfo.birthMonth||'')+'-'+(rec.userInfo.birthDay||''))))||'—'}</div>
+            <div style="margin-top:12px"><strong style="color:var(--text)">二次确认</strong></div>
+            <div>年龄数字：${(rec.birthConfirm&&rec.birthConfirm.age)!=null?rec.birthConfirm.age:((rec.userInfo&&rec.userInfo.ageConfirm)||'—')}</div>
+            <div>出生日期：${(rec.birthConfirm&&rec.birthConfirm.birthDate)||(rec.userInfo&&rec.userInfo.birthDate2)||'—'}</div>
+            <div style="margin-top:8px;font-size:12px;color:#ffd166">若两次差异较大，可能为乱填或故意测试。</div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-${idx}-dog">
+          <div style="text-align:center;padding:20px 0">
+            <div style="font-size:40px;margin-bottom:10px">🐶</div>
+            <div style="font-size:11px;letter-spacing:3px;color:rgba(255,213,128,0.5);margin-bottom:8px">SOUL DOG BREED</div>
+            <div style="font-size:26px;font-weight:700;color:#ffd580;font-family:serif;margin-bottom:4px">${rec.dogBreed||'—'}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">${rec.dogEn||''}</div>
+            <div style="background:rgba(255,180,80,0.07);border:1px solid rgba(255,180,80,0.18);border-radius:10px;padding:14px;font-size:13px;color:var(--text-muted);line-height:1.8;text-align:left;max-width:400px;margin:0 auto">
+              ${(()=>{const d=DOG_DATA[rec.mbtiType];return d?d.desc:'暂无数据';})()}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+  }).join('');
+}
+
+function toggleCard(idx) {
+  const card = document.getElementById('card-'+idx);
+  card.classList.toggle('open');
+}
+
+function switchTab(cardIdx, tabName, el) {
+  const card = document.getElementById('card-'+cardIdx);
+  card.querySelectorAll('.detail-tab').forEach(t=>t.classList.remove('active'));
+  card.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const target = document.getElementById(`tab-${cardIdx}-${tabName}`);
+  if (target) target.classList.add('active');
+}
+
+function exportCSV() {
+  const records = getRecords();
+  if (!records.length) { alert('暂无数据'); return; }
+  const rows = [['ID','昵称','年龄','性别','已知MBTI','测出MBTI','野心%','阴暗面%','欲望%','阴暗等级','完成时间']];
+  records.forEach(r => {
+    rows.push([r.id, r.userInfo.name, r.userInfo.age, r.userInfo.gender, r.userInfo.knownMbti||'未知', r.mbtiType, r.ambitionScore, r.darkScore, r.desireScore, r.darkLevel, r.endTime]);
+  });
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'mbti_dark_quiz_' + Date.now() + '.csv';
+  a.click();
+}
+</script>
+<style id="fx-style">
+.container{position:relative;z-index:1}
+#cosmos{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% 120%,rgba(255,30,60,calc(var(--dk,0)*.38)),transparent 60%),radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,calc(var(--dk,0)*.7)) 100%);transition:background .6s}
+#fx-glow{position:fixed;width:360px;height:360px;margin:-180px 0 0 -180px;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,rgba(150,110,255,.16),transparent 65%);transition:opacity .3s}
+.screen.active{animation:fxIn .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes fxIn{from{opacity:0;transform:translateY(22px) scale(.98);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+h1{background-size:220% 220%!important;animation:fxHue 6s ease infinite}
+@keyframes fxHue{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}
+.btn-primary,.btn-next{position:relative;overflow:hidden}
+.btn-primary::after,.btn-next::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:fxShine 3.2s infinite}
+@keyframes fxShine{0%{left:-60%}60%,100%{left:140%}}
+.btn-primary:hover{transform:translateY(-3px) scale(1.03)}
+.option{transition:transform .25s cubic-bezier(.2,.9,.3,1.4),box-shadow .25s,border-color .2s,background .2s;position:relative;overflow:hidden}
+.option:hover{transform:translateX(8px);box-shadow:0 0 28px rgba(160,120,255,.25),inset 0 0 0 1px rgba(180,140,255,.4)}
+.option.selected{box-shadow:0 0 34px rgba(160,120,255,.45);animation:fxPop .35s}
+@keyframes fxPop{40%{transform:scale(1.035)}}
+.fx-rip{position:absolute;border-radius:50%;background:rgba(190,150,255,.4);transform:scale(0);animation:fxRip .7s ease-out forwards;pointer-events:none}
+@keyframes fxRip{to{transform:scale(4);opacity:0}}
+.progress-bar{box-shadow:0 0 14px #b48cff,0 0 30px rgba(255,107,157,.6);position:relative}
+.progress-bar::after{content:'';position:absolute;right:0;top:-3px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 14px 4px #ff9ee0}
+.question-text,#q-text{animation:fxQ .5s ease}
+@keyframes fxQ{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+.loyalty-result-card,.score-card,.stat-card{backdrop-filter:blur(8px);transition:transform .3s,box-shadow .3s}
+.loyalty-result-card:hover,.score-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(150,100,255,.2)}
+.personality-card{transform-style:preserve-3d;transition:transform .15s ease-out;position:relative}
+.personality-card::before{content:'';position:absolute;inset:-3px;border-radius:inherit;background:conic-gradient(from var(--ang,0deg),#b48cff,#ff6b9d,#ffd166,#67e8f9,#b48cff);z-index:-1;filter:blur(14px);opacity:.7;animation:fxSpin 6s linear infinite}
+@property --ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes fxSpin{to{--ang:360deg}}
+.personality-card::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.22) 48%,transparent 66%);background-size:250% 100%;background-position:var(--sx,150%) 0;mix-blend-mode:overlay}
+#personality-avatar{animation:fxFloat 4s ease-in-out infinite;filter:drop-shadow(0 0 18px var(--aura,#b48cff))}
+@keyframes fxFloat{50%{transform:translateY(-10px) scale(1.04)}}
+.fx-orb{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--aura,#fff);box-shadow:0 0 12px var(--aura,#fff);top:50%;left:50%;animation:fxOrb var(--d,5s) linear infinite}
+@keyframes fxOrb{from{transform:rotate(0) translateX(var(--r,90px))}to{transform:rotate(360deg) translateX(var(--r,90px))}}
+#zstage{position:relative;height:300px;margin:-4px -4px 14px;border-radius:14px;overflow:hidden;background:radial-gradient(ellipse at center,rgba(20,20,50,.7),rgba(4,4,12,.95));border:1px solid rgba(180,140,255,.25)}
+#zstage canvas{width:100%;height:100%;display:block}
+#zlabel{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:12px;letter-spacing:3px;pointer-events:none;transition:color .5s}
+#zstage.dk3{animation:fxGlitch 2.4s infinite}
+@keyframes fxGlitch{0%,92%,100%{transform:none;filter:none}94%{transform:translateX(-4px);filter:hue-rotate(40deg) contrast(1.4)}96%{transform:translateX(5px) skewX(3deg)}98%{transform:translateX(-2px);filter:saturate(2)}}
+</style>
+<canvas id="cosmos"></canvas><div id="fx-glow"></div>
+<script id="fx-script">
+(function(){
+var DK=0,DKT=0,$=function(i){return document.getElementById(i)};
+function clamp(v){return Math.max(0,Math.min(1,v))}
+function sm(a,b,x){x=clamp((x-a)/(b-a));return x*x*(3-2*x)}
+/* 星色：低黑化=蓝绿，中=紫红，高=血红，极高=黑核红边 */
+function starCol(dk,i,l){var k=sm(.3,.78,dk),base=(i%2?150:205),h=base*(1-k)+(k>0?(355-360*0):0)*k;if(k>.01)h=base+(360+(-5)-base)*k;var L=(l||68)*(1-.5*sm(.7,1,dk));return 'hsl('+(h%360)+','+(88-10*k)+'%,'+L+'%)'}
+/* 全局宇宙背景 */
+var cv=$('cosmos'),cx=cv.getContext('2d'),S=[],SH=[],W,H,dpr=Math.min(2,window.devicePixelRatio||1);
+function rs(){W=cv.width=innerWidth*dpr;H=cv.height=innerHeight*dpr;S=[];for(var i=0;i<170;i++)S.push({x:Math.random()*W,y:Math.random()*H,r:(Math.random()*1.6+.3)*dpr,p:Math.random()*6,v:Math.random()*.6+.2,i:i})}
+addEventListener('resize',rs);rs();
+(function loop(t){DK+=(DKT-DK)*.03;document.body.style.setProperty('--dk',DK.toFixed(3));
+cx.clearRect(0,0,W,H);
+S.forEach(function(s){var a=.35+.65*Math.abs(Math.sin(t/900*s.v+s.p));s.y+=s.v*.12*dpr;if(s.y>H)s.y=0;cx.globalAlpha=a;cx.fillStyle=starCol(DK,s.i,75);cx.shadowColor=starCol(DK,s.i,60);cx.shadowBlur=8*dpr;cx.beginPath();cx.arc(s.x,s.y,s.r,0,6.3);cx.fill()});
+if(Math.random()<.012)SH.push({x:Math.random()*W,y:Math.random()*H*.5,l:0});
+SH=SH.filter(function(o){o.l+=14*dpr;o.x+=12*dpr;o.y+=6*dpr;cx.globalAlpha=1-o.l/420;cx.strokeStyle=starCol(DK,0,85);cx.lineWidth=2*dpr;cx.beginPath();cx.moveTo(o.x,o.y);cx.lineTo(o.x-o.l*.9,o.y-o.l*.45);cx.stroke();return o.l<420});
+cx.globalAlpha=1;requestAnimationFrame(loop)})(0);
+/* 光标光晕 */
+addEventListener('mousemove',function(e){var g=$('fx-glow');g.style.left=e.clientX+'px';g.style.top=e.clientY+'px'});
+/* 点击涟漪 */
+document.addEventListener('click',function(e){var o=e.target.closest&&e.target.closest('.option');if(!o)return;var r=o.getBoundingClientRect(),d=document.createElement('span');d.className='fx-rip';var z=Math.max(r.width,60);d.style.cssText='width:'+z/4+'px;height:'+z/4+'px;left:'+(e.clientX-r.left-z/8)+'px;top:'+(e.clientY-r.top-z/8)+'px';o.appendChild(d);setTimeout(function(){d.remove()},700)});
+/* 非结果页恢复蓝绿星空 */
+var _g=window.goTo;window.goTo=function(id){_g.apply(this,arguments);if(id!=='result')DKT=0;if(id!=='result')stopZ()};
+/* 12星座：星图、特效、贴图 */
+var Z={
+'白羊座':{g:'♈',e:['🔥','🐏'],b:'rise',h:15,c:[[[.12,.62],[.4,.48],[.62,.4],[.82,.52]]]},
+'金牛座':{g:'♉',e:['🌿','🌹'],b:'fall',h:120,c:[[[.1,.3],[.3,.48],[.5,.55],[.68,.42],[.86,.2]],[[.5,.55],[.62,.8]]]},
+'双子座':{g:'♊',e:['✨','👯'],b:'orbit',n:2,h:55,c:[[[.3,.15],[.32,.4],[.3,.65],[.32,.88]],[[.65,.15],[.62,.4],[.66,.65],[.63,.88]],[[.32,.4],[.62,.4]]]},
+'巨蟹座':{g:'♋',e:['🌙','🫧'],b:'ripple',h:195,c:[[[.5,.5],[.3,.3],[.2,.15]],[[.5,.5],[.7,.35],[.8,.2]],[[.5,.5],[.45,.85]]]},
+'狮子座':{g:'♌',e:['👑','☀️'],b:'rays',h:40,c:[[[.15,.7],[.25,.5],[.4,.4],[.5,.2],[.62,.25],[.6,.42],[.8,.6],[.9,.45]]]},
+'处女座':{g:'♍',e:['🌾','🕊️'],b:'rain',h:100,c:[[[.15,.3],[.3,.4],[.5,.35],[.65,.5],[.8,.4]],[[.5,.35],[.45,.65],[.6,.85]]]},
+'天秤座':{g:'♎',e:['⚖️','🌸'],b:'orbit',n:1,h:320,c:[[[.2,.65],[.5,.45],[.8,.65]],[[.5,.45],[.5,.15]],[[.2,.65],[.15,.85]],[[.8,.65],[.85,.85]]]},
+'天蝎座':{g:'♏',e:['🦂','⚡'],b:'bolt',h:280,c:[[[.1,.25],[.25,.3],[.4,.45],[.5,.6],[.65,.7],[.8,.65],[.88,.5],[.82,.38]]]},
+'射手座':{g:'♐',e:['🏹','🌠'],b:'arrow',h:25,c:[[[.2,.8],[.4,.6],[.55,.45],[.75,.25]],[[.55,.45],[.7,.55],[.5,.7]],[[.75,.25],[.88,.18]]]},
+'摩羯座':{g:'♑',e:['⛰️','❄️'],b:'fall',snow:1,h:210,c:[[[.12,.3],[.35,.25],[.55,.45],[.72,.7],[.85,.55],[.55,.45]]]},
+'水瓶座':{g:'♒',e:['💧','🌊'],b:'wave',h:185,c:[[[.1,.4],[.3,.3],[.5,.42],[.7,.32],[.9,.42]],[[.15,.7],[.35,.6],[.55,.72],[.75,.62],[.9,.72]]]},
+'双鱼座':{g:'♓',e:['🐟','🫧'],b:'wave',n:2,h:260,c:[[[.15,.25],[.3,.45],[.5,.55],[.7,.45],[.85,.25]],[[.5,.55],[.5,.85]]]}};
+var zr=0,zid=0;
+function stopZ(){cancelAnimationFrame(zid);zid=0}
+function startZ(name,dk){
+var z=Z[name]||Z['天秤座'],st=$('zstage'),c=$('zc'),x=c.getContext('2d'),w,h,P=[],tt=0;
+function rz(){w=c.width=c.clientWidth*dpr;h=c.height=c.clientHeight*dpr}rz();
+var jit=[];z.c.forEach(function(ch){ch.forEach(function(){jit.push(Math.random()*6)})});
+function spawn(){var r=Math.random(),k=z.b,hh=z.h;
+if(k=='rise')P.push({x:r*w,y:h,vx:(Math.random()-.5)*.8,vy:-1-Math.random()*2,l:1,s:2+Math.random()*4,t:'c'});
+if(k=='fall')P.push({x:r*w,y:-5,vx:Math.random()*.6-.3,vy:.5+Math.random()*1.2,l:1,s:z.snow?2+Math.random()*3:3+Math.random()*4,t:z.snow?'c':'p',a:Math.random()*6});
+if(k=='rain')P.push({x:r*w,y:-20,vx:0,vy:4+Math.random()*3,l:1,s:16,t:'l'});
+if(k=='ripple'&&Math.random()<.12)P.push({x:w/2,y:h/2,vx:0,vy:0,l:1,s:10,t:'r'});
+if(k=='rays'&&P.length<1)P.push({t:'ray',l:1});
+if(k=='bolt'&&Math.random()<.04)P.push({t:'bolt',l:1,x:r*w,pts:null});
+if(k=='arrow'&&Math.random()<.1)P.push({x:-20,y:Math.random()*h,vx:9+Math.random()*5,vy:2,l:1,t:'a'});
+if(k=='wave'&&P.length<1)P.push({t:'wave',l:1});
+if(k=='orbit'&&!P.some(function(p){return p.t=='o'}))for(var i=0;i<(z.n==2?2:1)*3;i++)P.push({t:'o',a:i*2.09,l:1,i:i});
+}
+function frame(){zid=requestAnimationFrame(frame);if(!$('screen-result').classList.contains('active'))return stopZ();
+tt+=.016;x.clearRect(0,0,w,h);var S=dpr,m=Math.min(w,h);
+if(Math.random()<.5)spawn();
+var k=sm(.3,.78,dk),lowH=z.h;
+function pc(i,l,a){return starCol(dk,i,l)}
+P=P.filter(function(p){
+if(p.t=='c'||p.t=='p'){p.x+=p.vx*S;p.y+=p.vy*S;p.l-=.006;x.globalAlpha=Math.max(0,p.l);x.fillStyle=starCol(dk,Math.floor(p.s),70);x.shadowColor=x.fillStyle;x.shadowBlur=10*S;x.beginPath();if(p.t=='p'){p.a+=.05;x.ellipse(p.x,p.y,p.s*S,p.s*.5*S,p.a,0,6.3)}else x.arc(p.x,p.y,p.s*S,0,6.3);x.fill()}
+if(p.t=='l'){p.y+=p.vy*S;x.globalAlpha=.6;x.strokeStyle=starCol(dk,1,70);x.lineWidth=1.5*S;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x,p.y-p.s*S);x.stroke();p.l=p.y<h?1:0}
+if(p.t=='r'){p.s+=1.6*S;p.l-=.012;x.globalAlpha=Math.max(0,p.l);x.strokeStyle=starCol(dk,0,70);x.lineWidth=2*S;x.beginPath();x.arc(p.x,p.y,p.s,0,6.3);x.stroke()}
+if(p.t=='ray'){x.save();x.translate(w/2,h/2);x.rotate(tt*.4);for(var i=0;i<14;i++){x.rotate(6.283/14);x.globalAlpha=.18+.1*Math.sin(tt*3+i);x.fillStyle=starCol(dk,i,65);x.beginPath();x.moveTo(0,0);x.lineTo(m*.75,-8*S);x.lineTo(m*.75,8*S);x.fill()}x.restore()}
+if(p.t=='bolt'){p.l-=.08;if(!p.pts){p.pts=[];var bx=p.x;for(var y=0;y<=h;y+=h/7){bx+=(Math.random()-.5)*60*S;p.pts.push([bx,y])}}x.globalAlpha=Math.max(0,p.l);x.strokeStyle=starCol(dk,1,80);x.lineWidth=2.5*S;x.shadowColor=x.strokeStyle;x.shadowBlur=18*S;x.beginPath();p.pts.forEach(function(q,i){i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1])});x.stroke()}
+if(p.t=='a'){p.x+=p.vx*S;p.y+=p.vy*S;x.globalAlpha=.9;x.strokeStyle=starCol(dk,0,75);x.lineWidth=2*S;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x-60*S,p.y-p.vy*6*S);x.stroke();p.l=p.x<w?1:0}
+if(p.t=='wave'){for(var j=0;j<4;j++){x.globalAlpha=.35;x.strokeStyle=starCol(dk,j,65);x.lineWidth=2*S;x.beginPath();for(var q=0;q<=w;q+=8)x[q?'lineTo':'moveTo'](q,h*(.35+j*.12)+Math.sin(q/55+tt*2+j)*16*S);x.stroke()}}
+if(p.t=='o'){p.a+=.025;var R=m*(.28+(p.i%3)*.08),ox=w/2+Math.cos(p.a*(z.n==2&&p.i%2?-1:1)+p.i)*R*1.4,oy=h/2+Math.sin(p.a*(z.n==2&&p.i%2?-1:1)+p.i)*R*.7;x.globalAlpha=.9;x.fillStyle=starCol(dk,p.i,75);x.shadowColor=x.fillStyle;x.shadowBlur=14*S;x.beginPath();x.arc(ox,oy,4*S,0,6.3);x.fill()}
+return p.l>0});
+/* 星图连线与星点 */
+var n=0;x.globalAlpha=1;
+z.c.forEach(function(ch){
+x.beginPath();ch.forEach(function(q,i){var px=q[0]*w,py=q[1]*h;if(k>.45){var f=(Math.sin(tt*9+n)*k*5+(Math.random()-.5)*k*5)*S;px+=f;py+=f*.6}n++;i?x.lineTo(px,py):x.moveTo(px,py)});
+x.strokeStyle=starCol(dk,0,62);x.globalAlpha=.55+.25*Math.sin(tt*2);x.lineWidth=(1.6+k)*S;x.shadowColor=starCol(dk,1,55);x.shadowBlur=(8+8*k)*S;x.stroke()});
+n=0;z.c.forEach(function(ch){ch.forEach(function(q){var pulse=1+.35*Math.sin(tt*3+n*1.7),px=q[0]*w,py=q[1]*h,r=(5+jit[n]*.3)*S*pulse;
+x.globalAlpha=1;x.shadowBlur=22*S;x.shadowColor=starCol(dk,n,60);
+if(dk>.82){x.fillStyle='#050005';x.strokeStyle='#ff1a3c';x.lineWidth=2*S;x.beginPath();x.arc(px,py,r,0,6.3);x.fill();x.stroke()}
+else{x.fillStyle=starCol(dk,n,82);x.beginPath();x.arc(px,py,r,0,6.3);x.fill();x.globalAlpha=.5;x.strokeStyle=x.fillStyle;x.lineWidth=1*S;x.beginPath();x.moveTo(px-r*2.4,py);x.lineTo(px+r*2.4,py);x.moveTo(px,py-r*2.4);x.lineTo(px,py+r*2.4);x.stroke()}n++})});
+/* 黑化裂纹 */
+if(dk>.6){x.globalAlpha=.25+.3*Math.random();x.strokeStyle='#ff2040';x.lineWidth=1*S;x.shadowBlur=0;for(var i=0;i<Math.floor(k*5);i++){var cx0=Math.random()*w,cy0=Math.random()*h;x.beginPath();x.moveTo(cx0,cy0);for(var j=0;j<5;j++){cx0+=(Math.random()-.5)*70*S;cy0+=Math.random()*45*S;x.lineTo(cx0,cy0)}x.stroke()}}
+/* 中央星座符号贴图 */
+x.globalAlpha=.9;x.shadowBlur=30*S;x.shadowColor=starCol(dk,0,60);x.fillStyle=dk>.82?'#12000a':starCol(dk,1,78);x.strokeStyle=starCol(dk,0,60);x.lineWidth=2*S;x.font=(m*.4)+'px serif';x.textAlign='center';x.textBaseline='middle';
+var gx=w/2+(dk>.8&&Math.random()<.08?(Math.random()-.5)*18*S:0),gy=h/2+Math.sin(tt*1.4)*6*S;
+x.globalAlpha=.16+.1*Math.sin(tt*2);x.fillText(z.g,gx,gy);x.globalAlpha=.7;x.strokeText(z.g,gx,gy);
+/* 环绕贴图表情 */
+x.shadowBlur=0;x.globalAlpha=1;x.font=(m*.1)+'px serif';z.e.forEach(function(e,i){var a=tt*.8+i*3.14;x.fillText(dk>.82&&i?'💀':e,w/2+Math.cos(a)*w*.38,h/2+Math.sin(a)*h*.34)});
+x.globalAlpha=1}
+frame()}
+function enhanceResult(rec){
+try{
+var dk=clamp(((rec.darkScore||0)*.75+(rec.incestScore||0)*.1+(rec.desireScore||0)*.15)/100);DKT=dk;
+var name=(rec.psychZodiac&&rec.psychZodiac.name)||'天秤座';
+var card=$('zodiac-level-text').closest('.loyalty-result-card');
+var st=$('zstage');if(!st){st=document.createElement('div');st.id='zstage';st.innerHTML='<canvas id="zc"></canvas><div id="zlabel"></div>';card.insertBefore(st,card.firstChild)}
+st.className=dk>.8?'dk3':'';
+var lab=dk<.3?['澄澈星域 · 蓝绿星光','#7ef0d4']:dk<.55?['暗流初现 · 星光泛紫','#c8a0ff']:dk<.8?['赤化中 · 星图渗血','#ff6b7d']:['已黑化 · 星图崩裂','#ff1a3c'];
+$('zlabel').textContent=name+'  ·  '+lab[0]+'  ·  黑化度 '+Math.round(dk*100)+'%';$('zlabel').style.color=lab[1];
+stopZ();startZ(name,dk);
+/* MBTI 卡：光环 + 3D 倾斜 */
+var pc=$('personality-card'),av=$('personality-avatar');
+var col='#b48cff';try{col=MBTI_DATA[rec.mbtiType].accent||col}catch(e){}
+pc.style.setProperty('--aura',col);av.style.setProperty('--aura',col);
+if(!pc._fx){pc._fx=1;pc.addEventListener('mousemove',function(e){var r=pc.getBoundingClientRect(),px=(e.clientX-r.left)/r.width-.5,py=(e.clientY-r.top)/r.height-.5;pc.style.transform='perspective(800px) rotateY('+px*14+'deg) rotateX('+-py*14+'deg)';pc.style.setProperty('--sx',(150-(px+.5)*200)+'%')});pc.addEventListener('mouseleave',function(){pc.style.transform=''})}
+if(!av.querySelector('.fx-orb')){av.style.position='relative';[['90px','5s'],['120px','8s'],['70px','3.5s']].forEach(function(o,i){var d=document.createElement('i');d.className='fx-orb';d.style.cssText='--r:'+o[0]+';--d:'+o[1]+';animation-direction:'+(i%2?'reverse':'normal');av.appendChild(d)})}
+}catch(e){console.warn('fx',e)}}
+var _s=window.showResult;window.showResult=function(rec){_s.apply(this,arguments);setTimeout(function(){enhanceResult(rec)},80)};
+})();
+</script>
+
+</body>
+</html>
